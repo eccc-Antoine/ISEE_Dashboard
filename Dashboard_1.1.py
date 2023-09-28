@@ -98,7 +98,7 @@ with Col2:
     val_list = list(pi_dct.values())
     position = val_list.index(PIs)
     PI_code=key_list[position]
-    df_PI=pd.read_csv(fr'{folder}\{PI_code}_alts.csv', sep=';')
+    df_PI=pd.read_csv(fr'{folder}/{PI_code}_alts.csv', sep=';')
     ##filters
     #year
     df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
