@@ -8,7 +8,9 @@ import plotly.figure_factory as ff
 
 
 #folder='F:\Dash\dash_app_example\static\Streamlit_test'
-folder='https://github.com/eccc-Antoine/ISEE_Dashboard/tree/main/static'
+#folder='https://github.com/eccc-Antoine/ISEE_Dashboard/main/static'
+#https://github.com/eccc-Antoine/ISEE_Dashboard/blob/main/static/PRSD_alts.csv
+folder='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/static'
 #===============================================================================
 # liste=os.listdir(folder)
 # print(liste)
@@ -98,7 +100,12 @@ with Col2:
     val_list = list(pi_dct.values())
     position = val_list.index(PIs)
     PI_code=key_list[position]
+    #print(fr'{folder}/{PI_code}_alts.csv', sep=';')
     df_PI=pd.read_csv(fr'{folder}/{PI_code}_alts.csv', sep=';')
+    #df_PI=pd.read_csv(fr'./static/{PI_code}_alts.csv', sep=';')
+    #print(df_PI)
+    #print(df_PI)
+
     ##filters
     #year
     df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
