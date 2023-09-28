@@ -199,7 +199,7 @@ with Col2:
                     dfs_y=[]
                     tile=fr'{reg}\{t}'
                     for y in list(range(start_year, end_year+1)):
-                          ### HARDCODED ###
+                        ### HARDCODED ###
                         df_y=pd.read_csv(fr'{tile}\ESLU_2D_CAN_{y}_Section_{s}_{t}.csv', sep=';')
                         df_y=df_y[['PT_ID', 'XVAL', 'YVAL', 'HSI']]
                         dfs_y.append(df_y)
