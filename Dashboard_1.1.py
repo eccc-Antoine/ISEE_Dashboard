@@ -6,13 +6,20 @@ import plotly.express as px # interactive charts
 import os
 import plotly.figure_factory as ff
 
+
 #folder='F:\Dash\dash_app_example\static\Streamlit_test'
 folder='https://github.com/eccc-Antoine/ISEE_Dashboard/tree/main/static'
-liste=os.listdir(folder)
-pis_code=[]
-for f in liste:
-    code=f.split('_')[0]
-    pis_code.append(code)
+#===============================================================================
+# liste=os.listdir(folder)
+# print(liste)
+# quit()
+# pis_code=[]
+# for f in liste:
+#     code=f.split('_')[0]
+#     pis_code.append(code)
+#===============================================================================
+
+pis_code=['PRSD', 'WET']
 
 pi_dct={'PRSD': 'Building Damages', 'WET': 'Wetland area'}
 
