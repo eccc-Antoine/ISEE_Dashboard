@@ -6,6 +6,12 @@ import plotly.express as px # interactive charts
 import os
 import plotly.figure_factory as ff
 
+st.set_page_config(
+    page_title = 'ISEE Dashboard',
+    page_icon = ':floppy_disk:',
+    layout = 'wide'
+)
+
 
 streamlit_style = """
             <style>
@@ -62,12 +68,14 @@ plan_dct={'Plan 1': 'Alt_1', 'Plan 2': 'Alt_2', 'Plan 3': 'Alt_3'}
 # read csv from a github repo
 #df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
 
-
-st.set_page_config(
-    page_title = 'ISEE Dashboard',
-    page_icon = ':floppy_disk:',
-    layout = 'wide'
-)
+#===============================================================================
+# 
+# st.set_page_config(
+#     page_title = 'ISEE Dashboard',
+#     page_icon = ':floppy_disk:',
+#     layout = 'wide'
+# )
+#===============================================================================
 
 # dashboard title
 
