@@ -1,12 +1,13 @@
 import streamlit as st # web development
 import numpy as np # np mean, np random 
 import pandas as pd # read csv, df manipulation
-import time # to simulate a real time data, time loop 
+#import time # to simulate a real time data, time loop 
 import plotly.express as px # interactive charts 
 import os
 import plotly.figure_factory as ff
 
-folder='F:\Dash\dash_app_example\static\Streamlit_test'
+#folder='F:\Dash\dash_app_example\static\Streamlit_test'
+folder='https://github.com/eccc-Antoine/ISEE_Dashboard/tree/main/static'
 liste=os.listdir(folder)
 pis_code=[]
 for f in liste:
@@ -178,44 +179,48 @@ with Col2:
 
         with tab3:
             
-            #### HRADCODED ### need to tranfer all the data in order to work!!
-            precise_folder=fr'F:\LCRR_Antoine\PI_ENV\ISEE_2\LCRR\results_clean\ESLU_2D'
+            st.write('put some maps here')
             
-            #st.write('Please wait this is a lot of data to process :sweat_smile:')
-            
-            ze_plan=st.selectbox("Select a plan to display on map", plans_selected)
-            
-            ze_plan=plan_dct[ze_plan]
-            
-            #for p in list_plans:
-            alt=fr'{precise_folder}\{ze_plan}'
-            dfs_s=[]
-            for s in sect_dct[Region]:
-                reg=fr'{alt}\Section_{s}'
-                tiles=os.listdir(reg)
-                dfs_t=[]
-                for t in tiles:
-                    print(tiles)
-                    dfs_y=[]
-                    tile=fr'{reg}\{t}'
-                    for y in list(range(start_year, end_year+1)):
-                        ### HARDCODED ###
-                        df_y=pd.read_csv(fr'{tile}\ESLU_2D_CAN_{y}_Section_{s}_{t}.csv', sep=';')
-                        df_y=df_y[['PT_ID', 'XVAL', 'YVAL', 'HSI']]
-                        dfs_y.append(df_y)
-                    df_t=pd.concat(dfs_y, ignore_index=True)
-                    dfs_t.append(df_t)
-                df_s=pd.concat(dfs_t, ignore_index=True)
-                dfs_s.append(df_s)
-            df_p=pd.concat(dfs_s, ignore_index=True)
-            if Stats == 'sum':
-                df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).sum()
-            if Stats == 'average':
-                df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).mean()
-            print(df_p.head())
-            #st.write('done!')
-            print(len(df_p))
-            print(len(df_p['PT_ID'].unique()))         
+            #===================================================================
+            # #### HRADCODED ### need to tranfer all the data in order to work!!
+            # precise_folder=fr'F:\LCRR_Antoine\PI_ENV\ISEE_2\LCRR\results_clean\ESLU_2D'
+            # 
+            # #st.write('Please wait this is a lot of data to process :sweat_smile:')
+            # 
+            # ze_plan=st.selectbox("Select a plan to display on map", plans_selected)
+            # 
+            # ze_plan=plan_dct[ze_plan]
+            # 
+            # #for p in list_plans:
+            # alt=fr'{precise_folder}\{ze_plan}'
+            # dfs_s=[]
+            # for s in sect_dct[Region]:
+            #     reg=fr'{alt}\Section_{s}'
+            #     tiles=os.listdir(reg)
+            #     dfs_t=[]
+            #     for t in tiles:
+            #         print(tiles)
+            #         dfs_y=[]
+            #         tile=fr'{reg}\{t}'
+            #         for y in list(range(start_year, end_year+1)):
+            #             ### HARDCODED ###
+            #             df_y=pd.read_csv(fr'{tile}\ESLU_2D_CAN_{y}_Section_{s}_{t}.csv', sep=';')
+            #             df_y=df_y[['PT_ID', 'XVAL', 'YVAL', 'HSI']]
+            #             dfs_y.append(df_y)
+            #         df_t=pd.concat(dfs_y, ignore_index=True)
+            #         dfs_t.append(df_t)
+            #     df_s=pd.concat(dfs_t, ignore_index=True)
+            #     dfs_s.append(df_s)
+            # df_p=pd.concat(dfs_s, ignore_index=True)
+            # if Stats == 'sum':
+            #     df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).sum()
+            # if Stats == 'average':
+            #     df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).mean()
+            # print(df_p.head())
+            # #st.write('done!')
+            # print(len(df_p))
+            # print(len(df_p['PT_ID'].unique()))         
+            #===================================================================
                             
             
             
