@@ -7,6 +7,18 @@ import os
 import plotly.figure_factory as ff
 
 
+streamlit_style = """
+            <style>
+            @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap');
+ 
+            html, body, [class*="css"]  {
+            font-family: 'Nanum Myeongjo', serif;
+            }
+            </style>
+            """
+st.markdown(streamlit_style, unsafe_allow_html=True)
+
+
 #folder='F:\Dash\dash_app_example\static\Streamlit_test'
 #folder='https://github.com/eccc-Antoine/ISEE_Dashboard/main/static'
 #https://github.com/eccc-Antoine/ISEE_Dashboard/blob/main/static/PRSD_alts.csv
