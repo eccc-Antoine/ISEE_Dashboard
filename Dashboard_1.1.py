@@ -194,17 +194,18 @@ with Col2:
             st.plotly_chart(fig, use_container_width=True)
         
         with tab2:  
-            df_PI['BASELINE_VALUE']=1
+            df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
+            df_PI_plans['BASELINE_VALUE']=1
 
             for y in list(range(start_year, end_year+1)):
                 for p in list_plans:
-                    df_PI['BASELINE_VALUE'].loc[(df_PI['YEAR']==y) & (df_PI['ALT']==p)] = df_PI['VALUE'].loc[(df_PI['YEAR']==y) & (df_PI['ALT']==baseline_dct[Baseline])].iloc[0]
+                    df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans['VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==baseline_dct[Baseline])].iloc[0]
 
-            df_PI['DIFF_PROP']=((df_PI['VALUE']-df_PI['BASELINE_VALUE'])/df_PI['BASELINE_VALUE'])*100
-            df_PI['DIFF']=df_PI['VALUE']-df_PI['BASELINE_VALUE']
+            df_PI_plans['DIFF_PROP']=((df_PI_plans['VALUE']-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
+            df_PI_plans['DIFF']=df_PI_plans['VALUE']-df_PI_plans['BASELINE_VALUE']
             diff_dct={f'Values ({unit_dct[PI_code]})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
             diff_type= st.selectbox("Select a type of difference to compute", [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'])
-            fig2=px.bar(df_PI, x='YEAR', y=df_PI[diff_dct[diff_type]], color='ALT', barmode='group', hover_data={'ALT': True, 'YEAR': False, diff_dct[diff_type]:True})
+            fig2=px.bar(df_PI_plans, x='YEAR', y=df_PI_plans[diff_dct[diff_type]], color='ALT', barmode='group', hover_data={'ALT': True, 'YEAR': False, diff_dct[diff_type]:True})
             fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
                    xaxis_title='Years',
                    yaxis_title=f'Difference in {diff_type}')
