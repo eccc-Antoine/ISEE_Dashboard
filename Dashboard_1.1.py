@@ -1,10 +1,10 @@
 import streamlit as st # web development
 import numpy as np # np mean, np random 
 import pandas as pd # read csv, df manipulation
-#import time # to simulate a real time data, time loop 
 import plotly.express as px # interactive charts 
 import os
 import plotly.figure_factory as ff
+import importlib
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -12,34 +12,17 @@ st.set_page_config(
     layout = 'wide'
 )
 
+folder='https://raw.githubusercontent.com/eccc-Antoine/GLAM_DASHBOARD_DEV/main/ISEE_POST_PROCESS'
 
-streamlit_style = """
-            <style>
-            @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap');
- 
-            html, body, [class*="css"]  {
-            font-family: 'Nanum Myeongjo', serif;
-            }
-            </style>
-            """
-st.markdown(streamlit_style, unsafe_allow_html=True)
+pis_code=os.listdir(folder)
 
+for pi in pis_code:
+    pi_module_name=f'CFG_{pi}'
+    import POST_PROCESS_CODES.pi_module_name as pi_module 
+    #PI_CFG=importlib.import_module(POST_PROCESS_CODES.pi_module_name)
+    quit()
 
-#folder='F:\Dash\dash_app_example\static\Streamlit_test'
-#folder='https://github.com/eccc-Antoine/ISEE_Dashboard/main/static'
-#https://github.com/eccc-Antoine/ISEE_Dashboard/blob/main/static/PRSD_alts.csv
-folder='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/static'
-#===============================================================================
-# liste=os.listdir(folder)
-# print(liste)
-# quit()
-# pis_code=[]
-# for f in liste:
-#     code=f.split('_')[0]
-#     pis_code.append(code)
-#===============================================================================
-
-pis_code=['PRSD', 'WET']
+#pis_code=['PRSD', 'WET']
 
 pi_dct={'PRSD': 'Building Damages', 'WET': 'Wetland area'}
 
