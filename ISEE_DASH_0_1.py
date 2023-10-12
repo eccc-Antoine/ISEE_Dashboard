@@ -5,6 +5,8 @@ import plotly.express as px # interactive charts
 import os
 import plotly.figure_factory as ff
 import importlib
+import Dashboards.CFG_DASHBOARD as CFG_DASHBOARD
+import Dashboards.DASHBOARDS_UTILS as UTILS
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -12,102 +14,54 @@ st.set_page_config(
     layout = 'wide'
 )
 
-folder='https://raw.githubusercontent.com/eccc-Antoine/GLAM_DASHBOARD_DEV/main/ISEE_POST_PROCESS'
+folder=CFG_DASHBOARD.post_process_folder 
 
 pis_code=os.listdir(folder)
-
+pi_dct={}
+unit_dct={}
 for pi in pis_code:
-    pi_module_name=f'CFG_{pi}'
-    import POST_PROCESS_CODES.pi_module_name as pi_module 
-    #PI_CFG=importlib.import_module(POST_PROCESS_CODES.pi_module_name)
-    quit()
-
-#pis_code=['PRSD', 'WET']
-
-pi_dct={'PRSD': 'Building Damages', 'WET': 'Wetland area'}
-
-unit_dct={'PRSD': 'M$', 'WET': 'ha'}
+    pi_module_name=f'.CFG_{pi}'
+    PI_CFG=importlib.import_module(pi_module_name, 'CFG_PIS')
+    pi_name=PI_CFG.name
+    pi_unit=PI_CFG.units
+    pi_dct[pi]=pi_name
+    unit_dct[pi]=pi_unit
 
 pis=[]
-
 for pi in pis_code:
     pi_name=pi_dct[pi]
     pis.append(pi_name)
 
-sect_dct={'Haut-Richelieu':[20], 'Bas-Richelieu':[12], 'Canada':[12, 20] }
-countries=list(sect_dct.keys())
+baseline_dct=CFG_DASHBOARD.baseline_dct
+plan_dct=CFG_DASHBOARD.plan_dct
 
-
-
-baselines=['actual plan', 'pristine state']
-baseline_dct={'actual plan': 'Baseline', 'pristine state': 'Baseline'}
-plans=[]
-for i in range(1,4):
-    plan=f'Plan {str(i)}'
-    plans.append(plan)
-    
-plan_dct={'Plan 1': 'Alt_1', 'Plan 2': 'Alt_2', 'Plan 3': 'Alt_3'}
-
-# read csv from a github repo
-#df = pd.read_csv("https://raw.githubusercontent.com/Lexie88rus/bank-marketing-analysis/master/bank.csv")
-
-#===============================================================================
-# 
-# st.set_page_config(
-#     page_title = 'ISEE Dashboard',
-#     page_icon = ':floppy_disk:',
-#     layout = 'wide'
-# )
-#===============================================================================
-
-# dashboard title
-
-st.title("ISEE Dashboard")
-
+st.title(CFG_DASHBOARD.title)
 
 Col1, Col2 = st.columns([0.2, 0.8])
 
-with Col1:
-# top-level filters 
-    PIs= st.selectbox("Select Performance indicator to display", pis)
+with Col1: 
+    PIs= st.selectbox("Select Performance indicator to display", pis)      
+    pi_code_set={i for i in pi_dct if pi_dct[i]==PIs}
+    for pi_code in pi_code_set:
+        pi_code=pi_code
+    unique_pi_module_name=f'.CFG_{pi_code}'
     
-    start_year, end_year=st.select_slider('Select a period', options=list(range(1925, 2018)), value=(2000, 2005))
-    #st.write(fr'Results will be processed for {start_year} to {end_year} period')
+    start_year, end_year, Regions, plans_selected, Baseline, Stats  = UTILS.MAIN_FILTERS(unique_pi_module_name,
+                                                                       Years=True, Region=True, Plans=True, Baselines=True, Stats=True)
     
-    Region=st.selectbox("Select regions", countries)
-    #st.write(fr'Results will be processed for {start_year} to {end_year} period')
-    
-    plans_selected=st.multiselect('Regulation plans to compare', plans, max_selections=3, default=plans[0:3])
-    
-    Baseline=st.selectbox("Select a reference plan", baselines)
-    
-    Stats=st.selectbox("Stats to compute", ['average', 'sum'])
-    
-    #job_filter = st.selectbox("Ignore this for now :)", pd.unique(df['job']))
-    
-    #st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
-    #st.write(f'Now showing results for {PIs}, during {start_year} to {end_year} period, in {Region} \n\r Where {plans_selected} are compared to {job_filter}')
-
 with Col2: 
     placeholder1 = st.empty()
     with placeholder1.container():
-        st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
+        st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Regions}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
 
     placeholder2 = st.empty()
     
-    ##old stuff
-    #df = df[df['job']==job_filter]
-
-    ##new_stuff
     key_list = list(pi_dct.keys())
     val_list = list(pi_dct.values())
     position = val_list.index(PIs)
     PI_code=key_list[position]
-    #print(fr'{folder}/{PI_code}_alts.csv', sep=';')
-    df_PI=pd.read_csv(fr'{folder}/{PI_code}_alts.csv', sep=';')
-    #df_PI=pd.read_csv(fr'./static/{PI_code}_alts.csv', sep=';')
-    #print(df_PI)
-    #print(df_PI)
+    
+    df_PI=pd.read_csv(os.path.join(folder, f'{PI_code}_alts.csv'), sep=';')
 
     ##filters
     #year
@@ -116,11 +70,9 @@ with Col2:
     df_PI=df_PI.loc[df_PI['SECT_ID'].isin(sect_dct[Region])]
     
     #merge by year if more than one region selected 
-    #if len(df_PI['SECT_ID'].unique())>1:
     df_PI=df_PI[['YEAR', 'VALUE', 'ALT']]
     df_PI=df_PI.groupby(by=['YEAR', 'ALT'], as_index=False).sum()
         
-
     if Stats == 'average':
         baseline_value=df_PI['VALUE'].loc[df_PI['ALT']==baseline_dct[Baseline]].mean().round(3)
         if len(plans_selected)>0:
@@ -151,11 +103,11 @@ with Col2:
             kpi1.metric(label=fr'{plans_selected[0]} {Stats} ({unit_dct[PI_code]})', value=round(plan1_value), delta= round(plan1_value) -round(baseline_value))
         
         if len(plans_selected)>1:
-        #kpi2.metric(label="Married Count 💍", value= int(count_married), delta= - 10 + count_married)
+        #kpi2.metric(label="Married Count ðŸ’�", value= int(count_married), delta= - 10 + count_married)
             kpi2.metric(label=fr'{plans_selected[1]} {Stats} ({unit_dct[PI_code]})', value=round(plan2_value), delta= round(plan2_value) -round(baseline_value))
         
         if len(plans_selected)>2:
-        #kpi3.metric(label="A/C Balance ＄", value= f"$ {round(balance,2)} ", delta= - round(balance/count_married) * 100)
+        #kpi3.metric(label="A/C Balance ï¼„", value= f"$ {round(balance,2)} ", delta= - round(balance/count_married) * 100)
             kpi3.metric(label=fr'{plans_selected[2]} {Stats} ({unit_dct[PI_code]})', value=round(plan3_value), delta= round(plan3_value) -round(baseline_value))
     
     placeholder3 = st.empty()
@@ -266,61 +218,3 @@ with Col2:
             st.dataframe(df_PI.style, hide_index=True)
     
 
-#===============================================================================
-# # creating a single-element container.
-# placeholder = st.empty()
-# 
-# # dataframe filter 
-# 
-# df = df[df['job']==job_filter]
-# 
-# #pi_code={i for i in pi_dct if pi_dct[i]==PIs}
-# key_list = list(pi_dct.keys())
-# val_list = list(pi_dct.values())
-# position = val_list.index(PIs)
-# PI_code=key_list[position]
-# 
-# #rint(pi_code)
-# 
-# df_PI=pd.read_csv(fr'{folder}\{PI_code}_alts.csv', sep=';')
-# 
-# # near real-time / live feed simulation 
-# 
-# #for seconds in range(200):
-# #while True: 
-#     
-# df['age_new'] = df['age'] * np.random.choice(range(1,5))
-# df['balance_new'] = df['balance'] * np.random.choice(range(1,5))
-# 
-# # creating KPIs 
-# avg_age = np.mean(df['age_new']) 
-# 
-# count_married = int(df[(df["marital"]=='married')]['marital'].count() + np.random.choice(range(1,30)))
-# 
-# balance = np.mean(df['balance_new'])
-# 
-# with placeholder.container():
-#     # create three columns
-#     kpi1, kpi2, kpi3 = st.columns(3)
-# 
-#     # fill in those three columns with respective metrics or KPIs 
-#     kpi1.metric(label="Age", value=round(avg_age), delta= round(avg_age) - 10)
-#     kpi2.metric(label="Married Count 💍", value= int(count_married), delta= - 10 + count_married)
-#     kpi3.metric(label="A/C Balance ＄", value= f"$ {round(balance,2)} ", delta= - round(balance/count_married) * 100)
-# 
-#     # create two columns for charts 
-# 
-#     fig_col1, fig_col2 = st.columns(2)
-#     with fig_col1:
-#         st.markdown("### First Chart")
-#         fig = px.density_heatmap(data_frame=df, y = 'age_new', x = 'marital')
-#         st.write(fig)
-#     with fig_col2:
-#         st.markdown("### Second Chart")
-#         fig2 = px.histogram(data_frame = df, x = 'age_new')
-#         st.write(fig2)
-#     st.markdown("### Detailed Data View")
-#     st.dataframe(df)
-#===============================================================================
-        #time.sleep(1)
-    #placeholder.empty()
