@@ -7,6 +7,7 @@ import plotly.figure_factory as ff
 import importlib
 import Dashboards.CFG_DASHBOARD as CFG_DASHBOARD
 import Dashboards.DASHBOARDS_UTILS as UTILS
+import altair
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -43,73 +44,32 @@ with Col1:
     PIs= st.selectbox("Select Performance indicator to display", pis)      
     pi_code_set={i for i in pi_dct if pi_dct[i]==PIs}
     for pi_code in pi_code_set:
-        pi_code=pi_code
-    unique_pi_module_name=f'.CFG_{pi_code}'
-    
-    start_year, end_year, Regions, plans_selected, Baseline, Stats  = UTILS.MAIN_FILTERS(unique_pi_module_name,
-                                                                       Years=True, Region=True, Plans=True, Baselines=True, Stats=True)
-    
+        PI_code=pi_code
+    unique_pi_module_name=f'.CFG_{PI_code}'
+    unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
+    start_year, end_year, Region, plans_selected, Baseline, Stats, Variable  = UTILS.MAIN_FILTERS_streamlit(unique_pi_module_name,
+                                                                       Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
+
+
 with Col2: 
     placeholder1 = st.empty()
     with placeholder1.container():
-        st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Regions}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
+        st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
 
     placeholder2 = st.empty()
     
-    key_list = list(pi_dct.keys())
-    val_list = list(pi_dct.values())
-    position = val_list.index(PIs)
-    PI_code=key_list[position]
-    
-    df_PI=pd.read_csv(os.path.join(folder, f'{PI_code}_alts.csv'), sep=';')
+    df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable)
 
-    ##filters
-    #year
-    df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
-    #region
-    df_PI=df_PI.loc[df_PI['SECT_ID'].isin(sect_dct[Region])]
-    
-    #merge by year if more than one region selected 
-    df_PI=df_PI[['YEAR', 'VALUE', 'ALT']]
-    df_PI=df_PI.groupby(by=['YEAR', 'ALT'], as_index=False).sum()
-        
-    if Stats == 'average':
-        baseline_value=df_PI['VALUE'].loc[df_PI['ALT']==baseline_dct[Baseline]].mean().round(3)
-        if len(plans_selected)>0:
-            plan1_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[0]]].mean().round(3)
-        if len(plans_selected)>1:
-            plan2_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[1]]].mean().round(3)
-        if len(plans_selected)>2:
-            plan3_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[2]]].mean().round(3)
-        
-    if Stats == 'sum':
-        baseline_value=df_PI['VALUE'].loc[df_PI['ALT']==baseline_dct[Baseline]].sum().round(3)
-        if len(plans_selected)>0:
-            plan1_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[0]]].sum().round(3)
-        if len(plans_selected)>1:
-            plan2_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[1]]].sum().round(3)
-        if len(plans_selected)>2:
-            plan3_value=df_PI['VALUE'].loc[df_PI['ALT']==plan_dct[plans_selected[2]]].sum().round(3)
+    baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI)
 
-    with placeholder2.container():
-    # create three columns
-        kpi1, kpi2, kpi3 = st.columns(3)
-        
-        if len(plans_selected)==0:
-            st.write('You must at least select one regulation plan to compare')
-        
-        if len(plans_selected)>0:
-        #kpi1.metric(label="Age", value=round(avg_age), delta= round(avg_age) - 10)
-            kpi1.metric(label=fr'{plans_selected[0]} {Stats} ({unit_dct[PI_code]})', value=round(plan1_value), delta= round(plan1_value) -round(baseline_value))
-        
-        if len(plans_selected)>1:
-        #kpi2.metric(label="Married Count ðŸ’�", value= int(count_married), delta= - 10 + count_married)
-            kpi2.metric(label=fr'{plans_selected[1]} {Stats} ({unit_dct[PI_code]})', value=round(plan2_value), delta= round(plan2_value) -round(baseline_value))
-        
-        if len(plans_selected)>2:
-        #kpi3.metric(label="A/C Balance ï¼„", value= f"$ {round(balance,2)} ", delta= - round(balance/count_married) * 100)
-            kpi3.metric(label=fr'{plans_selected[2]} {Stats} ({unit_dct[PI_code]})', value=round(plan3_value), delta= round(plan3_value) -round(baseline_value))
-    
+    with placeholder2.container():  
+        kpis = st.columns(CFG_DASHBOARD.maximum_plan_to_compare)
+        count_kpi=1
+        while count_kpi <= len(plans_selected):
+            d=count_kpi-1
+            kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit_dct[PI_code]})', value=round(plan_values[d]), delta= round(plan_values[d]) -round(baseline_value))
+            count_kpi+=1
+            
     placeholder3 = st.empty()
     with placeholder3.container():
         tab1, tab2, tab3, tab4 = st.tabs(["Timeseries", "Difference", "Maps", "Data"])
@@ -117,40 +77,20 @@ with Col2:
         for p in plans_selected:
             pp=plan_dct[p]
             list_plans.append(pp)
-        #list_plans= plan_dct[plans_selected]
         list_plans.append(baseline_dct[Baseline])
-        
+
         with tab1:
-            df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
-            fig = px.line(df_PI_plans, x="YEAR", y="VALUE", color='ALT')
-            fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
-                   xaxis_title='Years',
-                   yaxis_title=f'{unit_dct[PI_code]}')
+            fig=UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code,  unit_dct)
             st.plotly_chart(fig, use_container_width=True)
-        
+         
         with tab2:  
-            df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
-            df_PI_plans['BASELINE_VALUE']=1
-
-            for y in list(range(start_year, end_year+1)):
-                for p in list_plans:
-                    df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans['VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==baseline_dct[Baseline])].iloc[0]
-
-            df_PI_plans['DIFF_PROP']=((df_PI_plans['VALUE']-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
-            df_PI_plans['DIFF']=df_PI_plans['VALUE']-df_PI_plans['BASELINE_VALUE']
-            diff_dct={f'Values ({unit_dct[PI_code]})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
-            diff_type= st.selectbox("Select a type of difference to compute", [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'])
-            fig2=px.bar(df_PI_plans, x='YEAR', y=df_PI_plans[diff_dct[diff_type]], color='ALT', barmode='group', hover_data={'ALT': True, 'YEAR': False, diff_dct[diff_type]:True})
-            fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
-                   xaxis_title='Years',
-                   yaxis_title=f'Difference in {diff_type}')
+            fig2=UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct)
             st.plotly_chart(fig2, use_container_width=True)
-            
-
+             
+ 
         with tab3:
-            
-            st.write('put some maps here')
-            
+            st.write('put some maps here not coded yet :(')
+             
             #===================================================================
             # #### HRADCODED ### need to tranfer all the data in order to work!!
             # precise_folder=fr'F:\LCRR_Antoine\PI_ENV\ISEE_2\LCRR\results_clean\ESLU_2D'
@@ -191,30 +131,10 @@ with Col2:
             # print(len(df_p))
             # print(len(df_p['PT_ID'].unique()))         
             #===================================================================
-                            
-            
-            
-            
-            
-    #===========================================================================
-    #         df_PI_precise=pd.read_csv(fr'{folder}\{PI_code}_precise.csv', sep=';')
-    #             ##filters
-    #         #year
-    #         df_PI_precise=df_PI_precise.loc[(df_PI_precise['YEAR']>=start_year) & (df_PI_precise['YEAR']<=end_year)]
-    #         
-    #         #region
-    #         df_PI_precise=df_PI_precise.loc[df_PI_precise['SECT_ID'].isin(sect_dct[Region])]
-    #         
-    #         #merge by year if more than one region selected >1:
-    #         df_PI_precise=df_PI_precise[['YEAR', 'VALUE', 'ALT']]
-    #         df_PI_precise=df_PI_precise.groupby(by=['YEAR', 'ALT'], as_index=False).sum()
-    # 
-    #         'put some maps here'
-    #===========================================================================
-            
+
+             
         with tab4:
-            #'put some Data here'
             df_PI['YEAR']=df_PI['YEAR'].astype(str)
             st.dataframe(df_PI.style, hide_index=True)
-    
+     
 

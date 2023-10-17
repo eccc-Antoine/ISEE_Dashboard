@@ -13,10 +13,14 @@ for i in range(1,3):
 
 plan_dct={'Plan 1': 'Alt_1', 'Plan 2': 'Alt_2'}
 
-title='ISEE DASHBOARD 0.1.'
+title='ISEE DASHBOARD 0.2.'
 
 post_process_folder=r'M:\ISEE_Dashboard\ISEE_POST_PROCESS'
 #post_process_folder='https://raw.githubusercontent.com/eccc-Antoine/GLAM_DASHBOARD_DEV/main/ISEE_POST_PROCESS'
 
-maximum_plan_to_compare=3
+maximum_plan_to_compare=8
+
+sep=';'
+
+ext='.csv'
 

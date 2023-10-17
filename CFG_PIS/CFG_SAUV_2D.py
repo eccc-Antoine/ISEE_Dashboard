@@ -6,7 +6,7 @@ dct_var={'VAR1':'Habitat suitability index', 'VAR2':'Potential mortality index',
 
 units='ha'
 
-available_years=list(range(2000, 2017))
+available_years=list(range(1926, 2017))
 
 available_sections=['LKO_CAN', 'USL_CAN']
 

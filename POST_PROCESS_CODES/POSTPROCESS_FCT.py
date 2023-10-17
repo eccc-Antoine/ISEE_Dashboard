@@ -3,7 +3,7 @@ import pandas as pd
 import geopandas as gpd
 import shutil
 import importlib
-import CFG_POST_PROCESS as cfg
+import POST_PROCESS_CODES.CFG_POST_PROCESS as cfg
 
 
 
@@ -139,14 +139,17 @@ class POST_PROCESS_2D:
             
             
 de=POST_PROCESS_2D(cfg.pis, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)  
-    
+     
 for pi in de.pis:
-
+ 
     de.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-    
+     
 quit()
  
- 
+
+'''
+Bunch of messy piece of codes to manipulate Richelieu River data into ISEE-GLAM data format
+'''
 #===============================================================================
 # res_folder=fr'F:\DEM_GLAMM\Dashboard\ISEE_RESULTS\ESLU_2D'
 # plans=['Alt_1', 'Alt_2', 'Baseline']
@@ -185,20 +188,21 @@ quit()
 
 
 #===============================================================================
-# folder=r"F:\DEM_GLAMM\Dashboard\ISEE_RESULTS\ESLU_2D"
-#  
+# folder=r'M:\ISEE_Dashboard\ISEE_POST_PROCESS\SAUV_2D'
+#   
 # liste_files=[]
 # for root, dirs, files in os.walk(folder):
 #     for name in files:
 #         liste_files.append(os.path.join(root, name))
-#  
+#   
 # print(len(liste_files))
-#  
+#   
 # for f in liste_files:
-#     dest=f.replace('Tile_', '')
+#     dest=f.replace('ESLU', 'SAUV')
 #     os.rename(f, dest)
-#     
+# quit()
 #===============================================================================
+     
     
  #==============================================================================
  #    sect_list=f.split('_')[-4:-2]
