@@ -3,11 +3,9 @@ import numpy as np # np mean, np random
 import pandas as pd # read csv, df manipulation
 import plotly.express as px # interactive charts 
 import os
-import plotly.figure_factory as ff
 import importlib
 import Dashboards.CFG_DASHBOARD as CFG_DASHBOARD
 import Dashboards.DASHBOARDS_UTILS as UTILS
-import altair
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -18,7 +16,9 @@ st.set_page_config(
 folder=CFG_DASHBOARD.post_process_folder 
 folder_raw=CFG_DASHBOARD.post_process_folder_raw
 
-pis_code=os.listdir(folder)
+#pis_code=os.listdir(folder)
+pis_code=CFG_DASHBOARD.pi_list
+
 pi_dct={}
 unit_dct={}
 for pi in pis_code:

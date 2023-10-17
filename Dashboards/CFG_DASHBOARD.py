@@ -1,5 +1,7 @@
 import os
 
+pi_list=['ESLU_2D', 'SAUV_2D']
+
 sect_dct={'Lake Ontario Canada':['LKO_CAN'], 'Upper St.Lawrence Canada':['USL_CAN'], 'Canada':['LKO_CAN', 'USL_CAN'] }
 
 baselines=['actual plan', 'pristine state']

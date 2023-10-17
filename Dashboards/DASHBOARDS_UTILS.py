@@ -50,10 +50,10 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI):
             
         return baseline_value, plan_values
 
-def yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable):
+def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable):
     
     unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
-    df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION')
+    df_folder=os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
     dfs=[]
     csv_done=[]
     plans_all=plans_selected+[Baseline]
