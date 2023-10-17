@@ -18,9 +18,7 @@ plan_dct={'Plan 1': 'Alt_1', 'Plan 2': 'Alt_2'}
 title='ISEE DASHBOARD 0.2.'
 
 #post_process_folder=r'M:\ISEE_Dashboard\ISEE_POST_PROCESS_DATA'
-#post_process_folder_raw=r'M:\ISEE_Dashboard\ISEE_POST_PROCESS_DATA'
-post_process_folder='https://github.com/eccc-Antoine/ISEE_Dashboard/tree/main/ISEE_POST_PROCESS_DATA'
-post_process_folder_raw='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/ISEE_POST_PROCESS_DATA'
+post_process_folder='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/ISEE_POST_PROCESS_DATA'
 
 maximum_plan_to_compare=2
 
