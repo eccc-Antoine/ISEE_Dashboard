@@ -16,6 +16,7 @@ st.set_page_config(
 )
 
 folder=CFG_DASHBOARD.post_process_folder 
+folder_raw=CFG_DASHBOARD.post_process_folder_raw
 
 pis_code=os.listdir(folder)
 pi_dct={}
@@ -58,7 +59,7 @@ with Col2:
 
     placeholder2 = st.empty()
     
-    df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable)
+    df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable)
 
     baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI)
 
