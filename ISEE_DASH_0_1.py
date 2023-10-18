@@ -47,7 +47,10 @@ with Col1:
     unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
     start_year, end_year, Region, plans_selected, Baseline, Stats, Variable  = UTILS.MAIN_FILTERS_streamlit(unique_pi_module_name,
                                                                        Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
+    
+    df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable)
 
+    baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI)
 
 with Col2: 
     placeholder1 = st.empty()
@@ -55,12 +58,9 @@ with Col2:
         st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
 
     placeholder2 = st.empty()
-    
-    df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable)
-
-    baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI)
 
     with placeholder2.container():  
+        
         kpis = st.columns(CFG_DASHBOARD.maximum_plan_to_compare)
         count_kpi=1
         while count_kpi <= len(plans_selected):
@@ -133,6 +133,7 @@ with Col2:
              
         with tab4:
             df_PI['YEAR']=df_PI['YEAR'].astype(str)
-            st.dataframe(df_PI.style, hide_index=True)
+            st.dataframe(df_PI.style)
+            #st.dataframe(df_PI.style, hide_index=True)
      
 

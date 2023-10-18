@@ -1,6 +1,6 @@
 import os
 
-pi_list=['ESLU_2D', 'SAUV_2D']
+pi_list=['ESLU_2D', 'SAUV_2D', 'RES_BUILD_2D', 'MUSK_1D']
 
 sect_dct={'Lake Ontario Canada':['LKO_CAN'], 'Upper St.Lawrence Canada':['USL_CAN'], 'Canada':['LKO_CAN', 'USL_CAN'] }
 
@@ -15,7 +15,7 @@ for i in range(1,3):
 
 plan_dct={'Plan 1': 'Alt_1', 'Plan 2': 'Alt_2'}
 
-title='ISEE DASHBOARD 0.2.'
+title='ISEE DASHBOARD 0.3.'
 
 #post_process_folder=r'M:\ISEE_Dashboard\ISEE_POST_PROCESS_DATA'
 post_process_folder='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/ISEE_POST_PROCESS_DATA'

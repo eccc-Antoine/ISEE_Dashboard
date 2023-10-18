@@ -7,7 +7,7 @@ import POST_PROCESS_CODES.CFG_POST_PROCESS as cfg
 
 
 
-class POST_PROCESS_2D:
+class POST_PROCESS_2D_tiled:
     
     def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect):
 
@@ -26,7 +26,6 @@ class POST_PROCESS_2D:
         for root, dirs, files in os.walk(folder_space):
             for name in files:
                 liste_files.append(os.path.join(root, name))
-        df_year=pd.DataFrame()
         liste_df=[]
         liste_file_year=[f for f in liste_files if str(y) in f]
         for csv in liste_file_year:
@@ -44,7 +43,7 @@ class POST_PROCESS_2D:
         for y in self.years:
             if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':               
                 df_year=self.agg_YEAR(agg_year_param, y)
-            if AGG_SPACE == 'TILE':
+            elif AGG_SPACE == 'TILE':
                 path_csv_year2=path_csv_year.replace('foo', str(y))
                 df_year=pd.read_csv(path_csv_year2, sep=self.sep)
             for var in list_var:
@@ -62,15 +61,15 @@ class POST_PROCESS_2D:
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
         VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
-        AGG_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM']
-        AGG_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE', 'PT_ID']
+        AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
+        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE', 'PT_ID']
         stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
         '''
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
-                
-                pi_module_name=f'CFG_{PI}'
-                PI_CFG=importlib.import_module( pi_module_name)
+                print(AGG_SPACE)
+                pi_module_name=f'.CFG_{PI}'
+                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
@@ -81,6 +80,7 @@ class POST_PROCESS_2D:
                 if AGG_TIME=='YEAR':
                     if AGG_SPACE=='PLAN':
                         for space in self.plans:
+                            print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
@@ -89,6 +89,7 @@ class POST_PROCESS_2D:
                     elif AGG_SPACE=='SECTION':
                         for p in self.plans:
                             for space in self.sections:
+                                print(space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
@@ -98,6 +99,7 @@ class POST_PROCESS_2D:
                         for p in self.plans:
                             for s in self.sections: 
                                 for space in self.dct_sect[s]:
+                                    print(space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
@@ -116,6 +118,7 @@ class POST_PROCESS_2D:
                                         df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, s, str(y), f'{PI}_{y}_{s}_{t}.csv'), sep=self.sep)
                                         dfs.append(df_year)
                                     df_all=df_year=pd.concat(dfs, ignore_index=True)
+                                    
                                     if len(stats)==1:
                                         if stats[0]==['sum']:
                                             df_all_all=df_all.groupby(['PT_ID'], as_index=False).sum()
@@ -124,7 +127,7 @@ class POST_PROCESS_2D:
                                     if len(stats)>1:
                                         df_all_sum=df_all.groupby(['PT_ID'], as_index=False).sum()
                                         df_all_mean=df_all.groupby(['PT_ID'], as_index=False).mean()
-                                        df_all_all=df_all_sum.merge(df_all_mean, on='PT_ID', suffixes=('_sum', '_mean'), validate='one_to_one')
+                                        df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID'], suffixes=('_sum', '_mean'), validate='one_to_one')
                                     df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_{s}_{t}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
 
                     else:
@@ -132,24 +135,322 @@ class POST_PROCESS_2D:
                         quit()
                         
                 elif AGG_TIME=='QM':
+                    ### NOT coded yet!!
+                    pass
+                            
+                else:
+                    pass
+                
+class POST_PROCESS_2D_not_tiled:
+    
+    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect):
+
+        self.pis=pis
+        self.plans=plans
+        self.sections=sections
+        self.years=years
+        self.ISEE_RES=ISEE_RES
+        self.POST_PROCESS_RES=POST_PROCESS_RES
+        self.sep=sep
+        self.dct_sect=dct_sect
+           
+    def agg_YEAR(self, folder_space, y):  
+
+        liste_files=[]
+        for root, dirs, files in os.walk(folder_space):
+            for name in files:
+                liste_files.append(os.path.join(root, name))
+        liste_df=[]
+        liste_file_year=[f for f in liste_files if str(y) in f]
+        for csv in liste_file_year:
+            df_temp=pd.read_csv(csv, sep=self.sep)
+            liste_df.append(df_temp)
+        df_year=pd.concat(liste_df, ignore_index=True)
+        return df_year
+    
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_csv_year):
+        dct_df_space=dict.fromkeys(tuple(columns),[])
+        df_space=pd.DataFrame(dct_df_space)
+        df_space[AGG_TIME]=self.years
+        if not os.path.exists(path_res):
+            os.makedirs(path_res)
+        for y in self.years:
+            if AGG_SPACE == 'PLAN':               
+                df_year=self.agg_YEAR(agg_year_param, y)
+            
+            elif AGG_SPACE == 'SECTION':
+                df_year=self.agg_YEAR(agg_year_param, y)
+                df_year=df_year.loc[df_year['SECTION']==space]
+            
+            elif AGG_SPACE == 'TILE':
+                df_year=self.agg_YEAR(agg_year_param, y)
+                df_year=df_year.loc[df_year['TILE']==int(space)]
+            for var in list_var:
+                for stat in stats:
+                    if stat=='sum':
+                        df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].sum()
+                    elif stat=='mean':
+                        df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].mean()
+                    else:
+                        print('STAT value provided is unavailable')   
+        df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
+
+    def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
+        
+        '''
+        PI = PI accronym (ex. Northern Pike = ESLU_2D)
+        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
+        AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
+        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE', 'PT_ID']
+        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
+        '''
+        for AGG_TIME in AGGS_TIME:
+            for AGG_SPACE in AGGS_SPACE:  
+                print(AGG_SPACE)
+                pi_module_name=f'.CFG_{PI}'
+                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
+                list_var=list(PI_CFG.dct_var.keys())
+                columns=[AGG_TIME]
+                for var in list_var:
+                    for s in stats:
+                        stat=var+'_'+s
+                        columns.append(stat)
+                        
+                if AGG_TIME=='YEAR':
+                    if AGG_SPACE=='PLAN':
+                        for space in self.plans:
+                            print(space)
+                            path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'                           
+                            agg_year_param=os.path.join(self.ISEE_RES, PI, space)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'')
+                              
+                    elif AGG_SPACE=='SECTION':
+                        for p in self.plans:
+                            for space in self.sections:
+                                print(p, space)
+                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)                                
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                agg_year_param=os.path.join(self.ISEE_RES, PI, p)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
+
+                    elif AGG_SPACE=='TILE':
+                        for p in self.plans:
+                            for s in self.sections: 
+                                for space in self.dct_sect[s]:
+                                    print(p, s, space)
+                                    space=str(space)
+                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
+                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                    agg_year_param=os.path.join(self.ISEE_RES, PI, p)
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
+
+                    elif AGG_SPACE=='PT_ID':
+                        for p in self.plans:
+                            print(p)
+                            path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p)
+                            if not os.path.exists(path_res):
+                                os.makedirs(path_res)
+                            dfs=[]
+                            for y in self.years:
+                                df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.csv'), sep=self.sep)
+                                dfs.append(df_year)
+                            df_all=pd.concat(dfs, ignore_index=True)
+                            if len(stats)==1:
+                                if stats[0]==['sum']:
+                                    df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
+                                elif stats[0]==['mean']:
+                                    df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
+                            if len(stats)>1:
+                                df_all_sum=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
+                                df_all_mean=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
+                                df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID', 'TILE', 'SECTION'], suffixes=('_sum', '_mean'), validate='one_to_one')
+                            df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
+
+                    else:
+                        print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
+                        quit()
+                        
+                elif AGG_TIME=='QM':
+                    ### NOT coded yet!!
+                    pass
+                            
+                else:
+                    pass
+                
+class POST_PROCESS_1D:
+    
+    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect):
+
+        self.pis=pis
+        self.plans=plans
+        self.sections=sections
+        self.years=years
+        self.ISEE_RES=ISEE_RES
+        self.POST_PROCESS_RES=POST_PROCESS_RES
+        self.sep=sep
+        self.dct_sect=dct_sect
+           
+    def agg_YEAR(self, folder_space):  
+
+        liste_files=[]
+        for root, dirs, files in os.walk(folder_space):
+            for name in files:
+                liste_files.append(os.path.join(root, name))
+        df_year=pd.DataFrame()
+        liste_df=[]
+        for csv in liste_files:
+            df_temp=pd.read_csv(csv, sep=self.sep)
+            liste_df.append(df_temp)
+        df_year=pd.concat(liste_df, ignore_index=True)
+        
+        return df_year
+    
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_csv_year):
+        dct_df_space=dict.fromkeys(tuple(columns),[])
+        df_space=pd.DataFrame(dct_df_space)
+        df_space[AGG_TIME]=self.years
+        if not os.path.exists(path_res):
+            os.makedirs(path_res)
+        if AGG_SPACE == 'PLAN':               
+            df_year=self.agg_YEAR(agg_year_param)
+            for stat in stats:
+                if stat=='sum':
+                    df_space_sum=df_year.groupby(['YEAR'], as_index=False).sum()
+                elif stat=='mean':
+                    df_space_mean=df_year.groupby(['YEAR'], as_index=False).mean()
+                      
+            if len(stats)>1:
+                df_space=df_space_sum.merge(df_space_mean, on=['YEAR'], suffixes=('_sum', '_mean'), validate='one_to_one')
+            elif stats[0]=='sum':
+                df_space=df_space_sum
+            elif stats[0]=='mean':
+                df_space=df_space_mean
+            else:
+                print('STAT value provided is unavailable')
+                 
+                 
+        elif AGG_SPACE == 'SECTION':
+            df_space=self.agg_YEAR(agg_year_param)
+            columns=['YEAR']
+            for var in list_var:
+                var_sum=var+'_sum'
+                df_space[var_sum]=df_space[var]
+                columns.append(var_sum)
+            df_space=df_space[columns]
+                                        
+        df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
+
+    def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
+        
+        '''
+        PI = PI accronym (ex. Northern Pike = ESLU_2D)
+        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
+        AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
+        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION']
+        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
+        '''
+        for AGG_TIME in AGGS_TIME:
+            for AGG_SPACE in AGGS_SPACE:  
+                print(AGG_SPACE)
+                pi_module_name=f'.CFG_{PI}'
+                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
+                list_var=list(PI_CFG.dct_var.keys())
+                columns=[AGG_TIME]
+                for var in list_var:
+                    for s in stats:
+                        stat=var+'_'+s
+                        columns.append(stat)
+                        
+                if AGG_TIME=='YEAR':
+                    if AGG_SPACE=='PLAN':
+                        for space in self.plans:
+                            print(space)
+                            path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'                           
+                            agg_year_param=os.path.join(self.ISEE_RES, PI, space)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'')
+                              
+                    elif AGG_SPACE=='SECTION':
+                        for p in self.plans:
+                            for space in self.sections:
+                                print(p, space)
+                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)                                
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
+
+                    else:
+                        print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
+                        quit()
+                        
+                elif AGG_TIME=='QM':
+                    ### NOT coded yet!!
                     pass
                             
                 else:
                     pass
             
             
-de=POST_PROCESS_2D(cfg.pis, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)  
-     
-for pi in de.pis:
- 
-    de.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-     
+tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect) 
+not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)   
+pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)
+   
+for pi in tiled.pis:
+    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
+  
+for pi in not_tiled.pis:  
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
+
+for pi in pi_1D.pis:
+    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum', 'mean'])
+    
 quit()
+
+
  
 
 '''
-Bunch of messy piece of codes to manipulate Richelieu River data into ISEE-GLAM data format
+Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
+
+#===============================================================================
+# res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\MUSK_1D'
+# plans=['Alt_1', 'Alt_2', 'Baseline']
+# sections=['USL_CAN', 'LKO_CAN']
+# for p in plans:
+#     for s in sections:
+#         folder=fr'{res_folder}\{p}'
+#         liste_files=[]
+#         for root, dirs, files in os.walk(folder):
+#             for name in files:
+#                 liste_files.append(os.path.join(root, name))
+#         dfs=[]
+#         for file in liste_files:
+#             print(file)
+#             if not 'MUSK' in file.split('\\')[-1]:
+#                 df=pd.read_csv(file, sep=';')
+#                 print(list(df))
+#                 df=df.loc[df['SECTION']==s]
+#                 year=int(file.split('_')[-1].replace('.csv', ''))
+#                 df['YEAR']=year
+#                 dfs.append(df)
+#         df_all_years=pd.concat(dfs, ignore_index=True)
+#         df_all_years=df_all_years.groupby(by=['YEAR'], as_index=False).mean()
+#         df_all_years=df_all_years[['YEAR', 'VAR1', 'VAR2', 'VAR3']]
+#         df_all_years.to_csv(fr'{folder}\MUSK_1D_{p}_{s}.csv', sep=';', index=None)
+# quit()
+#===============================================================================
+    
+
+#===============================================================================
+# for file in liste_files:
+#     df=pd.read_csv(file, sep=';')
+#     df=df[['PT_ID',    'VAR1',    'VAR2',    'VAR3',    'SECTION',    'TILE']]
+#     df.to_csv(file, sep=';', index=None)
+# quit()
+#===============================================================================
+
 #===============================================================================
 # res_folder=fr'F:\DEM_GLAMM\Dashboard\ISEE_RESULTS\ESLU_2D'
 # plans=['Alt_1', 'Alt_2', 'Baseline']

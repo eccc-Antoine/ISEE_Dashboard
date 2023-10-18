@@ -1,6 +1,10 @@
 import os
 
-pis=['ESLU_2D']
+pis_2D_tiled=['ESLU_2D']
+
+pis_2D_not_tiled=['RES_BUILD_2D']
+
+pis_1D=['MUSK_1D']
 
 plans=['Alt_1', 'Alt_2', 'Baseline']
 
@@ -8,9 +12,11 @@ sections=['USL_CAN', 'LKO_CAN']
 
 years=list(range(1926, 2017))
 
-ISEE_RES=fr'M:\ISEE_Dashboard\ISEE_RAW_DATA'
+#ISEE_RES=fr'M:\ISEE_Dashboard\ISEE_RAW_DATA'
+ISEE_RES='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/ISEE_RAW_DATA'
 
-POST_PROCESS_RES=fr'M:\ISEE_Dashboard\ISEE_POST_PROCESS'
+#POST_PROCESS_RES=fr'M:\ISEE_Dashboard\ISEE_POST_PROCESS_DATA'
+POST_PROCESS_RES='https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/ISEE_POST_PROCESS_DATA'
 
 sep=';'
 

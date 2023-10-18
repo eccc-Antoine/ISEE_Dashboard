@@ -48,7 +48,7 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI):
             plan_value=df_PI[Variable].loc[df_PI['ALT']==CFG_DASHBOARD.plan_dct[plans_selected[c]]].sum().round(3)
             plan_values.append(plan_value)
             
-        return baseline_value, plan_values
+    return baseline_value, plan_values
 
 def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable):
     
