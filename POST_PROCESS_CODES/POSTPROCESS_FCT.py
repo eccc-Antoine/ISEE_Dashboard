@@ -416,7 +416,7 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_R
 Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
 
-res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\ESLU_2D'
+res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\SAUV_2D'
 plans=['Alt_1', 'Alt_2', 'Baseline']
 sections=['USL_CAN', 'LKO_CAN']
 years=list(range(1926, 2017))
@@ -437,7 +437,7 @@ for p in plans:
                 
                 tile=src.split('_')[-1].replace('.csv','')
                 #print(tile)
-                dst=src.replace(src.split('\\')[-1], f'ESLU_2D_{p}_{s}_{tile}_{y}.csv')
+                dst=src.replace(src.split('\\')[-1], f'SAUV_2D_{p}_{s}_{tile}_{y}.csv')
                 #print(dst)
                 #quit()
                 if not src in liste_done:
