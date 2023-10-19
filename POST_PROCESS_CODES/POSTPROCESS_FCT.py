@@ -396,16 +396,18 @@ tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years
 not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)   
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)
    
-for pi in tiled.pis:
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-  
-for pi in not_tiled.pis:  
-    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-
-for pi in pi_1D.pis:
-    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum', 'mean'])
-    
-quit()
+#===============================================================================
+# for pi in tiled.pis:
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
+#   
+# for pi in not_tiled.pis:  
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
+# 
+# for pi in pi_1D.pis:
+#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum', 'mean'])
+#     
+# quit()
+#===============================================================================
 
 
  
@@ -414,33 +416,39 @@ quit()
 Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
 
-#===============================================================================
-# res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\MUSK_1D'
-# plans=['Alt_1', 'Alt_2', 'Baseline']
-# sections=['USL_CAN', 'LKO_CAN']
-# for p in plans:
-#     for s in sections:
-#         folder=fr'{res_folder}\{p}'
-#         liste_files=[]
-#         for root, dirs, files in os.walk(folder):
-#             for name in files:
-#                 liste_files.append(os.path.join(root, name))
-#         dfs=[]
-#         for file in liste_files:
-#             print(file)
-#             if not 'MUSK' in file.split('\\')[-1]:
-#                 df=pd.read_csv(file, sep=';')
-#                 print(list(df))
-#                 df=df.loc[df['SECTION']==s]
-#                 year=int(file.split('_')[-1].replace('.csv', ''))
-#                 df['YEAR']=year
-#                 dfs.append(df)
-#         df_all_years=pd.concat(dfs, ignore_index=True)
-#         df_all_years=df_all_years.groupby(by=['YEAR'], as_index=False).mean()
-#         df_all_years=df_all_years[['YEAR', 'VAR1', 'VAR2', 'VAR3']]
-#         df_all_years.to_csv(fr'{folder}\MUSK_1D_{p}_{s}.csv', sep=';', index=None)
-# quit()
-#===============================================================================
+res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\ESLU_2D'
+plans=['Alt_1', 'Alt_2', 'Baseline']
+sections=['USL_CAN', 'LKO_CAN']
+years=list(range(1926, 2017))
+for p in plans:
+    for s in sections:
+        for y in years:
+            folder=fr'{res_folder}\{p}\{s}\{y}'
+            liste_files=[]
+            for root, dirs, files in os.walk(folder):
+                for name in files:
+                    liste_files.append(os.path.join(root, name))
+                    
+            liste_done=[]
+            for file in liste_files:
+                src=file
+                #print(src.split('\\')[-1])
+                #print(src)
+                
+                tile=src.split('_')[-1].replace('.csv','')
+                #print(tile)
+                dst=src.replace(src.split('\\')[-1], f'ESLU_2D_{p}_{s}_{tile}_{y}.csv')
+                #print(dst)
+                #quit()
+                if not src in liste_done:
+                    os.rename(src, dst)
+                    liste_done.append(src)
+                    liste_done.append(dst)
+                    print('renamed')
+                    
+                else:
+                    print('not renamed')
+quit()
     
 
 #===============================================================================
