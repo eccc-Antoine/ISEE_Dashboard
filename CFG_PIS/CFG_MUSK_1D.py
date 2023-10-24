@@ -2,6 +2,8 @@ import os
 
 name='Muskrat winter lodge survival probability'
 
+type='1D'
+
 dct_var={'VAR1':'Freezing probability', 'VAR2':'Relodging probabilty', 'VAR3':'Survival probability'}
 
 units='%'

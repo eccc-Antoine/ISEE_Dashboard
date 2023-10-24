@@ -4,8 +4,12 @@ import pandas as pd # read csv, df manipulation
 import plotly.express as px # interactive charts 
 import os
 import importlib
-import Dashboards.CFG_DASHBOARD as CFG_DASHBOARD
+import Dashboards.CFG_ISEE_DASH as CFG_DASHBOARD
 import Dashboards.DASHBOARDS_UTILS as UTILS
+from pyproj import transform, Proj
+import pyproj
+from pyproj import Transformer
+
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -13,6 +17,7 @@ st.set_page_config(
     layout = 'wide'
 )
 
+raw_folder=CFG_DASHBOARD.raw_data_folder
 folder=CFG_DASHBOARD.post_process_folder
 pis_code=CFG_DASHBOARD.pi_list
 
@@ -21,6 +26,7 @@ unit_dct={}
 for pi in pis_code:
     pi_module_name=f'.CFG_{pi}'
     PI_CFG=importlib.import_module(pi_module_name, 'CFG_PIS')
+    pi_type=PI_CFG.type
     pi_name=PI_CFG.name
     pi_unit=PI_CFG.units
     pi_dct[pi]=pi_name
@@ -89,47 +95,90 @@ with Col2:
         with tab3:
             st.write('put some maps here not coded yet :(')
              
-            #===================================================================
-            # #### HRADCODED ### need to tranfer all the data in order to work!!
-            # precise_folder=fr'F:\LCRR_Antoine\PI_ENV\ISEE_2\LCRR\results_clean\ESLU_2D'
-            # 
-            # #st.write('Please wait this is a lot of data to process :sweat_smile:')
-            # 
-            # ze_plan=st.selectbox("Select a plan to display on map", plans_selected)
-            # 
-            # ze_plan=plan_dct[ze_plan]
-            # 
-            # #for p in list_plans:
-            # alt=fr'{precise_folder}\{ze_plan}'
-            # dfs_s=[]
-            # for s in sect_dct[Region]:
-            #     reg=fr'{alt}\Section_{s}'
-            #     tiles=os.listdir(reg)
-            #     dfs_t=[]
-            #     for t in tiles:
-            #         print(tiles)
-            #         dfs_y=[]
-            #         tile=fr'{reg}\{t}'
-            #         for y in list(range(start_year, end_year+1)):
-            #             ### HARDCODED ###
-            #             df_y=pd.read_csv(fr'{tile}\ESLU_2D_CAN_{y}_Section_{s}_{t}.csv', sep=';')
-            #             df_y=df_y[['PT_ID', 'XVAL', 'YVAL', 'HSI']]
-            #             dfs_y.append(df_y)
-            #         df_t=pd.concat(dfs_y, ignore_index=True)
-            #         dfs_t.append(df_t)
-            #     df_s=pd.concat(dfs_t, ignore_index=True)
-            #     dfs_s.append(df_s)
-            # df_p=pd.concat(dfs_s, ignore_index=True)
-            # if Stats == 'sum':
-            #     df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).sum()
-            # if Stats == 'average':
-            #     df_p=df_p.groupby(by=['PT_ID', 'XVAL', 'YVAL'], as_index=False).mean()
-            # print(df_p.head())
-            # #st.write('done!')
-            # print(len(df_p))
-            # print(len(df_p['PT_ID'].unique()))         
-            #===================================================================
-
+         #======================================================================
+         #    #### HRADCODED ### need to transfer all the data in order to work!!
+         #    #precise_folder=fr'F:\LCRR_Antoine\PI_ENV\ISEE_2\LCRR\results_clean\ESLU_2D'
+         #     
+         #    #st.write('Please wait this is a lot of data to process :sweat_smile:')
+         #     
+         #    ze_plan=st.selectbox("Select a plan to display on map", plans_selected)
+         #     
+         #    ze_plan=plan_dct[ze_plan]
+         #    
+         #    
+         #    #df_folder=os.path.join(raw_folder, PI_code, ze_plan,  'YEAR', 'PT_ID')
+         #    df_folder=os.path.join(raw_folder, PI_code, ze_plan)
+         #    
+         #    #===================================================================
+         #    # if not os.path.exists(df_folder):
+         #    #     st.write('This level of detail is not available for this PI yet')
+         #    # 
+         #    # else:
+         #    #===================================================================
+         #    #alt=fr'{df_folder}\{ze_plan}'
+         #    
+         #    
+         #    if unique_PI_CFG.type=='2D_tiled':
+         #        liste_files=[]
+         #        for root, dirs, files in os.walk(df_folder):
+         #            for name in files:
+         #                liste_files.append(os.path.join(root, name))
+         #                        
+         #        years=list(range(start_year, end_year+1))
+         #        
+         #        var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+         #        
+         #        dfs_y=[]
+         #        for f in liste_files:
+         #            y=int(f.split('_')[-1].replace('.csv', '')) 
+         #            #print(y)
+         #            sect=f.split('\\')[-3]
+         #            #print(f)
+         #            #print(sect)
+         #            if sect in CFG_DASHBOARD.sect_dct[Region]:
+         #                if y in years:
+         #                    tile=f.split('_')[-2]
+         #                    df_y=pd.read_csv(f, sep=';')
+         #                    df_y['TILE']=int(tile)
+         #                    df_y['SECTION']=sect
+         #                    print(list(df_y))
+         #                    
+         #                    df_y=df_y[['PT_ID', f'{var}', 'SECTION', 'TILE' ]]
+         #                    
+         #                    
+         #                    dfs_y.append(df_y)
+         #                    
+         #        df_p=pd.concat(dfs_y, ignore_index=True)
+         #        
+         #        print(list(df_p))
+         #        
+         #        if Stats == 'sum':
+         #            df_p=df_p.groupby(by=['PT_ID', 'SECTION', 'TILE' ], as_index=False).sum()
+         #        if Stats == 'average':
+         #            df_p=df_p.groupby(by=['PT_ID', 'SECTION', 'TILE' ], as_index=False).mean()
+         #        
+         #                        ##TODO adapt so it finds the crs of each tile 
+         #        transformer = Transformer.from_crs(CFG_DASHBOARD.crs, 4326)
+         #         
+         #        x_pts=df_p['XVAL']
+         #        y_pts=df_p['YVAL']
+         # 
+         #        ## it works but strange!! ##  ## retested in 2020-08-16 inn still seems to be what is working... 
+         #        x_proj, y_proj=transformer.transform(y_pts, x_pts)
+         #        df_p['X']= x_proj
+         #        df_p['Y']= y_proj
+         #        
+         #        df_p=df_p[['X', 'Y', f'{Variable}_sum']]
+         #        
+         #        st.map(df_p, latitude='Y', longitude='X', color=f'{Variable}_sum')
+         #        
+         #        
+         #    
+         #    else:
+         #        print(unique_PI_CFG.type)
+         #        st.write('maps not available for this type of PI yet')
+         #======================================================================
+   
              
         with tab4:
             df_PI['YEAR']=df_PI['YEAR'].astype(str)

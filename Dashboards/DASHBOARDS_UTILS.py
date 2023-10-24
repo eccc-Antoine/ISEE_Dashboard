@@ -4,7 +4,7 @@ import numpy as np
 import importlib
 import pandas as pd
 import plotly.express as px
-import Dashboards.CFG_DASHBOARD as CFG_DASHBOARD
+import Dashboards.CFG_ISEE_DASH as CFG_DASHBOARD
 
 
 def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct):

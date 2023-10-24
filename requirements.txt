@@ -4,3 +4,4 @@ streamlit
 numpy
 pandas
 plotly
+pyproj

@@ -2,6 +2,8 @@ import os
 
 name='Waterfowl Spring Migration Habitat'
 
+type='2D_tiled'
+
 dct_var={'VAR1':'Habitat suitability index', 'VAR2':'Potential mortality index', 'VAR3':'Early stage survival probability'}
 
 units='ha'

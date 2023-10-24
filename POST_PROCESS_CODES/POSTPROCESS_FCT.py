@@ -4,6 +4,9 @@ import geopandas as gpd
 import shutil
 import importlib
 import POST_PROCESS_CODES.CFG_POST_PROCESS as cfg
+from pyproj import transform, Proj
+import pyproj
+from pyproj import Transformer
 
 
 
@@ -62,7 +65,7 @@ class POST_PROCESS_2D_tiled:
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
         VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
         AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
-        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE', 'PT_ID']
+        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE']
         stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
         '''
         for AGG_TIME in AGGS_TIME:
@@ -103,32 +106,8 @@ class POST_PROCESS_2D_tiled:
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
-                                    path_csv_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_foo_{s}_{space}.csv')
+                                    path_csv_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.csv')
                                     self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_csv_year)
-
-                    elif AGG_SPACE=='PT_ID':
-                        for p in self.plans:
-                            for s in self.sections:
-                                for t in self.dct_sect[s]:
-                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, str(t))
-                                    if not os.path.exists(path_res):
-                                        os.makedirs(path_res)
-                                    dfs=[]
-                                    for y in self.years:
-                                        df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, s, str(y), f'{PI}_{y}_{s}_{t}.csv'), sep=self.sep)
-                                        dfs.append(df_year)
-                                    df_all=df_year=pd.concat(dfs, ignore_index=True)
-                                    
-                                    if len(stats)==1:
-                                        if stats[0]==['sum']:
-                                            df_all_all=df_all.groupby(['PT_ID'], as_index=False).sum()
-                                        elif stats[0]==['mean']:
-                                            df_all_all=df_all.groupby(['PT_ID'], as_index=False).mean()
-                                    if len(stats)>1:
-                                        df_all_sum=df_all.groupby(['PT_ID'], as_index=False).sum()
-                                        df_all_mean=df_all.groupby(['PT_ID'], as_index=False).mean()
-                                        df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID'], suffixes=('_sum', '_mean'), validate='one_to_one')
-                                    df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_{s}_{t}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -201,7 +180,7 @@ class POST_PROCESS_2D_not_tiled:
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
         VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
         AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
-        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE', 'PT_ID']
+        AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE']
         stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
         '''
         for AGG_TIME in AGGS_TIME:
@@ -244,28 +223,6 @@ class POST_PROCESS_2D_not_tiled:
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
                                     agg_year_param=os.path.join(self.ISEE_RES, PI, p)
                                     self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
-
-                    elif AGG_SPACE=='PT_ID':
-                        for p in self.plans:
-                            print(p)
-                            path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p)
-                            if not os.path.exists(path_res):
-                                os.makedirs(path_res)
-                            dfs=[]
-                            for y in self.years:
-                                df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.csv'), sep=self.sep)
-                                dfs.append(df_year)
-                            df_all=pd.concat(dfs, ignore_index=True)
-                            if len(stats)==1:
-                                if stats[0]==['sum']:
-                                    df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
-                                elif stats[0]==['mean']:
-                                    df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
-                            if len(stats)>1:
-                                df_all_sum=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
-                                df_all_mean=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
-                                df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID', 'TILE', 'SECTION'], suffixes=('_sum', '_mean'), validate='one_to_one')
-                            df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -342,7 +299,6 @@ class POST_PROCESS_1D:
         df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
 
     def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
-        
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
         VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
@@ -350,6 +306,7 @@ class POST_PROCESS_1D:
         AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION']
         stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
         '''
+        
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)
@@ -396,18 +353,16 @@ tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years
 not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)   
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)
    
-#===============================================================================
-# for pi in tiled.pis:
-#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-#   
-# for pi in not_tiled.pis:  
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum', 'mean']) 
-# 
-# for pi in pi_1D.pis:
-#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum', 'mean'])
-#     
-# quit()
-#===============================================================================
+for pi in tiled.pis:
+    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
+    
+for pi in not_tiled.pis:  
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
+  
+for pi in pi_1D.pis:
+    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum'])
+      
+quit()
 
 
  
@@ -416,39 +371,70 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_R
 Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
 
-res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\SAUV_2D'
-plans=['Alt_1', 'Alt_2', 'Baseline']
-sections=['USL_CAN', 'LKO_CAN']
-years=list(range(1926, 2017))
-for p in plans:
-    for s in sections:
-        for y in years:
-            folder=fr'{res_folder}\{p}\{s}\{y}'
-            liste_files=[]
-            for root, dirs, files in os.walk(folder):
-                for name in files:
-                    liste_files.append(os.path.join(root, name))
-                    
-            liste_done=[]
-            for file in liste_files:
-                src=file
-                #print(src.split('\\')[-1])
-                #print(src)
-                
-                tile=src.split('_')[-1].replace('.csv','')
-                #print(tile)
-                dst=src.replace(src.split('\\')[-1], f'SAUV_2D_{p}_{s}_{tile}_{y}.csv')
-                #print(dst)
-                #quit()
-                if not src in liste_done:
-                    os.rename(src, dst)
-                    liste_done.append(src)
-                    liste_done.append(dst)
-                    print('renamed')
-                    
-                else:
-                    print('not renamed')
-quit()
+
+#===============================================================================
+# tiles_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\Tiles'
+# 
+# liste=os.listdir(tiles_folder)
+# 
+# for f in liste:
+#     path=fr'{tiles_folder}\{f}'
+#     
+#     df=pd.read_csv(path, sep=';')
+#     
+#     utm=pyproj.CRS('EPSG:32618')
+#     coord=pyproj.CRS('EPSG:2958')
+#     
+#     transformer = Transformer.from_crs(utm, coord)
+#                  
+#     x_pts=df['XVAL']
+#     y_pts=df['YVAL']
+#     
+#     ## it works but strange!! ##  ## retested in 2020-08-16 inn still seems to be what is working... 
+#     y_proj, x_proj=transformer.transform(y_pts, x_pts)
+#     df['X_COORD']= x_proj
+#     df['Y_COORD']= y_proj
+#     
+#     df.to_csv(path, sep=';', index=None)
+#     quit()
+#===============================================================================
+
+
+#===============================================================================
+# res_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\SAUV_2D'
+# plans=['Alt_1', 'Alt_2', 'Baseline']
+# sections=['USL_CAN', 'LKO_CAN']
+# years=list(range(1926, 2017))
+# for p in plans:
+#     for s in sections:
+#         for y in years:
+#             folder=fr'{res_folder}\{p}\{s}\{y}'
+#             liste_files=[]
+#             for root, dirs, files in os.walk(folder):
+#                 for name in files:
+#                     liste_files.append(os.path.join(root, name))
+#                     
+#             liste_done=[]
+#             for file in liste_files:
+#                 src=file
+#                 #print(src.split('\\')[-1])
+#                 #print(src)
+#                 
+#                 tile=src.split('_')[-1].replace('.csv','')
+#                 #print(tile)
+#                 dst=src.replace(src.split('\\')[-1], f'SAUV_2D_{p}_{s}_{tile}_{y}.csv')
+#                 #print(dst)
+#                 #quit()
+#                 if not src in liste_done:
+#                     os.rename(src, dst)
+#                     liste_done.append(src)
+#                     liste_done.append(dst)
+#                     print('renamed')
+#                     
+#                 else:
+#                     print('not renamed')
+# quit()
+#===============================================================================
     
 
 #===============================================================================
@@ -595,3 +581,54 @@ quit()
 #                 os.makedirs(os.path.join(res_folder, pi, plan, f'Section_{section}', str(year)))
 # quit() 
 #===============================================================================
+
+
+                    #===========================================================
+                    # elif AGG_SPACE=='PT_ID':
+                    #     for p in self.plans:
+                    #         for s in self.sections:
+                    #             for t in self.dct_sect[s]:
+                    #                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, str(t))
+                    #                 if not os.path.exists(path_res):
+                    #                     os.makedirs(path_res)
+                    #                 dfs=[]
+                    #                 for y in self.years:
+                    #                     df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, s, str(y), f'{PI}_{y}_{s}_{t}.csv'), sep=self.sep)
+                    #                     dfs.append(df_year)
+                    #                 df_all=df_year=pd.concat(dfs, ignore_index=True)
+                    #                 
+                    #                 if len(stats)==1:
+                    #                     if stats[0]==['sum']:
+                    #                         df_all_all=df_all.groupby(['PT_ID'], as_index=False).sum()
+                    #                     elif stats[0]==['mean']:
+                    #                         df_all_all=df_all.groupby(['PT_ID'], as_index=False).mean()
+                    #                 if len(stats)>1:
+                    #                     df_all_sum=df_all.groupby(['PT_ID'], as_index=False).sum()
+                    #                     df_all_mean=df_all.groupby(['PT_ID'], as_index=False).mean()
+                    #                     df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID'], suffixes=('_sum', '_mean'), validate='one_to_one')
+                    #                 df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_{s}_{t}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
+                    #===========================================================
+                    
+                    #===========================================================
+                    # elif AGG_SPACE=='PT_ID':
+                    #     for p in self.plans:
+                    #         print(p)
+                    #         path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p)
+                    #         if not os.path.exists(path_res):
+                    #             os.makedirs(path_res)
+                    #         dfs=[]
+                    #         for y in self.years:
+                    #             df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.csv'), sep=self.sep)
+                    #             dfs.append(df_year)
+                    #         df_all=pd.concat(dfs, ignore_index=True)
+                    #         if len(stats)==1:
+                    #             if stats[0]==['sum']:
+                    #                 df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
+                    #             elif stats[0]==['mean']:
+                    #                 df_all_all=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
+                    #         if len(stats)>1:
+                    #             df_all_sum=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
+                    #             df_all_mean=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
+                    #             df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID', 'TILE', 'SECTION'], suffixes=('_sum', '_mean'), validate='one_to_one')
+                    #         df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
+                    #===========================================================
