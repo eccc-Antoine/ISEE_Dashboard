@@ -9,6 +9,7 @@ import DASHBOARDS.UTILS.DASHBOARDS_UTILS as UTILS
 from pyproj import transform, Proj
 import pyproj
 from pyproj import Transformer
+import sys
 
 
 
@@ -25,8 +26,8 @@ pis_code=CFG_DASHBOARD.pi_list
 pi_dct={}
 unit_dct={}
 for pi in pis_code:
-    pi_module_name=f'.CFG_{pi}'
-    PI_CFG=importlib.import_module(pi_module_name, 'CFG_PIS')
+    pi_module_name=f'CFG_{pi}'
+    PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
     pi_type=PI_CFG.type
     pi_name=PI_CFG.name
     pi_unit=PI_CFG.units
@@ -51,7 +52,7 @@ with Col1:
     for pi_code in pi_code_set:
         PI_code=pi_code
     unique_pi_module_name=f'.CFG_{PI_code}'
-    unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
+    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
     
     
     start_year, end_year, Region, plans_selected, Baseline, Stats, Variable  = UTILS.MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD,

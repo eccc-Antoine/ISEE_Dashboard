@@ -90,7 +90,7 @@ class POST_PROCESS_exp:
                                 pi_path_res=os.path.join(pi_res_folder, pi_res_name)
                                 
                                 PI_module_name=f'CFG_{PI}'
-                                unique_PI_CFG=importlib.import_module(f'CFG_PIS.{PI_module_name}')
+                                unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{PI_module_name}')
                                 print(unique_PI_CFG.name)
                                 
                                 if loc in unique_PI_CFG.locs_for_GLRRM:

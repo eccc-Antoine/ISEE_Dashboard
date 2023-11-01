@@ -50,10 +50,10 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, CFG
 
 def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD):
     
-    unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
+    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_folder=os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
     dfs=[]
-    csv_done=[]
+    feather_done=[]
     plans_all=plans_selected+[Baseline]
     for p in plans_all:
         if p == Baseline:
@@ -62,14 +62,14 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
             alt=CFG_DASHBOARD.plan_dct[p]
         sect=CFG_DASHBOARD.sect_dct[Region]
         for s in sect:
-            csv_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.csv'
-            if csv_name not in csv_done:
-                df=pd.read_csv(os.path.join(df_folder, alt, s, csv_name), sep=';')
+            feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather'
+            if feather_name not in feather_done:
+                df=pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
                 df['ALT']=alt
                 df['SECT']=s
                 dfs.append(df)
-                #to make sure that a same csv is not compiled more than once in the results
-                csv_done.append(csv_name)
+                #to make sure that a same feather is not compiled more than once in the results
+                feather_done.append(feather_name)
                           
     df_PI=pd.concat(dfs, ignore_index=True)
     df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
@@ -87,7 +87,7 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     return df_PI
 
 def MAIN_FILTERS_streamlit(unique_pi_module_name, Years, Region, Plans, Baselines, Stats, Variable, CFG_DASHBOARD):
-    unique_PI_CFG=importlib.import_module(unique_pi_module_name, 'CFG_PIS')
+    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     
     if Variable:
         available_variables=list(unique_PI_CFG.dct_var.values())

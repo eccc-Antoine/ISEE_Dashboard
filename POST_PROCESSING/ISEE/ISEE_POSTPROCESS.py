@@ -31,13 +31,13 @@ class POST_PROCESS_2D_tiled:
                 liste_files.append(os.path.join(root, name))
         liste_df=[]
         liste_file_year=[f for f in liste_files if str(y) in f]
-        for csv in liste_file_year:
-            df_temp=pd.read_csv(csv, sep=self.sep)
+        for feather in liste_file_year:
+            df_temp=pd.read_feather(feather)
             liste_df.append(df_temp)
         df_year=pd.concat(liste_df, ignore_index=True)
         return df_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_csv_year):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=self.years
@@ -47,8 +47,8 @@ class POST_PROCESS_2D_tiled:
             if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':               
                 df_year=self.agg_YEAR(agg_year_param, y)
             elif AGG_SPACE == 'TILE':
-                path_csv_year2=path_csv_year.replace('foo', str(y))
-                df_year=pd.read_csv(path_csv_year2, sep=self.sep)
+                path_feather_year2=path_feather_year.replace('foo', str(y))
+                df_year=pd.read_feather(path_feather_year2)
             for var in list_var:
                 for stat in stats:
                     if stat=='sum':
@@ -56,8 +56,9 @@ class POST_PROCESS_2D_tiled:
                     elif stat=='mean':
                         df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].mean()
                     else:
-                        print('STAT value provided is unavailable')   
-        df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
+                        print('STAT value provided is unavailable')
+        df_space=df_space.reset_index()
+        df_space.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
         
@@ -71,8 +72,8 @@ class POST_PROCESS_2D_tiled:
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)
-                pi_module_name=f'.CFG_{PI}'
-                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
+                pi_module_name=f'CFG_{PI}'
+                PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
@@ -85,7 +86,7 @@ class POST_PROCESS_2D_tiled:
                         for space in self.plans:
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.feather'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'')
                               
@@ -94,7 +95,7 @@ class POST_PROCESS_2D_tiled:
                             for space in self.sections:
                                 print(space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
                                 self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
 
@@ -105,9 +106,9 @@ class POST_PROCESS_2D_tiled:
                                     print(space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
-                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
-                                    path_csv_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.csv')
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_csv_year)
+                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.feather'
+                                    path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_feather_year)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -141,13 +142,13 @@ class POST_PROCESS_2D_not_tiled:
                 liste_files.append(os.path.join(root, name))
         liste_df=[]
         liste_file_year=[f for f in liste_files if str(y) in f]
-        for csv in liste_file_year:
-            df_temp=pd.read_csv(csv, sep=self.sep)
+        for feather in liste_file_year:
+            df_temp=pd.read_feather(feather)
             liste_df.append(df_temp)
         df_year=pd.concat(liste_df, ignore_index=True)
         return df_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_csv_year):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=self.years
@@ -171,8 +172,10 @@ class POST_PROCESS_2D_not_tiled:
                     elif stat=='mean':
                         df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].mean()
                     else:
-                        print('STAT value provided is unavailable')   
-        df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
+                        print('STAT value provided is unavailable') 
+                        
+        df_space=df_space.reset_index()  
+        df_space.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
         
@@ -186,8 +189,8 @@ class POST_PROCESS_2D_not_tiled:
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)
-                pi_module_name=f'.CFG_{PI}'
-                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
+                pi_module_name=f'CFG_{PI}'
+                PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
@@ -200,7 +203,7 @@ class POST_PROCESS_2D_not_tiled:
                         for space in self.plans:
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'                           
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.feather'                           
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'')
                               
@@ -209,7 +212,7 @@ class POST_PROCESS_2D_not_tiled:
                             for space in self.sections:
                                 print(p, space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)                                
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p)
                                 self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
 
@@ -220,7 +223,7 @@ class POST_PROCESS_2D_not_tiled:
                                     print(p, s, space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
-                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                     agg_year_param=os.path.join(self.ISEE_RES, PI, p)
                                     self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
 
@@ -256,14 +259,14 @@ class POST_PROCESS_1D:
                 liste_files.append(os.path.join(root, name))
         df_year=pd.DataFrame()
         liste_df=[]
-        for csv in liste_files:
-            df_temp=pd.read_csv(csv, sep=self.sep)
+        for feather in liste_files:
+            df_temp=pd.read_feather(feather)
             liste_df.append(df_temp)
         df_year=pd.concat(liste_df, ignore_index=True)
         
         return df_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_csv_year):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=self.years
@@ -295,8 +298,9 @@ class POST_PROCESS_1D:
                 df_space[var_sum]=df_space[var]
                 columns.append(var_sum)
             df_space=df_space[columns]
-                                        
-        df_space.to_csv(os.path.join(path_res, res_name), sep=self.sep, index=False)
+        
+        df_space=df_space.reset_index()                               
+        df_space.to_feather(os.path.join(path_res, res_name))
 
     def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
         '''
@@ -310,8 +314,8 @@ class POST_PROCESS_1D:
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)
-                pi_module_name=f'.CFG_{PI}'
-                PI_CFG=importlib.import_module( pi_module_name, 'CFG_PIS')
+                pi_module_name=f'CFG_{PI}'
+                PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
@@ -324,7 +328,7 @@ class POST_PROCESS_1D:
                         for space in self.plans:
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.csv'                           
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(self.years)}_{max(self.years)}.feather'                           
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'')
                               
@@ -333,7 +337,7 @@ class POST_PROCESS_1D:
                             for space in self.sections:
                                 print(p, space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)                                
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.csv'
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
                                 self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
 
@@ -380,7 +384,7 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 # for f in liste:
 #     path=fr'{tiles_folder}\{f}'
 #     
-#     df=pd.read_csv(path, sep=';')
+#     df=pd.read_feather(path, sep=';')
 #     
 #     utm=pyproj.CRS('EPSG:32618')
 #     coord=pyproj.CRS('EPSG:2958')
@@ -395,7 +399,7 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 #     df['X_COORD']= x_proj
 #     df['Y_COORD']= y_proj
 #     
-#     df.to_csv(path, sep=';', index=None)
+#     df.to_feather(path, sep=';', index=None)
 #     quit()
 #===============================================================================
 
@@ -420,9 +424,9 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 #                 #print(src.split('\\')[-1])
 #                 #print(src)
 #                 
-#                 tile=src.split('_')[-1].replace('.csv','')
+#                 tile=src.split('_')[-1].replace('.feather','')
 #                 #print(tile)
-#                 dst=src.replace(src.split('\\')[-1], f'SAUV_2D_{p}_{s}_{tile}_{y}.csv')
+#                 dst=src.replace(src.split('\\')[-1], f'SAUV_2D_{p}_{s}_{tile}_{y}.feather')
 #                 #print(dst)
 #                 #quit()
 #                 if not src in liste_done:
@@ -439,9 +443,9 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 
 #===============================================================================
 # for file in liste_files:
-#     df=pd.read_csv(file, sep=';')
+#     df=pd.read_feather(file, sep=';')
 #     df=df[['PT_ID',    'VAR1',    'VAR2',    'VAR3',    'SECTION',    'TILE']]
-#     df.to_csv(file, sep=';', index=None)
+#     df.to_feather(file, sep=';', index=None)
 # quit()
 #===============================================================================
 
@@ -475,8 +479,8 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
              
         
         #=======================================================================
-        # for csv in liste_file_year:
-        #     df_temp=pd.read_csv(csv, sep=self.sep)
+        # for feather in liste_file_year:
+        #     df_temp=pd.read_feather(feather, sep=self.sep)
         #     liste_df.append(df_temp)
         # df_year=pd.concat(liste_df, ignore_index=True)
         #=======================================================================
@@ -549,9 +553,9 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 #                 liste=os.listdir(year_path)
 #                 for f in liste:
 #                     path=os.path.join(year_path, f)
-#                     #path2=path.replace('.csv', 'TEST.csv')
+#                     #path2=path.replace('.feather', 'TEST.feather')
 #                     #print(path)
-#                     df=pd.read_csv(path, sep=';')
+#                     df=pd.read_feather(path, sep=';')
 #                     #print(list(df))
 #                     if 'VAR1' in list(df):
 #                         continue
@@ -559,11 +563,11 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 #                         df_clean=df[['PT_ID','HSI','PMI','SED']]
 #                         #df_clean=df[['PT_ID','VAR1','VAR2','VAR3']]
 #                         df_clean=df_clean.rename(columns={"HSI": "VAR1", "PMI": "VAR2", "SED":'VAR3'})
-#                         df_clean.to_csv(path, sep=';', index=None)
+#                         df_clean.to_feather(path, sep=';', index=None)
 #                         if count_plan==1:
 #                             df_XY=df[['PT_ID', 'XVAL', 'YVAL']]
 #                             name=f'ISEE_tile_{f.split("_")[-1]}'
-#                             df_XY.to_csv(os.path.join(mock_folder, 'Tiles', name), sep=';', index=None)
+#                             df_XY.to_feather(os.path.join(mock_folder, 'Tiles', name), sep=';', index=None)
 #                             #print(path)
 #                             #print(os.path.join(mock_folder, 'Tile', name))
 # quit()
@@ -571,8 +575,8 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
 
 #===============================================================================
 #                     
-#                     src=os.path.join(tile_path, f'{pi}_CAN_{year}_Section_{section}_{tile}.csv')
-#                     dst=os.path.join(res_folder, pi, plan, f'Section_{section}', str(year), f'{pi}_CAN_{year}_Section_{section}_{tile}.csv')
+#                     src=os.path.join(tile_path, f'{pi}_CAN_{year}_Section_{section}_{tile}.feather')
+#                     dst=os.path.join(res_folder, pi, plan, f'Section_{section}', str(year), f'{pi}_CAN_{year}_Section_{section}_{tile}.feather')
 #                     shutil.copy(src,dst)
 # quit()
 #  
@@ -593,7 +597,7 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
                     #                     os.makedirs(path_res)
                     #                 dfs=[]
                     #                 for y in self.years:
-                    #                     df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, s, str(y), f'{PI}_{y}_{s}_{t}.csv'), sep=self.sep)
+                    #                     df_year=pd.read_feather(os.path.join(self.ISEE_RES, PI, p, s, str(y), f'{PI}_{y}_{s}_{t}.feather'), sep=self.sep)
                     #                     dfs.append(df_year)
                     #                 df_all=df_year=pd.concat(dfs, ignore_index=True)
                     #                 
@@ -606,7 +610,7 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
                     #                     df_all_sum=df_all.groupby(['PT_ID'], as_index=False).sum()
                     #                     df_all_mean=df_all.groupby(['PT_ID'], as_index=False).mean()
                     #                     df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID'], suffixes=('_sum', '_mean'), validate='one_to_one')
-                    #                 df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_{s}_{t}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
+                    #                 df_all_all.to_feather(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_{s}_{t}_PT_ID_{min(self.years)}_{max(self.years)}.feather'), sep=self.sep, index=False)
                     #===========================================================
                     
                     #===========================================================
@@ -618,7 +622,7 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
                     #             os.makedirs(path_res)
                     #         dfs=[]
                     #         for y in self.years:
-                    #             df_year=pd.read_csv(os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.csv'), sep=self.sep)
+                    #             df_year=pd.read_feather(os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.feather'), sep=self.sep)
                     #             dfs.append(df_year)
                     #         df_all=pd.concat(dfs, ignore_index=True)
                     #         if len(stats)==1:
@@ -630,5 +634,5 @@ Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-G
                     #             df_all_sum=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).sum()
                     #             df_all_mean=df_all.groupby(['PT_ID', 'TILE', 'SECTION'], as_index=False).mean()
                     #             df_all_all=df_all_sum.merge(df_all_mean, on=['PT_ID', 'TILE', 'SECTION'], suffixes=('_sum', '_mean'), validate='one_to_one')
-                    #         df_all_all.to_csv(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_PT_ID_{min(self.years)}_{max(self.years)}.csv'), sep=self.sep, index=False)
+                    #         df_all_all.to_feather(os.path.join(path_res, f'{PI}_{AGG_TIME}_{p}_PT_ID_{min(self.years)}_{max(self.years)}.feather'), sep=self.sep, index=False)
                     #===========================================================
