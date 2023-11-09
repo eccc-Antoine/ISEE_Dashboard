@@ -5,4 +5,4 @@ numpy
 pandas
 plotly
 pyproj
-path
+pathlib
