@@ -356,16 +356,16 @@ class POST_PROCESS_1D:
 tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect) 
 not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)   
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)
-   
+    
 for pi in tiled.pis:
     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
-    
+     
 for pi in not_tiled.pis:  
     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
-  
+   
 for pi in pi_1D.pis:
     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum'])
-      
+       
 quit()
 
 
@@ -375,7 +375,23 @@ quit()
 Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
 
-
+#===============================================================================
+# folder="M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA"
+# liste_files=[]
+# for root, dirs, files in os.walk(folder):
+#     for name in files:
+#         liste_files.append(os.path.join(root, name))
+# 
+# for f in liste_files:
+#     df=pd.read_csv(f, sep=';')
+#     dst=f.replace('csv', 'feather')
+#     df=df.reset_index()
+#     df.to_feather(dst)
+#     os.remove(f)
+# quit()
+#===============================================================================
+    
+    
 #===============================================================================
 # tiles_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\Tiles'
 # 

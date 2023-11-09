@@ -86,7 +86,7 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     
     return df_PI
 
-def MAIN_FILTERS_streamlit(unique_pi_module_name, Years, Region, Plans, Baselines, Stats, Variable, CFG_DASHBOARD):
+def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     
     if Variable:

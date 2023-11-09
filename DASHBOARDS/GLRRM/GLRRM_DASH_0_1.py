@@ -4,8 +4,11 @@ import pandas as pd # read csv, df manipulation
 import plotly.express as px # interactive charts 
 import os
 import importlib
-import DASHBOARDS.GLRRM.CFG_GLRRM_DASH as CFG_DASHBOARD
-import DASHBOARDS.UTILS.DASHBOARDS_UTILS as UTILS
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+import CFG_GLRRM_DASH as CFG_DASHBOARD
+from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 from pyproj import transform, Proj
 import pyproj
 from pyproj import Transformer

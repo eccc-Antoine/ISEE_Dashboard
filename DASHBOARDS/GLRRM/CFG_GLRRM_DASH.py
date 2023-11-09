@@ -12,8 +12,8 @@ loc_dct={'ont':'Lake Ontario', 'corn': 'Cornwall', 'sorl': 'Sorel', 'triv':'Troi
 
 title='PLAN FOMULATION DASHBOARD 0.1.'
 
-#raw_data_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA'
-raw_data_base=r"F:\DEM_GLAMM\Dashboard\GLRRM\inform_optim_db.sqlite"
+raw_data_base=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/inform_optim_db.sqlite'
+#raw_data_base=r"F:\DEM_GLAMM\Dashboard\GLRRM\inform_optim_db.sqlite"
 
 #post_process_folder=fr'M:\ISEE_Dashboard\DATA\{name}\{name}_POST_PROCESS_DATA'
 post_process_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_POST_PROCESS_DATA'

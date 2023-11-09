@@ -4,8 +4,11 @@ import pandas as pd # read csv, df manipulation
 import plotly.express as px # interactive charts 
 import os
 import importlib
-import DASHBOARDS.ISEE.CFG_ISEE_DASH as CFG_DASHBOARD
-import DASHBOARDS.UTILS.DASHBOARDS_UTILS as UTILS
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+import CFG_ISEE_DASH as CFG_DASHBOARD
+from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 from pyproj import transform, Proj
 import pyproj
 from pyproj import Transformer
@@ -51,7 +54,7 @@ with Col1:
     pi_code_set={i for i in pi_dct if pi_dct[i]==PIs}
     for pi_code in pi_code_set:
         PI_code=pi_code
-    unique_pi_module_name=f'.CFG_{PI_code}'
+    unique_pi_module_name=f'CFG_{PI_code}'
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
     
     
