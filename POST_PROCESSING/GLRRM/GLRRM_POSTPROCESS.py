@@ -4,22 +4,27 @@ import geopandas as gpd
 import shutil
 import importlib
 import POST_PROCESSING.GLRRM.CFG_POST_PROCESS_GLRRM as cfg
+import POST_PROCESSING.ISEE.CFG_POST_PROCESS_ISEE as ISEE_cfg
 import sqlite3
 import numpy as np
 
 class POST_PROCESS_exp:
     
-    def __init__(self, GLRRM_RES, POST_PROCESS_RES, sep):
+    def __init__(self, GLRRM_RES, POST_PROCESS_RES, POST_PROCESS_ISEE, sep):
 
         self.GLRRM_RES=GLRRM_RES
         self.POST_PROCESS_RES=POST_PROCESS_RES
+        self.POST_PROCESS_ISEE=POST_PROCESS_ISEE
         self.sep=sep
     
     def list_exps(self, ):
-        con = sqlite3.connect(exps.GLRRM_RES)
-        df = pd.read_sql_query(f"SELECT * from {cfg.exp_table_name}", con)
-        experiments=list(df[cfg.exp_col_name])
-        con.close()
+        experiments=os.listdir(exps.GLRRM_RES)
+        #=======================================================================
+        # con = sqlite3.connect(exps.GLRRM_RES)
+        # df = pd.read_sql_query(f"SELECT * from {cfg.exp_table_name}", con)
+        # experiments=list(df[cfg.exp_col_name])
+        # con.close()
+        #=======================================================================
         return  experiments
 
     def AGG_SPACE(self,  EXP, AGGS_TIME, AGGS_SPACE, stats, PIS):
@@ -36,6 +41,9 @@ class POST_PROCESS_exp:
         query=f"SELECT * from {cfg.output_table_name} where {cfg.exp_col_name} ='{EXP}'"
         print(query)
         df = pd.read_sql_query(query, con)
+        #path=os.path.join(exps.GLRRM_RES, EXP, 'outputs')
+        #df=pd.read_csv(path)
+        
 
         for AGG_TIME in AGGS_TIME:
             
@@ -106,20 +114,79 @@ class POST_PROCESS_exp:
                 else:
                     print('selected agg_space is not available yet')
                     
-        con.close()   
+        #con.close()
+    def GLRMM_to_ISEE_1D_PI(self,  EXP, AGG_TIME, stats, PIS):
+        path=os.path.join(cfg.GLRRM_RES, EXP, 'outputs')
+        for PI in PIS:
+            print(PI)
+            PI_module_name=f'CFG_{PI}'
+            unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{PI_module_name}')
+            sections= unique_PI_CFG.available_sections
+            
+            for time in AGG_TIME:
+            
+                if time=='YEAR':
+    
+                    for sect in sections:
+                        
+                        print(sect)
+                        
+                        station=unique_PI_CFG.dct_station_section[sect]
+                        df=pd.read_csv(os.path.join(path, f'{station}_{unique_PI_CFG.GLRRM_name}_{unique_PI_CFG.GLRRM_units}_qm48_na_na.csv'), skiprows=cfg.header_lenght)
+                        count=0
+                        years=df['year'].unique()
+                        d={'YEAR':years}
+                        df_all=pd.DataFrame(data=d)
+                        
+                        for s in stats:
+                            df=df[['year','values']]
+                            count+=1
+                            if s =='mean':
+                                df_grouped=df.groupby(['year'], as_index=False).mean()
+                                df_all[f'VAR{count}_sum']=df_grouped['values'].round(2)
+                            elif s == 'max':
+                                df_grouped=df.groupby(['year'], as_index=False).min()
+                                df_all[f'VAR{count}_sum']=df_grouped['values'].round(2)
+                            elif s=='min':
+                                df_grouped=df.groupby(['year'], as_index=False).max()
+                                df_all[f'VAR{count}_sum']=df_grouped['values'].round(2)
+                            else:
+                                print('stat in input is unavailable')
+                        
+                        print(df_all.head())
+                        
+                        res_dir=os.path.join(self.POST_PROCESS_ISEE, PI, time, 'SECTION', EXP, sect)
+                        
+                        if not os.path.exists(res_dir):
+                            os.makedirs(res_dir) 
+                        
+                        df_all.to_feather(os.path.join(res_dir, f'{PI}_{time}_{EXP}_{sect}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather'))
+                        
+                else:
+                    print(f'AGG_TIME {AGG_TIME} id not available yet')       
+                    quit()
+                
+            #df=pd.read_csv(path)
+            
 
-exps=POST_PROCESS_exp(cfg.GLRRM_RES, cfg.post_process_folder, cfg.sep) 
+exps=POST_PROCESS_exp(cfg.GLRRM_RES, cfg.post_process_folder, ISEE_cfg.POST_PROCESS_RES, cfg.sep) 
 experiments=exps.list_exps()
 
 for EXP in experiments:
-    if cfg.rewrite_exp:
-        exps.AGG_SPACE(EXP, ['YEAR', 'QM'], ['LOCATION'], ['mean', 'max', 'min'], ['MUSK_1D'])
-    else:
-        path_exp=os.path.join(cfg.post_process_folder, EXP)
-        if not os.path.exists(path_exp):
-            exps.AGG_SPACE(EXP, ['YEAR', 'QM'], ['LOCATION'], ['mean', 'max', 'min'], ['MUSK_1D'])
-        else:
-            print(f'Experience: {EXP} already POST PROCESSED, skipping...')
+    print(EXP)
+    
+    exps.GLRMM_to_ISEE_1D_PI(EXP, ['YEAR'], ['min', 'mean', 'max'], ['WLVL_1D'])
+    
+    #===========================================================================
+    # if cfg.overwrite_exp:
+    #     exps.AGG_SPACE(EXP, ['YEAR', 'QM'], ['LOCATION'], ['mean', 'max', 'min'], ['MUSK_1D'])
+    # else:
+    #     path_exp=os.path.join(cfg.post_process_folder, EXP)
+    #     if not os.path.exists(path_exp):
+    #         exps.AGG_SPACE(EXP, ['YEAR', 'QM'], ['LOCATION'], ['mean', 'max', 'min'], ['MUSK_1D'])
+    #     else:
+    #         print(f'Experience: {EXP} already POST PROCESSED, skipping...')
+    #===========================================================================
 quit()
 
 

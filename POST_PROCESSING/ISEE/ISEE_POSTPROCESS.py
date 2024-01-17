@@ -12,7 +12,7 @@ from pyproj import Transformer
 
 class POST_PROCESS_2D_tiled:
     
-    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect):
+    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect, id_column_name):
 
         self.pis=pis
         self.plans=plans
@@ -22,6 +22,7 @@ class POST_PROCESS_2D_tiled:
         self.POST_PROCESS_RES=POST_PROCESS_RES
         self.sep=sep
         self.dct_sect=dct_sect
+        self.id_column_name=id_column_name
            
     def agg_YEAR(self, folder_space, y):  
 
@@ -59,6 +60,36 @@ class POST_PROCESS_2D_tiled:
                         print('STAT value provided is unavailable')
         df_space=df_space.reset_index()
         df_space.to_feather(os.path.join(path_res, res_name))
+    
+    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, res_name):
+        count_y=0
+        for y in self.years:
+            count_y+=1
+            liste_files=[]
+            folder_space=os.path.join(self.ISEE_RES, PI,p, s, str(y))
+            for root, dirs, files in os.walk(folder_space):
+                for name in files:
+                    liste_files.append(os.path.join(root, name))
+            liste_df=[]
+            #liste_file_year=[f for f in liste_files if str(y) in f]
+            for feather in liste_files:
+                df_temp=pd.read_feather(feather)
+                df_temp[str(y)]=df_temp[var]
+                t=feather.split('_')[-2]
+                df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
+                df_t=df_t[['PT_ID', 'X_COORD', 'Y_COORD']]
+                df_temp=df_temp[[self.id_column_name, str(y)]]
+                df_temp=df_temp.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
+                
+                liste_df.append(df_temp)
+            df_y=pd.concat(liste_df, ignore_index=True, axis=0)            
+            if count_y==1:
+                df_main=df_y
+            else:
+                df_main=df_main.merge(df_y, on=[self.id_column_name,'X_COORD','Y_COORD'], how='outer', suffixes=('', ''))
+        
+        print(df_main.head())
+        df_main.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
         
@@ -109,7 +140,17 @@ class POST_PROCESS_2D_tiled:
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                     path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
                                     self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_feather_year)
-
+                    
+                    elif AGG_SPACE=='PT_ID':
+                        for p in self.plans:
+                            for s in self.sections:                                 
+                                for var in list(PI_CFG.dct_var.keys()):
+                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                    if not os.path.exists(path_res):
+                                        os.makedirs(path_res)
+                                    res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(self.years)}_{max(self.years)}.feather'
+                                    self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, res_name)
+                    
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
                         quit()
@@ -123,7 +164,7 @@ class POST_PROCESS_2D_tiled:
                 
 class POST_PROCESS_2D_not_tiled:
     
-    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect):
+    def __init__(self, pis, plans, sections, years, ISEE_RES, POST_PROCESS_RES, sep, dct_sect, id_column_name):
 
         self.pis=pis
         self.plans=plans
@@ -133,7 +174,8 @@ class POST_PROCESS_2D_not_tiled:
         self.POST_PROCESS_RES=POST_PROCESS_RES
         self.sep=sep
         self.dct_sect=dct_sect
-           
+        self.id_column_name=id_column_name
+        
     def agg_YEAR(self, folder_space, y):  
 
         liste_files=[]
@@ -176,6 +218,55 @@ class POST_PROCESS_2D_not_tiled:
                         
         df_space=df_space.reset_index()  
         df_space.to_feather(os.path.join(path_res, res_name))
+    
+    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, res_name):
+        count_y=0
+        for y in self.years:
+            count_y+=1
+            liste_files=[]
+            folder_space=os.path.join(self.ISEE_RES, PI,p)
+            for root, dirs, files in os.walk(folder_space):
+                for name in files:
+                    year=name.split('_')[-1].replace('.feather', '')
+                    if year==str(y):
+                        liste_files.append(os.path.join(root, name))
+            liste_df=[]
+            for feather in liste_files:
+                df_temp=pd.read_feather(feather)
+                df_temp=df_temp.loc[df_temp['SECTION']==s]
+                
+                tiles=df_temp['TILE'].unique()
+                
+                dfs_temp_t=[]
+                for t in tiles:
+                    print(t)
+                    df_temp_t=df_temp.loc[df_temp['TILE']==t]
+                    print(list(df_temp_t))
+                    df_temp_t=df_temp_t[['PT_ID', var]]
+                    df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
+                    df_t=df_t[['PT_ID', 'X_COORD', 'Y_COORD']]
+                    
+                    print(df_temp.head())
+                    print(df_t.head())
+                    
+                    df_temp_t=df_temp_t.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
+                    dfs_temp_t.append(df_temp_t)
+                    
+                df_temp=pd.concat(dfs_temp_t, ignore_index=True, axis=0)
+                print(df_temp.head())
+   
+                df_temp[str(y)]=df_temp[var]
+                df_temp=df_temp[[self.id_column_name, str(y), 'X_COORD', 'Y_COORD']]
+                liste_df.append(df_temp)                
+            df_y=pd.concat(liste_df, ignore_index=True, axis=0)
+            
+            if count_y==1:
+                df_main=df_y
+            else:
+                df_main=df_main.merge(df_y, on=[self.id_column_name,'X_COORD','Y_COORD'], how='outer', suffixes=('', ''))
+            print(len(df_main))
+            
+        df_main.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
         
@@ -226,6 +317,16 @@ class POST_PROCESS_2D_not_tiled:
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(self.years)}_{max(self.years)}.feather'
                                     agg_year_param=os.path.join(self.ISEE_RES, PI, p)
                                     self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '')
+                   
+                    elif AGG_SPACE=='PT_ID':
+                        for p in self.plans: 
+                            for s in self.sections:                              
+                                for var in list(PI_CFG.dct_var.keys()):
+                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                    if not os.path.exists(path_res):
+                                        os.makedirs(path_res)
+                                    res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(self.years)}_{max(self.years)}.feather'
+                                    self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, res_name)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -288,8 +389,7 @@ class POST_PROCESS_1D:
                 df_space=df_space_mean
             else:
                 print('STAT value provided is unavailable')
-                 
-                 
+                       
         elif AGG_SPACE == 'SECTION':
             df_space=self.agg_YEAR(agg_year_param)
             columns=['YEAR']
@@ -353,19 +453,24 @@ class POST_PROCESS_1D:
                     pass
             
             
-tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect) 
-not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)   
+tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect, cfg.id_column_name) 
+not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect, cfg.id_column_name)   
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.plans, cfg.sections, cfg.years, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, cfg.dct_sect)
-    
-for pi in tiled.pis:
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
-     
-for pi in not_tiled.pis:  
-    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'], ['sum']) 
    
-for pi in pi_1D.pis:
-    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum'])
-       
+for pi in tiled.pis:
+    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum']) 
+    tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
+        
+for pi in not_tiled.pis:  
+    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum']) 
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
+        
+#===============================================================================
+# for pi in pi_1D.pis:
+#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum'])
+#         
+#===============================================================================
+    
 quit()
 
 
@@ -374,50 +479,103 @@ quit()
 '''
 Bunch of messy piece of codes to manipulate old Richelieu River data into ISEE-GLAM data format
 '''
+               
+               
+#===============================================================================
+# tiles_folder=r'M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles'
+#      
+# liste=os.listdir(tiles_folder)
+#      
+# for f in liste:
+#     #path=fr"M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles\ISEE_tile_47.feather"
+#         
+#     path=fr'{tiles_folder}\{f}'
+#     dst=path.replace('.csv', '.feather')
+#     os.rename(path, dst)
+# quit()  
+#===============================================================================
+    
 
 #===============================================================================
-# folder="M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA"
+# path=r"M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles\ISEE_GRID_Tile_40.feather"
+# df=pd.read_feather(path)
+# df.to_csv(path.replace('feather', 'csv'), index=None)
+# quit()
+#===============================================================================
+
+#===============================================================================
+# folder=fr"M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles"
 # liste_files=[]
 # for root, dirs, files in os.walk(folder):
 #     for name in files:
 #         liste_files.append(os.path.join(root, name))
-# 
+#     
 # for f in liste_files:
 #     df=pd.read_csv(f, sep=';')
-#     dst=f.replace('csv', 'feather')
-#     df=df.reset_index()
+#     print(list(df))
+#     df=df[['PT_ID', 'XVAL', 'YVAL']]
+#     t=f.split('_')[-1].replace('.csv', '')
+#     print(t)
+#     #df=df.drop(columns=['index'])
+#     dst=fr'{folder}\ISEE_tile_{t}.feather'
 #     df.to_feather(dst)
-#     os.remove(f)
 # quit()
 #===============================================================================
     
     
 #===============================================================================
-# tiles_folder=r'M:\ISEE_Dashboard\ISEE_RAW_DATA\Tiles'
-# 
+# tiles_folder=r'M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles'
+#      
 # liste=os.listdir(tiles_folder)
-# 
+#      
 # for f in liste:
+#     #path=fr"M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\Tiles\ISEE_tile_47.feather"
+#         
 #     path=fr'{tiles_folder}\{f}'
-#     
-#     df=pd.read_feather(path, sep=';')
-#     
+#     dst=path.replace('.csv', '.feather')
+#       
+#     #t=path.split('_')[-1].replace('.feather', '')
+#     #t=int(t)
+#       
+#     #dst=path.replace('.feather', '.csv' )
+#         
+#     df=pd.read_csv(path, sep=';')
+#       
+#     #df['PT_ID']=1000000*t+df['PT_ID']
+#        
+#     print(df.head())
+#    
+#     df=df[['PT_ID', 'XVAL', 'YVAL']]
+#          
 #     utm=pyproj.CRS('EPSG:32618')
-#     coord=pyproj.CRS('EPSG:2958')
-#     
-#     transformer = Transformer.from_crs(utm, coord)
-#                  
+#     utm2=pyproj.CRS('EPSG:2958')
+#     coord=pyproj.CRS('EPSG:4329')
+#          
+#     transformer = Transformer.from_crs(utm, utm2)
+#                       
 #     x_pts=df['XVAL']
 #     y_pts=df['YVAL']
-#     
-#     ## it works but strange!! ##  ## retested in 2020-08-16 inn still seems to be what is working... 
-#     y_proj, x_proj=transformer.transform(y_pts, x_pts)
-#     df['X_COORD']= x_proj
-#     df['Y_COORD']= y_proj
-#     
-#     df.to_feather(path, sep=';', index=None)
-#     quit()
+#          
+#         
+#     x_proj, y_proj=transformer.transform(x_pts, y_pts)
+#     #===========================================================================
+#     # df['X_UTM2']= x_proj
+#     # df['Y_UTM2']= y_proj
+#     # 
+#     #===========================================================================
+#     transformer2 = Transformer.from_crs(utm2, coord)
+#      ## it works but strange!! ##  ## retested in 2023-11-13 and still seems to be what is working...
+#     y_coord, x_coord = transformer2.transform(x_proj, y_proj)
+#         
+#     df['X_COORD']= x_coord
+#     df['Y_COORD']= y_coord
+#         
+#         
+#     df.to_feather(dst)
+#     #print(df.head())
+# quit()
 #===============================================================================
+     
 
 
 #===============================================================================

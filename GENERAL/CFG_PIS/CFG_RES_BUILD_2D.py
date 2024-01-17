@@ -6,7 +6,7 @@ type='2D_not_tiled'
 
 dct_var={'VAR1':'Structural damages', 'VAR2':'Material damages', 'VAR3':'Total damage'}
 
-units='$ CAN'
+units='K$ CAN'
 
 available_years=list(range(1926, 2017))
 
