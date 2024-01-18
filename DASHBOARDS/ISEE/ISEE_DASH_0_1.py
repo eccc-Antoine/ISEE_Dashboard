@@ -176,11 +176,7 @@ with Col2:
                 fig=UTILS.plot_map_plotly(PIs, Variable, df_both, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
                 st.plotly_chart(fig, use_container_width=True) 
                 
-                #map_path=UTILS.plot_folium_map(PIs, Variable, df_both, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
-                #bcn_map_html=UTILS.get_folium_map(map_path)
-                #with st.container():
-                #components.html(bcn_map_html,width=1000, height=1000)
-                
+
             else:
                 gdf_grille_base=UTILS.prep_for_prep_1d(CFG_DASHBOARD.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, baseline_code, unique_PI_CFG.available_years, stat2, var2, CFG_DASHBOARD.mock_map_sct_dct)
             
@@ -196,82 +192,9 @@ with Col2:
                     folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700)
                     
                 UTILS.folium_static(folium_map, 1200, 700)
-                #st.write('Difference maps are not available for 1D PI yet')
-                    
-            #df=df.loc[df[]]
-            
-            
-            #===================================================================
-            # if not os.path.exists(df_folder):
-            #     st.write('This level of detail is not available for this PI yet')
-            # 
-            # else:
-            #===================================================================
-            #alt=fr'{df_folder}\{ze_plan}'
-             
-             
-          #=====================================================================
-          #   if unique_PI_CFG.type=='2D_tiled':
-          #       liste_files=[]
-          #       for root, dirs, files in os.walk(df_folder):
-          #           for name in files:
-          #               liste_files.append(os.path.join(root, name))
-          #                        
-          #       years=list(range(start_year, end_year+1))
-          #        
-          #       var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-          #        
-          #       dfs_y=[]
-          #       for f in liste_files:
-          #           y=int(f.split('_')[-1].replace('.csv', '')) 
-          #           #print(y)
-          #           sect=f.split('\\')[-3]
-          #           #print(f)
-          #           #print(sect)
-          #           if sect in CFG_DASHBOARD.sect_dct[Region]:
-          #               if y in years:
-          #                   tile=f.split('_')[-2]
-          #                   df_y=pd.read_csv(f, sep=';')
-          #                   df_y['TILE']=int(tile)
-          #                   df_y['SECTION']=sect
-          #                   print(list(df_y))
-          #                    
-          #                   df_y=df_y[['PT_ID', f'{var}', 'SECTION', 'TILE' ]]                                                          
-          #                   dfs_y.append(df_y)
-          #                    
-          #       df_p=pd.concat(dfs_y, ignore_index=True)
-          #        
-          #       print(list(df_p))
-          #        
-          #       if Stats == 'sum':
-          #           df_p=df_p.groupby(by=['PT_ID', 'SECTION', 'TILE' ], as_index=False).sum()
-          #       if Stats == 'average':
-          #           df_p=df_p.groupby(by=['PT_ID', 'SECTION', 'TILE' ], as_index=False).mean()
-          #        
-          #                       ##TODO adapt so it finds the crs of each tile 
-          #       transformer = Transformer.from_crs(CFG_DASHBOARD.crs, 4326)
-          #         
-          #       x_pts=df_p['XVAL']
-          #       y_pts=df_p['YVAL']
-          # 
-          #       ## it works but strange!! ##  ## retested in 2020-08-16 inn still seems to be what is working... 
-          #       x_proj, y_proj=transformer.transform(y_pts, x_pts)
-          #       df_p['X']= x_proj
-          #       df_p['Y']= y_proj
-          #        
-          #       df_p=df_p[['X', 'Y', f'{Variable}_sum']]
-          #        
-          #       st.map(df_p, latitude='Y', longitude='X', color=f'{Variable}_sum')
-          #    
-          #   else:
-          #       print(unique_PI_CFG.type)
-          #       st.write('maps not available for this type of PI yet')
-          #=====================================================================
-   
+
              
         with tab6:
             df_PI['YEAR']=df_PI['YEAR'].astype(str)
             st.dataframe(df_PI.style)
-            #st.dataframe(df_PI.style, hide_index=True)
-     
 
