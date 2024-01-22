@@ -11,7 +11,7 @@ import folium
 from folium import plugins
 import json
 import streamlit.components.v1 as components
-
+from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
 
 def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille, sct_dct, s):
     df=pd.read_feather(file)
@@ -46,7 +46,7 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
     
     for s in list_sect:
         df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION',  scen_code, s)
-        pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}.feather')
+        pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
         gdf_grille=prep_data_map_1d(pt_id_file, np.min(avail_years), np.max(avail_years), stat, var, gdf_grille, sct_dct, s)
 
     return gdf_grille
@@ -238,7 +238,7 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
             alt=CFG_DASHBOARD.plan_dct[p]
         sect=CFG_DASHBOARD.sect_dct[Region]
         for s in sect:
-            feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather'
+            feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}'
             if feather_name not in feather_done:
                 df=pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
                 df['ALT']=alt

@@ -102,7 +102,7 @@ with Col2:
 
                     df_folder=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code, CFG_DASHBOARD.sect_dct[Region][0])
                      
-                    pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{baseline_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather')
+                    pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{baseline_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
                      
                     df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat1, Variable)
 
@@ -125,7 +125,7 @@ with Col2:
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
                 
                     df_folder=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code, CFG_DASHBOARD.sect_dct[Region][0])
-                    pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather')
+                    pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
                     df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat2, Variable)
                     fig=UTILS.plot_map_plotly(PIs, Variable, df, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, ze_plan, Variable)    
                     st.plotly_chart(fig, use_container_width=True) 
@@ -145,11 +145,11 @@ with Col2:
             if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
                 df_folder_base=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code, CFG_DASHBOARD.sect_dct[Region][0]) 
-                pt_id_file_base=os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather')
+                pt_id_file_base=os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
                 df_base=UTILS.prep_data_map(pt_id_file_base, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat3, Variable)
                    
                 df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code, CFG_DASHBOARD.sect_dct[Region][0]) 
-                pt_id_file_plan=os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}.feather')
+                pt_id_file_plan=os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{CFG_DASHBOARD.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
                 df_plan=UTILS.prep_data_map(pt_id_file_plan, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat3, Variable)
                 
                 df_both=df_base.merge(df_plan, on=['PT_ID', 'X_COORD', 'Y_COORD'], how='outer', suffixes=('_base', '_plan'))
