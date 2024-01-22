@@ -14,7 +14,11 @@ import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
 
 def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille, sct_dct, s):
-    df=pd.read_feather(file)
+    if CFG_DASHBOARD.file_ext =='.feather':
+        df=pd.read_feather(file)
+    else:
+        df=pd.read_csv(file, sep=';')
+        
     df=df.loc[(df['YEAR']>=start_year) & (df['YEAR']<=end_year)]
 
     if stat=='Min':
@@ -125,7 +129,10 @@ def folium_static(fig, width, height):
         )
 
 def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variable):
-    df=pd.read_feather(file)
+    if CFG_DASHBOARD.file_ext =='.feather':
+        df=pd.read_feather(file)
+    else:
+        df=pd.read_csv(file, sep=';')
     liste_year=list(range(start_year, end_year+1))
     liste_year = [str(i) for i in liste_year]
     columns=[id_col, col_x, col_y] + liste_year
@@ -240,7 +247,10 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
         for s in sect:
             feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}'
             if feather_name not in feather_done:
-                df=pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
+                if CFG_DASHBOARD.file_ext =='.feather':
+                    df=pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
+                else:
+                    df=pd.read_csv(os.path.join(df_folder, alt, s, feather_name), sep=';')
                 df['ALT']=alt
                 df['SECT']=s
                 dfs.append(df)
