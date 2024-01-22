@@ -15,20 +15,8 @@ import folium as f
 from folium import plugins
 import branca.colormap as cm
 import requests
-
-#===============================================================================
-# from pyproj import transform, Proj
-# import pyproj
-# from pyproj import Transformer
-#===============================================================================
 import sys
 import streamlit.components.v1 as components
-
-#===============================================================================
-# df=pd.read_feather(r"M:\ISEE_Dashboard\DATA\ISEE\ISEE_POST_PROCESS_DATA\MUSK_1D\YEAR\SECTION\Baseline\USL_CAN\MUSK_1D_YEAR_Baseline_USL_CAN_1926_2016.feather")
-# print(df.head())
-# quit()
-#===============================================================================
 
 
 st.set_page_config(

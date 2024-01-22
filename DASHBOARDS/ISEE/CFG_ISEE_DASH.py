@@ -46,8 +46,8 @@ title=f'{name} DASHBOARD 0.5.'
 raw_data_folder=fr'M:\DATA\{name}\{name}_RAW_DATA'
 #raw_data_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_RAW_DATA'
 
-post_process_folder=fr'M:\DATA\{name}\{name}_POST_PROCESS_DATA'
-#post_process_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_POST_PROCESS_DATA'
+#post_process_folder=fr'M:\DATA\{name}\{name}_POST_PROCESS_DATA'
+post_process_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/{name}/{name}_POST_PROCESS_DATA'
 
 sct_poly=os.path.join(raw_data_folder, "SECTIONS.geojson")
 

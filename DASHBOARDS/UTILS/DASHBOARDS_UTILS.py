@@ -56,7 +56,6 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
     with placeholder1.container():
         st.subheader(f'Now showing :blue[{Stats}] of :blue[{PIs}], during :blue[{start_year} to {end_year}] period, in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
     placeholder2 = st.empty()
-    #plan_values=plan_values.append(baseline_value)
     with placeholder2.container():   
         kpis = st.columns(max_plans+1)
         count_kpi=1
