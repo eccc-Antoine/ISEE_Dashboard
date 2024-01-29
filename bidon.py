@@ -1,13 +1,27 @@
 import pandas as pd
 import os
 
-#===============================================================================
-# df=pd.read_feather(r"M:\ISEE_Dashboard\DATA\ISEE\ISEE_RAW_DATA\MUSK_1D\Baseline\USL_CAN\MUSK_1D_Baseline_USL_CAN.feather")
-# 
-# print(df.head())
-# 
-# quit()
-#===============================================================================
+df=pd.read_feather(r"M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\PLAN\Bv7_baseline_NG_historical\NAVC_1D_YEAR_Bv7_baseline_NG_historical_1961_2016.feather")
+ 
+print(df.head())
+
+print(df.dtypes)
+
+quit()
+
+df['VAR1']=df['VAR1']/2
+
+df['VAR2']=df['VAR2']/2
+
+print(df.head())
+
+
+
+df.to_feather(r"M:\DATA\ISEE\ISEE_RAW_DATA\EX_RB_1D\Alt_2\USL_DS\EX_RB_1D_Baseline_USL_DS.feather")
+ 
+quit()
+
+
 
 folder=fr'M:\ISEE_Dashboard\ISEE_POST_PROCESS_DATA'
 

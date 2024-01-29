@@ -2,24 +2,24 @@ import os
 import pandas as pd
 import numpy as np
 
-name='Muskrat winter lodge survival probability'
+name='Exposed River Bed'
 
 type='1D'
 
-dct_var={'VAR1':'Freezing probability', 'VAR2':'Relodging probabilty', 'VAR3':'Survival probability'}
+dct_var={'VAR1':'Index', 'VAR2':'Normalized Index'}
 
 #normal mean higher is better
-var_direction={'Freezing probability':'inverse','Relodging probabilty': 'normal','Survival probability':'normal'}
+var_direction={'Index':'inverse','Normalized Index': 'inverse'}
 
-units='%'
+units=''
 
-available_years=list(range(1926, 2017))
+available_years=list(range(1961, 2019))
 
-available_sections=['LKO_CAN', 'USL_CAN']
+available_sections=['USL_DS']
 
-sect_dct={'Lake Ontario Canada':['LKO_CAN'], 'Upper St.Lawrence Canada':['USL_CAN'], 'Canada':['LKO_CAN', 'USL_CAN']}
- 
-mock_map_sct_dct={'LKO_CAN':['LKO'], 'USL_CAN':['SLR_DS', 'SLR_UP', 'USL_DS', 'USL_UP' ]}
+sect_dct={'Lake St.Lawrence':['USL_DS']}
+
+mock_map_sct_dct={'USL_DS':['USL_DS']}
 
 available_plans=['Alt_1', 'Alt_2']
 
@@ -29,7 +29,19 @@ available_baselines=['Baseline']
 
 baseline_dct={'actual plan': 'Baseline', 'pristine state': 'Baseline'}
 
-available_stats=['sum', 'mean']
+available_stats=['mean', 'sum']
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Mock equation just to implement the routine
