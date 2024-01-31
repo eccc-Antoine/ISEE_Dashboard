@@ -10,7 +10,9 @@ pis_2D_not_tiled=['RES_BUILD_2D']
 
 #pis_1D=['EX_RB_1D']
 
-pis_1D=['NAVC_1D', 'EX_RB_1D', 'MUSK_1D']
+#pis_1D=['NAVC_1D', 'EX_RB_1D', 'MUSK_1D', 'ONZI_1D']
+
+pis_1D=['MM_1D']
 
 #plans=['Bv7_baseline_NG_historical', 'Bv7_infop_policy_620_nosepRule']
 

@@ -1,6 +1,8 @@
 import streamlit as st # web development
 import numpy as np # np mean, np random 
 import pandas as pd # read csv, df manipulation
+#pd.options.mode.copy_on_write = True
+pd.set_option('mode.chained_assignment', None)
 import plotly.express as px # interactive charts 
 import os
 import importlib
@@ -97,10 +99,10 @@ with Col2:
                 #baselines={i for i in CFG_DASHBOARD.baseline_dct if CFG_DASHBOARD.baseline_dct[i] in unique_PI_CFG.available_baselines}
                 baselines=list(unique_PI_CFG.baseline_dct.keys())
                 Baseline=st.selectbox("Select a reference plan to display", baselines)                    
-                stat1=st.selectbox("Select a way to aggregate values for the selected period", ['Min', 'Max', 'Mean', 'Sum'], key='stat1', index=2)                  
+                           
                 baseline_code=unique_PI_CFG.baseline_dct[Baseline]
                 var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-                   
+                stat1=st.selectbox("Select a way to aggregate values for the selected period", unique_PI_CFG.var_agg_stat[var]+['Min', 'Max'], key='stat1', index=0)         
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
                     df_folder=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code, unique_PI_CFG.sect_dct[Region][0])
@@ -121,29 +123,29 @@ with Col2:
             with Col2:
                 available_plans={i for i in unique_PI_CFG.plan_dct if unique_PI_CFG.plan_dct[i] in unique_PI_CFG.available_plans}
                 ze_plan=st.selectbox("Select a candidate plan to display", available_plans)
-                stat2=st.selectbox("Select a way to aggregate values for the selected period", ['Min', 'Max', 'Mean', 'Sum'], key='stat2', index=2)
                 ze_plan_code=unique_PI_CFG.plan_dct[ze_plan]
                 var2=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-                
+                st.selectbox("", ['', ''], key='stat2', index=0)
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
                 
                     df_folder=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code, unique_PI_CFG.sect_dct[Region][0])
                     pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{unique_PI_CFG.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
-                    df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat2, Variable)
+                    df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat1, Variable)
                     fig=UTILS.plot_map_plotly(PIs, Variable, df, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, ze_plan, Variable)    
                     st.plotly_chart(fig, use_container_width=True) 
                 else:                    
-                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat2, var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
-                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, ze_plan, stat2, Variable, 'compare') 
+                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat1, var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
+                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, ze_plan, stat1, Variable, 'compare') 
                     UTILS.folium_static(folium_map, 700, 700)
                 
                 
         with tab5:        
             ze_plan=st.selectbox("Select a regulation plan to compare with reference plan", plans_selected)
-            stat3=st.selectbox("Select a way to aggregate values for the selected period", ['Min', 'Max', 'Mean', 'Sum'], key='stat3', index=2)   
+            
             baseline_code=unique_PI_CFG.baseline_dct[Baseline]
             ze_plan_code=unique_PI_CFG.plan_dct[ze_plan]
             var3=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+            stat3=st.selectbox("Select a way to aggregate values for the selected period", unique_PI_CFG.var_agg_stat[var3]+['Min', 'Max'], key='stat3', index=0)   
             diff_type2= st.selectbox("Select a type of difference to compute", [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'], key='diff_type2')
             if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 

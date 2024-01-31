@@ -98,7 +98,7 @@ class POST_PROCESS_2D_tiled:
         print(df_main.head())
         df_main.to_feather(os.path.join(path_res, res_name))
 
-    def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
+    def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
@@ -121,6 +121,7 @@ class POST_PROCESS_2D_tiled:
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
+                    stats=PI_CFG.var_agg_stat[var]
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
@@ -296,7 +297,7 @@ class POST_PROCESS_2D_not_tiled:
             
         df_main.to_feather(os.path.join(path_res, res_name))
 
-    def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
+    def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
@@ -319,6 +320,7 @@ class POST_PROCESS_2D_not_tiled:
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
+                    stats=PI_CFG.var_agg_stat[var]
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
@@ -424,7 +426,7 @@ class POST_PROCESS_1D:
                     df_space_sum=df_year.groupby(['YEAR'], as_index=False).sum()
                 elif stat=='mean':
                     df_space_mean=df_year.groupby(['YEAR'], as_index=False).mean()
-                      
+    
             if len(stats)>1:
                 df_space=df_space_sum.merge(df_space_mean, on=['YEAR'], suffixes=('_sum', '_mean'), validate='one_to_one')
             elif stats[0]=='sum':
@@ -438,15 +440,17 @@ class POST_PROCESS_1D:
             df_space=self.agg_YEAR(agg_year_param)
             columns=['YEAR']
             for var in list_var:
-                var_sum=var+'_sum'
-                df_space[var_sum]=df_space[var]
-                columns.append(var_sum)
+                stats=PI_CFG.var_agg_stat[var]
+                for stat in stats:
+                    var_stat=var+f'_{stat}'
+                    df_space[var_stat]=df_space[var]
+                    columns.append(var_stat)
             df_space=df_space[columns]
         
         df_space=df_space.reset_index()                               
         df_space.to_feather(os.path.join(path_res, res_name))
 
-    def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE, stats):
+    def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
         VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
@@ -464,6 +468,7 @@ class POST_PROCESS_1D:
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
+                    stats=PI_CFG.var_agg_stat[var]
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
@@ -516,24 +521,22 @@ not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
    
-for pi in tiled.pis:
-    print(pi)
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum']) 
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
-           
-for pi in not_tiled.pis:  
-    print(pi)
-    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'], ['sum']) 
-    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
-        
 #===============================================================================
-# for pi in pi_1D.pis:
+# for pi in tiled.pis:
 #     print(pi)
-#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'], ['sum'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID']) 
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
+#             
+# for pi in not_tiled.pis:  
+#     print(pi)
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID']) 
+#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'], ['sum'])
 #===============================================================================
-          
-     
-
+        
+for pi in pi_1D.pis:
+    print(pi)
+    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
+             
 quit()
 
 

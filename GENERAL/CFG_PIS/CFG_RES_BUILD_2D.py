@@ -6,6 +6,9 @@ type='2D_not_tiled'
 
 dct_var={'VAR1':'Structural damages', 'VAR2':'Material damages', 'VAR3':'Total damage'}
 
+# need to be 'mean' or 'sum', values need to be a list even if there is only one item
+var_agg_stat={'VAR1':['mean', 'sum'], 'VAR2':['mean', 'sum'], 'VAR3':['mean', 'sum'] }
+
 #normal mean higher is better
 var_direction={'Structural damages':'inverse','Material damages': 'inverse','Total damage':'inverse'}
 

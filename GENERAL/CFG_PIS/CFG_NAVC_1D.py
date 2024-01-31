@@ -8,8 +8,10 @@ type='1D'
 
 dct_var={'VAR1':'no risk','VAR2':'Warning','VAR3':'Accelerated Risk','VAR4':'High Risk'}
 
+var_agg_stat={'VAR1':['mean'], 'VAR2':['mean'], 'VAR3':['mean'],'VAR4':['mean']}
+
 #normal mean higher is better
-var_direction={'no risk':'inverse','Warning': 'inverse','Accelerated Risk':'inverse', 'High Risk':'inverse'}
+var_direction={'no risk':'normal','Warning': 'inverse','Accelerated Risk':'inverse', 'High Risk':'inverse'}
 
 units='Number of QM'
 
@@ -19,7 +21,7 @@ available_sections=['USL']
 
 sect_dct={'Upper St.lawrence':['USL']}
 
-mock_map_sct_dct={'USL':['USL_DS', 'USL_UP']}
+mock_map_sct_dct={'USL':['USL_DS', 'USL_US']}
 
 
 available_plans=['Bv7_infop_policy_620_nosepRule']

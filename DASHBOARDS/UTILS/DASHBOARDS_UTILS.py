@@ -3,6 +3,8 @@ import streamlit as st
 import numpy as np
 import importlib
 import pandas as pd
+
+pd.set_option('mode.chained_assignment', None)
 import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -13,23 +15,23 @@ import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
 
-def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, sct_map_dct, s):
+def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, sct_map_dct, s, var_stat):
     if CFG_DASHBOARD.file_ext =='.feather':
         df=pd.read_feather(file)
     else:
         df=pd.read_csv(file, sep=';')
         
     df=df.loc[(df['YEAR']>=start_year) & (df['YEAR']<=end_year)]
-
+    
     if stat=='Min':
-        val=df[f'{var}_sum'].min()
+        val=df[f'{var}_{var_stat}'].min()
     if stat=='Max':
-        val=df[f'{var}_sum'].max()
-    if stat=='Mean':
-        val=df[f'{var}_sum'].mean()
-    if stat=='Sum':
-        val=df[f'{var}_sum'].sum()
-        
+        val=df[f'{var}_{var_stat}'].max()
+    if stat=='mean':
+        val=df[f'{var}_{var_stat}'].mean()
+    if stat=='sum':
+        val=df[f'{var}_{var_stat}'].sum()
+         
     val=np.round(val, 3)
     
     gdf_grille=gdf_grille_origine
@@ -42,11 +44,15 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     
     for g in list(sct_map_dct.values()):
         if len(g) >1:
+            
             gdf_temp=gdf_grille.loc[gdf_grille['SECTION'].isin(g)]
+            #print(gdf_temp)
             value=gdf_grille['VAL'].loc[gdf_grille['SECTION']==g[0]].iloc[0]
             gdf_temp=gdf_temp.dissolve()
             gdf_temp['VAL']=value
+            #print([k for k, v in sct_map_dct.items() if v == g][0])
             gdf_temp['SECTION']=[k for k, v in sct_map_dct.items() if v == g][0]
+            #print(gdf_temp)
             gdf_grille=pd.concat([gdf_grille, gdf_temp])
 
         else:
@@ -69,10 +75,12 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
     ## keep only unique values
     set_res = set(sections)         
     list_sect = (list(set_res))
+    
     gdf_grille_origin=gpd.read_file(sct_poly)
     gdf_grille_origin['VAL']=0.0
     
-    #unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    var_stat=unique_PI_CFG.var_agg_stat[var][0]
     #sect_PI=unique_PI_CFG.available_sections
     gdfs=[]
     
@@ -80,12 +88,14 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
         #if s in sect_PI:
         df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION',  scen_code, s)
         pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
-        gdf_grille_unique=prep_data_map_1d(pt_id_file, np.min(avail_years), np.max(avail_years), stat, var, gdf_grille_origin, sct_map_dct, s)
+        gdf_grille_unique=prep_data_map_1d(pt_id_file, np.min(avail_years), np.max(avail_years), stat, var, gdf_grille_origin, sct_map_dct, s, var_stat)
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
     gdf_grille_all=gdf_grille_all.loc[gdf_grille_all['VAL']!=0]
-
+    
+    gdf_grille_all=gdf_grille_all.dissolve(by='SECTION', as_index=False)
+    
     return gdf_grille_all
 
 def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction):
@@ -129,7 +139,7 @@ def popup_html(z, col, plan, stat, var, type):
     return html
 
 def create_folium_map(gdf_grille, col, dim_x, dim_y, plan, stat, var, type):
-    folium_map = folium.Map(location=[43.9, -76.3], zoom_start=6, tiles='cartodbpositron')
+    folium_map = folium.Map(location=[43.9, -76.3], zoom_start=7, tiles='cartodbpositron')
                     
     gdf_grille[col]=gdf_grille[col].astype(float)
     
@@ -138,9 +148,9 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, plan, stat, var, type):
     js_data = json.loads(gjson)
     val_dict = gdf_grille.set_index("SECTION")[col]
     
-    print(val_dict)
-    
     linear = cm.LinearColormap(["green", "yellow", "orange", "red"], vmin=gdf_grille[col].min(), vmax=gdf_grille[col].max())
+    
+    
     folium.GeoJson(
         gjson,
         style_function=lambda feature: {
@@ -241,7 +251,14 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     
     for y in list(range(start_year, end_year+1)):
         for p in list_plans:
-            df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0]
+
+            ### WORKAROUND so if value is missing it still continues....
+            if len(df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])])>0:
+                df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0]
+            else:
+                print(f'WARNING value id missing for {p} during year {y}')
+                df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
+                
     df_PI_plans['DIFF_PROP']=((df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
     df_PI_plans['DIFF']=df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE']
     diff_dct={f'Values ({unit_dct[PI_code]})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
@@ -256,7 +273,8 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
 def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct):
     df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
     fig = px.line(df_PI_plans, x="YEAR", y=Variable, color='ALT', labels={'ALT':'Plans'})
-    fig['data'][-1]['line']['color']="#00ff00"
+    fig['data'][0]['line']['color']="#00ff00"
+    fig['data'][0]['line']['width']=3
     fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
            xaxis_title='Years',
            yaxis_title=f'{unit_dct[PI_code]}')
@@ -287,7 +305,6 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     feather_done=[]
     plans_all=plans_selected+[Baseline]
     for p in plans_all:
-        print(p)
         if p == Baseline:
             alt=unique_PI_CFG.baseline_dct[p]
         else:
@@ -311,12 +328,28 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     df_PI=df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
     
     # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
-    df_PI=df_PI.groupby(by=['YEAR', 'ALT'], as_index=False).sum()
-    df_PI['SECT']=Region
-    unique_PI_CFG.dct_var.items()
     var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     
-    df_PI[Variable]=df_PI[f'{var}_sum']
+    stats=unique_PI_CFG.var_agg_stat[var]
+    
+    # when a variable can be aggregated by mean or sum, sum is done in priority
+    if len(stats)>1:
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
+    elif stats[0]=='sum':
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
+    elif stats[0]=='mean':
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_mean']]
+        df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
+    else:
+        print('problem w. agg stat!!')
+    
+    df_PI['SECT']=Region
+    #unique_PI_CFG.dct_var.items()
+
+    df_PI[Variable]=df_PI[f'{var}_{stats[0]}']
+
     df_PI=df_PI[['YEAR', 'ALT', 'SECT', Variable]]
     
     return df_PI
@@ -360,7 +393,8 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
         Baseline='N/A'
 
     if Stats:
-        Stats=st.selectbox("Stats to compute", unique_PI_CFG.available_stats)
+        var=[key for key,value in unique_PI_CFG.dct_var.items() if value == Variable][0]
+        Stats=st.selectbox("Stats to compute", unique_PI_CFG.var_agg_stat[var])
     else:
         Stats='N/A'
     

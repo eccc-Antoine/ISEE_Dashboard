@@ -2,7 +2,9 @@ import os
 
 name='ISEE'
 
-pi_list=['ESLU_2D', 'RES_BUILD_2D', 'MUSK_1D', 'EX_RB_1D', 'NAVC_1D']
+#pi_list=['ESLU_2D', 'RES_BUILD_2D', 'MUSK_1D', 'EX_RB_1D', 'NAVC_1D', 'ONZI_1D']
+
+pi_list=['NAVC_1D', 'MM_1D', 'ONZI_1D']
 
 #===============================================================================
 # sect_dct={'Lake Ontario Canada':['LKO_CAN'], 'Upper St.Lawrence Canada':['USL_CAN'], 'Canada':['LKO_CAN', 'USL_CAN'], 'Lake St.Lawrence':['USL_DS'], 'Upper St. Lawrence': ['USL']}
