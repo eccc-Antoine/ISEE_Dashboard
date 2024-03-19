@@ -67,7 +67,7 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     return gdf_grille
 
 
-def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, sct_map_dct, unique_pi_module_name):
+def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, sct_map_dct, unique_pi_module_name, start_year, end_year):
     sections=[]
     for r in sect_dct.values():
         for rr in r:
@@ -88,7 +88,7 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
         #if s in sect_PI:
         df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION',  scen_code, s)
         pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
-        gdf_grille_unique=prep_data_map_1d(pt_id_file, np.min(avail_years), np.max(avail_years), stat, var, gdf_grille_origin, sct_map_dct, s, var_stat)
+        gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, sct_map_dct, s, var_stat)
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
@@ -138,38 +138,78 @@ def popup_html(z, col, plan, stat, var, type):
     """
     return html
 
-def create_folium_map(gdf_grille, col, dim_x, dim_y, plan, stat, var, type):
+def create_folium_map(gdf_grille, col, dim_x, dim_y, plan, stat, var, type, unique_pi_module_name, unit):
     folium_map = folium.Map(location=[43.9, -76.3], zoom_start=7, tiles='cartodbpositron')
-                    
+    
+    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    
+    direction=unique_PI_CFG.var_direction[var]
+           
     gdf_grille[col]=gdf_grille[col].astype(float)
     
-    gjson = gdf_grille.to_crs(epsg='4326').to_json()
-
-    js_data = json.loads(gjson)
+    if type=='diff':
+        if direction == 'inverse':
+            step = cm.StepColormap(["green", "red"], index=[-100000000000000, 0, 100000000000000000], caption=unit)
+        else:
+            step = cm.StepColormap(["red", "green"], index=[-100000000000000, 0, 100000000000000000], caption=unit)
+    else:
+        if direction == 'inverse':
+            linear = cm.LinearColormap(["green", "yellow", "orange", "red"], vmin=gdf_grille[col].min(), vmax=gdf_grille[col].max(), caption=unit)
+            step=linear.to_step(4)
+        else:
+            linear = cm.LinearColormap(["red", "orange", "yellow", "green"], vmin=gdf_grille[col].min(), vmax=gdf_grille[col].max(), caption=unit)
+            step=linear.to_step(4)
+    
     val_dict = gdf_grille.set_index("SECTION")[col]
     
-    linear = cm.LinearColormap(["green", "yellow", "orange", "red"], vmin=gdf_grille[col].min(), vmax=gdf_grille[col].max())
+    #print(val_dict)
+    
+    #===========================================================================
+    # for _, r in gdf_grille.iterrows():
+    #     sim_geo = gpd.GeoSeries(r["geometry"])
+    #     geo_j = sim_geo.to_json()
+    #     geo_j = folium.GeoJson(data=geo_j,style_function=lambda x: {
+    #         "fillColor": linear(val_dict(x["properties"]['SECTION'])),
+    #         "color": "black",
+    #         "weight": 2,
+    #         "dashArray": "5, 5",
+    #     })
+    #     #folium.Popup(r["BoroName"]).add_to(geo_j)
+    #     geo_j.add_to(folium_map)
+    #===========================================================================
+    
+    centro=gdf_grille
+    gdf_grille=gdf_grille.to_crs(epsg='4326')
+    
+    centro['centroid']=centro.centroid
+    centro['centroid']=centro["centroid"].to_crs(epsg=4326)
     
     
+    gjson = gdf_grille.to_json()
+    js_data = json.loads(gjson)
+    val_dict = gdf_grille.set_index("SECTION")[col]
+
     folium.GeoJson(
         gjson,
         style_function=lambda feature: {
-            "fillColor": linear(val_dict[feature["properties"]["SECTION"]]),
+            "fillColor": step(val_dict[feature["properties"]["SECTION"]]),
             "color": "black",
             "weight": 2,
             "dashArray": "5, 5",
         },
     ).add_to(folium_map)
-      
-    for z in js_data['features']:
-        b = folium.GeoJson(z['geometry'], style_function=lambda feature: {
-            "color": "black",
-            "weight": 2,
-            "dashArray": "5, 5",})
-            #tooltip=f'Section: {z["properties"]["SECTION"]} \n Value:{z["properties"][col]}', name='Sections')
-        html = popup_html(z, col, plan, stat, var, type)
-        b.add_child(folium.Popup(folium.Html(html, script=True), min_width=50, max_width=100))
-        b.add_to(folium_map)
+    
+    for _, r in centro.iterrows():
+        lat = r["centroid"].y
+        lon = r["centroid"].x
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+            #popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+        ).add_to(folium_map)
+    
+    
+    folium_map.add_child(step)
      
     folium_static(folium_map, dim_x, dim_y)
 
@@ -190,47 +230,64 @@ def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variab
         df=pd.read_feather(file)
     else:
         df=pd.read_csv(file, sep=';')
+    
+    df.fillna(0, inplace=True)
+    
     liste_year=list(range(start_year, end_year+1))
     liste_year = [str(i) for i in liste_year]
+
+    
     columns=[id_col, col_x, col_y] + liste_year
     df=df[columns]
     if stat=='Min':
         df['stat']=df[liste_year].min(axis=1)
     if stat=='Max':
         df['stat']=df[liste_year].max(axis=1)
-    if stat=='Mean':
+    if stat=='mean':
         df['stat']=df[liste_year].mean(axis=1)
-    if stat=='Sum':
+    if stat=='sum':
         df['stat']=df[liste_year].sum(axis=1)
         
     df['stat']=df['stat'].round(3)
     df[Variable]=df['stat']
     df=df[[id_col, col_x, col_y, Variable]]
     df.dropna(subset=[Variable], inplace=True)
+    
     return df
 
-def plot_map(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):  
-    
-    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    fig = px.scatter_mapbox(df, lat=col_y, lon=col_x, hover_data={ id_col: False, col_x: False, col_y: False, col_value: f':{unique_PI_CFG.units}'},
-            color=col_value, color_continuous_scale='ylorrd',  zoom=10, height=1000)
-    coords_lat=df[col_y]
-    coords_lon=df[col_x]
-    coordinates = [[coords_lon.min(), coords_lat.min()],
-                   [coords_lon.max(), coords_lat.min()],
-                   [coords_lon.max(), coords_lat.max()],
-                   [coords_lon.min(), coords_lat.max()]]
-    #fig.update_layout(mapbox_style="carto-darkmatter", mapbox_layers = [{"coordinates": coordinates}])
-    fig.update_layout(mapbox_style="carto-positron", mapbox_layers = [{"coordinates": coordinates}])
-    fig.update_layout(title=f'{Variable} in {unique_PI_CFG.units}',  title_font_size=20 )        
-    return fig
+#===============================================================================
+# def plot_map(file, start_year, end_year, stat, PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):  
+#     
+#     df=prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variable)
+#     
+#     #df[col_value][df[col_value] < 1] = np.nan
+#     
+#     df=df.loc[df[col_value]>=1]
+#     
+#     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+#     fig = px.scatter_mapbox(df, lat=col_y, lon=col_x, hover_data={ id_col: False, col_x: False, col_y: False, col_value: f':{unique_PI_CFG.units}'},
+#             color=col_value, color_continuous_scale=px.colors.sequential.Viridis,  zoom=10, height=1000)
+#     coords_lat=df[col_y]
+#     coords_lon=df[col_x]
+#     coordinates = [[coords_lon.min(), coords_lat.min()],
+#                    [coords_lon.max(), coords_lat.min()],
+#                    [coords_lon.max(), coords_lat.max()],
+#                    [coords_lon.min(), coords_lat.max()]]
+#     #fig.update_layout(mapbox_style="carto-darkmatter", mapbox_layers = [{"coordinates": coordinates}])
+#     fig.update_layout(mapbox_style="carto-positron", mapbox_layers = [{"coordinates": coordinates}])
+#     fig.update_layout(title=f'{Variable} in {unique_PI_CFG.units}',  title_font_size=20 )        
+#     return fig
+#===============================================================================
 
 def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):  
     
+    
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     
-    fig =  px.scatter_mapbox(df, lat=col_y, lon=col_x, hover_data={ id_col: False, col_x: False, col_y: False, col_value: f':{unique_PI_CFG.units}'},
-        color=col_value, color_continuous_scale='ylorrd',  zoom=10, height=1000)
+    df=df.loc[(df[col_value]>=1) | (df[col_value]<=-1) ]
+    
+    fig =  px.scatter_mapbox(df, lat=col_x, lon=col_y, hover_data={ id_col: False, col_x: False, col_y: False, col_value: f':{unique_PI_CFG.units}'},
+        color=col_value, color_continuous_scale=px.colors.diverging.Portland,  zoom=7, height=1000, center=dict(lat=42.75, lon=-78))
     
     
     coords_lat=df[col_y]
@@ -241,7 +298,8 @@ def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_na
                    [coords_lon.min(), coords_lat.max()]]
     #fig.update_layout(mapbox_style="carto-darkmatter", mapbox_layers = [{"coordinates": coordinates}])
     fig.update_layout(mapbox_style="carto-positron", mapbox_layers = [{"coordinates": coordinates}])
-    fig.update_layout(title=f'{Variable} in {unique_PI_CFG.units}',  title_font_size=20 )        
+    #fig.update_layout(title=f'{Variable} in {unique_PI_CFG.units}',  title_font_size=20 )
+    fig.update_traces(marker=dict(size=20))
     return fig
 
 def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct, unique_pi_module_name, diff_type):

@@ -1,13 +1,13 @@
 import numpy
 
-name='Muskrat winter lodge viability'
+name='Wild rice'
 
 type='1D'
 
-dct_var={'VAR1':'Probability of Lodge Viability'}
+dct_var={'VAR1':'Survival probability'}
 
-#normal mean higher is better
-var_direction={'Probability of Lodge Viability':'normal'}
+#'normal' means higher is better
+var_direction={'Survival probability':'normal'}
 
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
@@ -15,18 +15,16 @@ var_agg_stat={'VAR1':['mean']}
 
 units='%'
 
-available_years=list(range(1981, 2020))
+available_years=list(range(1980, 2020))
 
-available_sections=['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
+available_sections=['LKO', 'USL_US', 'USL_DS']
 
 sect_dct={'Lake Ontario':['LKO'],
            'Upper St.Lawrence upstream':['USL_US'],
-            'Lake St.Lawrence':['USL_DS'],
-              'St.Lawrence River upstream':['SLR_US'],
-               'St.Lawrence River downstream':['SLR_DS']}
+            'Lake St.Lawrence':['USL_DS']}
 
 
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
+mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS']}
 
 available_plans=['Bv7p620nosepinfop_v20240115']
 

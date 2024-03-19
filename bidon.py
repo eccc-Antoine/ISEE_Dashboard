@@ -1,34 +1,49 @@
 import pandas as pd
 import os
-
-
-
-
-
 #===============================================================================
-# file=r"M:\DATA\ISEE\ISEE_RAW_DATA\MM_2D\Bv7baseline_v20240115\LKO\MM_2D_Bv7baseline_v20240115_LKO.feather"
+# "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2020.feather"
+# "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2016.feather"
+#===============================================================================
+
+
+file=r"M:\DATA\ISEE\ISEE_RAW_DATA\ONZI_1D\Bv7baseline_v20240115\LKO\1D_ONZI_Bv7baseline_v20240115_LKO.feather"
+df=pd.read_feather(file)
+ 
+print(df.head())
+ 
+print(df.tail())
+
+print(list(df))
+
+print(len(df))
+
+quit()
+#===============================================================================
+# print(df['SECTION'].unique())
 # 
-# df=pd.read_feather(file)
-# 
-# print(df.head())
-# 
-# print(df.tail())
-# 
+# for s in df['SECTION'].unique():
+#     df_s=df.loc[df['SECTION']==s]
+#     print(s)
+#     print(df_s['TILE'].unique())
+#  
 # #df.to_feather(r"M:\DATA\ISEE\ISEE_RAW_DATA\MM_2D\Bv7baseline_v20240115\LKO\MM_2D_Bv7baseline_v20240115_LKO.feather")
-# 
+#  
 # quit()
 #===============================================================================
 
 
 
-folder=fr'\\ecqcg1jwpasp001\hydro$\Projets\GLAM\VARIA\Results_Dashboard'
+folder=fr"M:\DATA\ISEE\ISEE_RAW_DATA\ONZI_1D"
 
 liste_files=[]
 for root, dirs, files in os.walk(folder):
-    for name in files:
-        liste_files.append(os.path.join(root, name))
 
-print(liste_files)
+    for name in files:
+        if '.csv' in name:
+            os.remove(os.path.join(root, name))
+        else:
+            pass
+
 quit()
 
 
