@@ -4,18 +4,18 @@ import numpy as np
 
 name='Exposed River Bed'
 
-type='1D'
+type='2D_tiled'
 
-dct_var={'VAR1':'Index'}
-
-#normal mean higher is better
-var_direction={'Index':'normal'}
+dct_var={'VAR1':'Exposed QM during ice in period'}
 
 var_agg_stat={'VAR1':['mean']}
 
-units=''
+#normal mean higher is better
+var_direction={'Exposed QM during ice in period':'inverse'}
 
-available_years=list(range(1981, 2019))
+units='QM'
+
+available_years=list(range(1981, 2020))
 
 available_sections=['USL_DS']
 
@@ -25,7 +25,7 @@ mock_map_sct_dct={'USL_DS':['USL_DS']}
 
 available_plans=['Bv7p620nosepinfop_v20240115']
 
-plan_dct={'Optimized Plan': 'Bv7p620nosepinfop_v20240115'}
+plan_dct={'Optimized PLan': 'Bv7p620nosepinfop_v20240115'}
 
 available_baselines=['Bv7baseline_v20240115']
 
@@ -33,6 +33,9 @@ baseline_dct={'Baseline': 'Bv7baseline_v20240115'}
 
 available_stats=['mean', 'sum']
 
+dct_tile_sect={'USL_DS':[169, 170, 172, 173, 174, 175, 176, 178, 179, 181, 182]}
+
+id_column_name='PT_ID'
 
 ## Mock equation just to implement the routine
 locs_for_GLRRM=['alex']

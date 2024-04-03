@@ -4,7 +4,7 @@ name='ISEE'
 
 #pi_list=['ESLU_2D', 'RES_BUILD_2D', 'MUSK_1D', 'EX_RB_1D', 'NAVC_1D', 'ONZI_1D']
 
-pi_list=['NAVC_1D', 'MM_1D', 'ONZI_1D']
+pi_list=['NAVC_1D', 'MM_1D', 'ONZI_1D', 'EX_RB_1D', 'BUILD_2D', 'TURTLE_1D', 'ZIPA_1D']
 
 #===============================================================================
 # sect_dct={'Lake Ontario Canada':['LKO_CAN'], 'Upper St.Lawrence Canada':['USL_CAN'], 'Canada':['LKO_CAN', 'USL_CAN'], 'Lake St.Lawrence':['USL_DS'], 'Upper St. Lawrence': ['USL']}
@@ -49,15 +49,17 @@ pi_list=['NAVC_1D', 'MM_1D', 'ONZI_1D']
 
 title=f'{name} DASHBOARD 0.5.'
 
-raw_data_folder=fr'M:\DATA\{name}\{name}_RAW_DATA'
+#raw_data_folder=fr'F:\GLAM_DASHBOARD\ISEE_RAW_DATA'
+raw_data_folder=fr'\ISEE_RAW_DATA'
 #raw_data_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_RAW_DATA'
 
-post_process_folder=fr'M:\DATA\{name}\{name}_POST_PROCESS_DATA'
+#post_process_folder=fr'F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA'
+post_process_folder=fr'\ISEE_POST_PROCESS_DATA'
 #post_process_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/{name}_POST_PROCESS_DATA'
 
 file_ext='.feather'
 
-sct_poly=os.path.join(raw_data_folder, "SECTIONS.geojson")
+sct_poly=fr"F:\GLAM_DASHBOARD\ISEE_RAW_DATA\SECTIONS_simple.geojson"
 
 maximum_plan_to_compare=2
 

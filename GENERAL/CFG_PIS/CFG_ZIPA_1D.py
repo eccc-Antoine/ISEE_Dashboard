@@ -1,27 +1,30 @@
-import os
-import pandas as pd
-import numpy as np
+import numpy
 
-name='Exposed River Bed'
+name='Wild rice'
 
 type='1D'
 
-dct_var={'VAR1':'Index'}
+dct_var={'VAR1':'Survival probability'}
 
-#normal mean higher is better
-var_direction={'Index':'normal'}
+#'normal' means higher is better
+var_direction={'Survival probability':'normal'}
 
+
+# need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['mean']}
 
-units=''
+units='%'
 
-available_years=list(range(1981, 2019))
+available_years=list(range(1980, 2020))
 
-available_sections=['USL_DS']
+available_sections=['LKO', 'USL_US', 'USL_DS']
 
-sect_dct={'Lake St.Lawrence':['USL_DS']}
+sect_dct={'Lake Ontario':['LKO'],
+           'Upper St.Lawrence upstream':['USL_US'],
+            'Lake St.Lawrence':['USL_DS']}
 
-mock_map_sct_dct={'USL_DS':['USL_DS']}
+
+mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS']}
 
 available_plans=['Bv7p620nosepinfop_v20240115']
 
@@ -31,7 +34,7 @@ available_baselines=['Bv7baseline_v20240115']
 
 baseline_dct={'Baseline': 'Bv7baseline_v20240115'}
 
-available_stats=['mean', 'sum']
+available_stats=['mean']
 
 
 ## Mock equation just to implement the routine
@@ -45,4 +48,3 @@ def GLRRM_1D_equations (df):
         eq=((value1-value2)*0.42)+120
         df_y['PI_1D_value'].loc[df_y['year']==y]=eq
     return df_y
-
