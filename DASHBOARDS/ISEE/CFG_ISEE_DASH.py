@@ -59,7 +59,8 @@ post_process_folder=fr'\ISEE_POST_PROCESS_DATA'
 
 file_ext='.feather'
 
-sct_poly=fr"F:\GLAM_DASHBOARD\ISEE_RAW_DATA\SECTIONS_simple.geojson"
+#sct_poly=fr"F:\GLAM_DASHBOARD\ISEE_RAW_DATA\SECTIONS_simple.geojson"
+sct_poly=fr'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/sftp/SECTIONS_simple.geojson'
 
 maximum_plan_to_compare=2
 
