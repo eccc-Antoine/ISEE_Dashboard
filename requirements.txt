@@ -6,3 +6,4 @@ pandas
 plotly
 pyproj
 pathlib
+paramiko
