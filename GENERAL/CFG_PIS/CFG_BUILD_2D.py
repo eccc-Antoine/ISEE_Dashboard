@@ -1,24 +1,28 @@
 import os
 
-name='Buildings'
+name='Flooded Buildings'
 
-type='2D_not_tiled'
+type='1D'
 
-dct_var={'VAR1':'Number of flooded buildings'}
+dct_var={'VAR1':'Nb'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
-var_agg_stat={'VAR1':['mean', 'sum']}
+var_agg_stat={'VAR1':['sum']}
 
 #normal mean higher is better
-var_direction={'Number of flooded buildings':'inverse'}
+var_direction={'Nb':'inverse'}
 
-units='Nb buildings'
+units=''
 
 available_years=list(range(1980, 2020))
 
-available_sections=['LKO', 'USL_US', 'USL_DS']
+#available_sections=['LKO', 'USL_US', 'USL_DS']
 
-sect_dct={'Lake Ontario':['LKO'], 'Upper St.Lawrence upstream':['USL_US'], 'Lake St.Lawrence':['USL_DS']}
+available_sections=['LKO']
+
+#sect_dct={'Lake Ontario':['LKO'], 'Upper St.Lawrence upstream':['USL_US'], 'Lake St.Lawrence':['USL_DS']}
+
+sect_dct={'Lake Ontario':['LKO']}
 
 dct_tile_sect={'USL_US':[181,184,183,186,191,187,
  197,198,205,206,216,217,226],'LKO':[226,202,214,203,209,210,211,212,213,
@@ -29,7 +33,7 @@ dct_tile_sect={'USL_US':[181,184,183,186,191,187,
  430,441,439,440,450,451], 'USL_DS':[167,169,170,171,172,174,175,178,181,182]}
 
  
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS']}
+mock_map_sct_dct={'Lake Ontario':['Lake Ontario']}
 
 available_plans=['Bv7p620nosepinfop_v20240115']
 

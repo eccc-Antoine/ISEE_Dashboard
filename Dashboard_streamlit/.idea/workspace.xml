@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a71416e4-3d58-404e-bcc6-33cce4d03d71" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.project" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.pydevproject" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DASHBOARDS/ISEE/CFG_ISEE_DASH.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DASHBOARDS/ISEE/CFG_ISEE_DASH.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DASHBOARDS/ISEE/ISEE_DASH_0_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DASHBOARDS/ISEE/ISEE_DASH_0_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DASHBOARDS/UTILS/DASHBOARDS_UTILS.py" beforeDir="false" afterPath="$PROJECT_DIR$/../DASHBOARDS/UTILS/DASHBOARDS_UTILS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_EX_RB_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_EX_RB_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_MM_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_MM_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_NAVC_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_NAVC_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_ONZI_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_ONZI_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_RES_BUILD_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/../GENERAL/CFG_PIS/CFG_RES_BUILD_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" beforeDir="false" afterPath="$PROJECT_DIR$/../POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../POST_PROCESSING/ISEE/ISEE_POSTPROCESS.py" beforeDir="false" afterPath="$PROJECT_DIR$/../POST_PROCESSING/ISEE/ISEE_POSTPROCESS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bidon.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bidon.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="2gVKyR8wl90xhOl2ubFrUJyUvPZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-7a29c1521ef0-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.11799.298" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a71416e4-3d58-404e-bcc6-33cce4d03d71" name="Changes" comment="" />
+      <created>1715777559723</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1715777559723</updated>
+    </task>
+    <servers />
+  </component>
+</project>

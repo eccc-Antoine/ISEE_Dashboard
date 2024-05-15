@@ -7,7 +7,7 @@ type='1D'
 dct_var={'VAR1':'Meadow Marsh Area'}
 
 #has to be 'normal' or 'inverse' normal mean higher is better
-var_direction={'Meadow Marsh Area':'inverse'}
+var_direction={'Meadow Marsh Area':'normal'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['sum', 'mean']}

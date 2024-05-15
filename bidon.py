@@ -1,34 +1,97 @@
 import pandas as pd
 import os
-
-
-
-
-
 #===============================================================================
-# file=r"M:\DATA\ISEE\ISEE_RAW_DATA\MM_2D\Bv7baseline_v20240115\LKO\MM_2D_Bv7baseline_v20240115_LKO.feather"
+# "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2020.feather"
+# "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2016.feather"
+#===============================================================================
+
+import pandas as pd
+import os
+
+src=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CWRM_2D_num\Bv7\LKO'
+
+liste1=os.listdir(src)
+
+liste_tiles=[]
+
+for l in liste1:
+    # print(l)
+    path=os.path.join(src, l)
+    liste2=os.listdir(path)
+    # print(liste2)
+
+    for ll in liste2:
+        # print(ll.split('_')[-2])
+        tile=int(ll.split('_')[-2])
+        # tile=tile.replace("'", '')
+        if tile not in liste_tiles:
+            liste_tiles.append(tile)
+print(liste_tiles)
+
+quit()
+
+
+quit()
+
+
+
+
+# liste_files=[]
+#
+# for root, dirs, files in os.walk(src):
+#     for name in files:
+#         liste_files.append(os.path.join(root, name))
+#
+# for l in liste_files:
+#     dst = l.replace('1D_ZIPA', 'ZIPA_1D')
+#     os.rename(l, dst)
+#
+# quit()
+
+
+
+
+
+#file=r""
+file=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CHNI_2D\OBS\SLR_DS\1963\CHNI_2D_OBS_SLR_DS_83_1963.feather"
+
+df=pd.read_feather(file)
+ 
+print(df.head())
+ 
+print(df.tail())
+
+print(list(df))
+
+print(len(df))
+
+quit()
+#===============================================================================
+# print(df['SECTION'].unique())
 # 
-# df=pd.read_feather(file)
-# 
-# print(df.head())
-# 
-# print(df.tail())
-# 
+# for s in df['SECTION'].unique():
+#     df_s=df.loc[df['SECTION']==s]
+#     print(s)
+#     print(df_s['TILE'].unique())
+#  
 # #df.to_feather(r"M:\DATA\ISEE\ISEE_RAW_DATA\MM_2D\Bv7baseline_v20240115\LKO\MM_2D_Bv7baseline_v20240115_LKO.feather")
-# 
+#  
 # quit()
 #===============================================================================
 
 
 
-folder=fr'\\ecqcg1jwpasp001\hydro$\Projets\GLAM\VARIA\Results_Dashboard'
+folder=fr"M:\DATA\ISEE\ISEE_RAW_DATA\ONZI_1D"
 
 liste_files=[]
 for root, dirs, files in os.walk(folder):
-    for name in files:
-        liste_files.append(os.path.join(root, name))
 
-print(liste_files)
+    for name in files:
+        if '.csv' in name:
+            os.remove(os.path.join(root, name))
+        else:
+            pass
+
 quit()
 
 

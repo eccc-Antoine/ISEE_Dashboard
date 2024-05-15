@@ -82,7 +82,12 @@ with Col2:
         
         with tab2:
             max_plans=CFG_DASHBOARD.maximum_plan_to_compare
+            
+            #df_PI=UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline,  Region, start_year, end_year, Variable, CFG_DASHBOARD)
+            #baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG)
+            
             UTILS.header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction)
+            
             fig=UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code,  unit_dct)
             st.plotly_chart(fig, use_container_width=True)
          
@@ -94,6 +99,8 @@ with Col2:
 
         with tab4:            
             Col1, Col2 = st.columns([0.5, 0.5], gap='small')
+            start_year2=start_year
+            end_year2=end_year
             with Col1:
                 
                 #baselines={i for i in CFG_DASHBOARD.baseline_dct if CFG_DASHBOARD.baseline_dct[i] in unique_PI_CFG.available_baselines}
@@ -109,15 +116,17 @@ with Col2:
                      
                     pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{baseline_code}_{unique_PI_CFG.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
                      
-                    df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat1, Variable)
+                    df=UTILS.prep_data_map(pt_id_file, start_year2, end_year2, 'PT_ID', 'LAT', 'LON', stat1, Variable)
 
-                    fig=UTILS.plot_map_plotly(PIs, Variable, df, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, Baseline, Variable)    
+                    fig=UTILS.plot_map_plotly(PIs, Variable, df, 'LAT', 'LON', 'PT_ID', unique_pi_module_name, Baseline, Variable)    
                         
                     st.plotly_chart(fig, use_container_width=True) 
     
                 else: 
-                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, baseline_code, unique_PI_CFG.available_years, stat1, var, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
-                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, Baseline, stat1, Variable, 'compare') 
+                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, baseline_code, unique_PI_CFG.available_years, stat1, var, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name, start_year2, end_year2, Baseline)
+                    
+                    gdf_grille.to_file(fr'H:\Projets\GLAM\Dashboard\debug\test.shp')
+                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, Baseline, stat1, Variable, 'compare', unique_pi_module_name,  unit_dct[PI_code]) 
                     UTILS.folium_static(folium_map, 700, 700)
                                          
             with Col2:
@@ -130,14 +139,13 @@ with Col2:
                 
                     df_folder=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code, unique_PI_CFG.sect_dct[Region][0])
                     pt_id_file=os.path.join(df_folder, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{unique_PI_CFG.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
-                    df=UTILS.prep_data_map(pt_id_file, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat1, Variable)
-                    fig=UTILS.plot_map_plotly(PIs, Variable, df, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, ze_plan, Variable)    
+                    df=UTILS.prep_data_map(pt_id_file, start_year2, end_year2, 'PT_ID', 'LAT', 'LON', stat1, Variable)
+                    fig=UTILS.plot_map_plotly( PIs, Variable, df, 'LAT', 'LON', 'PT_ID', unique_pi_module_name, ze_plan, Variable)    
                     st.plotly_chart(fig, use_container_width=True) 
                 else:                    
-                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat1, var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
-                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, ze_plan, stat1, Variable, 'compare') 
+                    gdf_grille=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat1, var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name, start_year2, end_year2, Baseline)
+                    folium_map=UTILS.create_folium_map(gdf_grille, 'VAL', 700, 700, ze_plan, stat1, Variable, 'compare', unique_pi_module_name,  unit_dct[PI_code]) 
                     UTILS.folium_static(folium_map, 700, 700)
-                
                 
         with tab5:        
             ze_plan=st.selectbox("Select a regulation plan to compare with reference plan", plans_selected)
@@ -147,17 +155,19 @@ with Col2:
             var3=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
             stat3=st.selectbox("Select a way to aggregate values for the selected period", unique_PI_CFG.var_agg_stat[var3]+['Min', 'Max'], key='stat3', index=0)   
             diff_type2= st.selectbox("Select a type of difference to compute", [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'], key='diff_type2')
+            start_year3=start_year
+            end_year3=end_year
             if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
                 df_folder_base=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code, unique_PI_CFG.sect_dct[Region][0]) 
                 pt_id_file_base=os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{unique_PI_CFG.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
-                df_base=UTILS.prep_data_map(pt_id_file_base, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat3, Variable)
+                df_base=UTILS.prep_data_map(pt_id_file_base, start_year3, end_year3, 'PT_ID', 'LAT', 'LON', stat3, Variable)
                    
                 df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code, unique_PI_CFG.sect_dct[Region][0]) 
                 pt_id_file_plan=os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{unique_PI_CFG.sect_dct[Region][0]}_PT_ID_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}')
-                df_plan=UTILS.prep_data_map(pt_id_file_plan, start_year, end_year, 'PT_ID', 'X_COORD', 'Y_COORD', stat3, Variable)
+                df_plan=UTILS.prep_data_map(pt_id_file_plan, start_year3, end_year3, 'PT_ID', 'LAT', 'LON', stat3, Variable)
                 
-                df_both=df_base.merge(df_plan, on=['PT_ID', 'X_COORD', 'Y_COORD'], how='outer', suffixes=('_base', '_plan'))
+                df_both=df_base.merge(df_plan, on=['PT_ID', 'LAT', 'LON'], how='outer', suffixes=('_base', '_plan'))
                 if diff_type2==f'Values ({unit_dct[PI_code]})':
                     df_both['diff']=df_both[f'{Variable}_plan']-df_both[f'{Variable}_base']
                 else:
@@ -166,23 +176,23 @@ with Col2:
                 df_both['diff']=df_both['diff'].round(3)
                 df_both.dropna(subset = ['diff'], inplace=True)
                 
-                fig=UTILS.plot_map_plotly(PIs, Variable, df_both, 'X_COORD', 'Y_COORD', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
+                fig=UTILS.plot_map_plotly(PIs, Variable, df_both, 'LAT', 'LON', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
                 st.plotly_chart(fig, use_container_width=True) 
                 
 
             else:
-                gdf_grille_base=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, baseline_code, unique_PI_CFG.available_years, stat3, var3, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
+                gdf_grille_base=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, baseline_code, unique_PI_CFG.available_years, stat3, var3, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name, start_year3, end_year3, Baseline)
             
-                gdf_grille_plan=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat3, var3, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name)
+                gdf_grille_plan=UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, CFG_DASHBOARD.sct_poly, folder, PI_code, ze_plan_code, unique_PI_CFG.available_years, stat3, var3, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name, start_year3, end_year3, Baseline)
                    
                 gdf_grille_plan['DIFF']=(gdf_grille_plan['VAL']-gdf_grille_base['VAL']).round(3)
                 
                 gdf_grille_plan['DIFF_PROP']=(((gdf_grille_plan['VAL']-gdf_grille_base['VAL'])/gdf_grille_base['VAL'])*100).round(3)
                 
                 if diff_type2==f'Values ({unit_dct[PI_code]})':
-                    folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, ze_plan, stat3, Variable, 'diff') 
+                    folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, ze_plan, stat3, Variable, 'diff', unique_pi_module_name,  unit_dct[PI_code]) 
                 else:
-                    folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, ze_plan, stat3, Variable, 'diff')
+                    folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, ze_plan, stat3, Variable, 'diff', unique_pi_module_name,  unit_dct[PI_code])
                     
                 UTILS.folium_static(folium_map, 1200, 700)
 
