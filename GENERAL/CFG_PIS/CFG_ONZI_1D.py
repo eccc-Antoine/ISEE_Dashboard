@@ -15,7 +15,11 @@ var_agg_stat={'VAR1':['mean']}
 
 units='%'
 
+multiplier=1
+
 available_years=list(range(1962, 2018))
+
+divided_by_country=False
 
 available_sections=['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
 
@@ -37,13 +41,15 @@ mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_
 
 #mock_map_sct_dct={'Upstream':['Lake Ontario', 'Upper St.Lawrence upstream'], 'Downstream':['Lake St.Lawrence', 'St.Lawrence River upstream', 'St.Lawrence River downstream']}
 
-available_plans=['Bv7_2014', 'Bv7_GERBL1']
+available_plans=['Bv7_2014', 'Bv7', 'OBS']
 
-plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7_GERBL1':'Bv7_GERBL1'}
+plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
 
-available_baselines=['Bv7']
+available_baselines=['Bv7_GERBL1']
 
-baseline_dct={'Bv7': 'Bv7'}
+baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
 
-available_stats=['mean']
+available_stats = ['sum', 'mean']
+
+id_column_name = 'PT_ID'
 

@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import geopandas as gpd
 #===============================================================================
 # "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2020.feather"
 # "M:\DATA\ISEE\ISEE_POST_PROCESS_DATA\NAVC_1D\YEAR\SECTION\Bv7_infop_policy_620_nosepRule\USL\NAVC_1D_YEAR_Bv7_infop_policy_620_nosepRule_USL_1961_2016.feather"
@@ -8,30 +9,106 @@ import os
 import pandas as pd
 import os
 
-src=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CWRM_2D_num\Bv7\LKO'
+gdf=gpd.read_file("H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\section_tiles_countries.geojson")
 
-liste1=os.listdir(src)
+sections=gdf['SECTION'].unique()
 
-liste_tiles=[]
-
-for l in liste1:
-    # print(l)
-    path=os.path.join(src, l)
-    liste2=os.listdir(path)
-    # print(liste2)
-
-    for ll in liste2:
-        # print(ll.split('_')[-2])
-        tile=int(ll.split('_')[-2])
-        # tile=tile.replace("'", '')
-        if tile not in liste_tiles:
-            liste_tiles.append(tile)
-print(liste_tiles)
-
+for s in sections:
+    gdf_s=gdf.loc[gdf['SECTION']==s]
+    tiles=gdf_s['tile'].unique()
+    print(s, list(tiles))
 quit()
 
 
+
+df=pd.read_feather(r"F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA\NFBD_2D\YEAR\TILE\Bv7\SLR_DS_CAN\83\NFBD_2D_YEAR_Bv7_SLR_DS_CAN_83_1962_2020.feather")
+
+
+
+print(list(df))
+
+#df.to_csv(fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\test.csv', sep=';')
+
+#print(df['SECTION'].unique())
+print(df.head())
 quit()
+
+# tiles_2_merge=[238,237,226]
+#
+# src1=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\LKO'
+# src2=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\USL_US'
+# dst=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
+#
+# for t in tiles_2_merge:
+#     df1=pd.read_feather(fr'{src1}\GLAM_DEM_ISEE_TILE_{t}.feather')
+#     df2=pd.read_feather(fr'{src2}\GLAM_DEM_ISEE_TILE_{t}.feather')
+#     df3=pd.concat([df1, df2])
+#     print(len(df3), len(df2), len(df1))
+#     df3.to_feather(fr'{dst}\GLAM_DEM_ISEE_TILE_{t}.feather')
+# quit()
+#
+#
+src=r'F:\GLAM_DASHBOARD\ISEE_RAW_DATA\NFB_2D'
+liste_files=[]
+for root, dirs, files in os.walk(src):
+    for name in files:
+        liste_files.append(os.path.join(root, name))
+
+print(len(liste_files))
+print(liste_files[0])
+
+for l in liste_files:
+    dst=l.replace('NFB_OBS', 'NFB_2D_OBS')
+    os.rename(l, dst)
+    #
+    #
+    # df=pd.read_feather(l)
+    # print(df.head())
+    # print(df.tail())
+    # #geometry = gpd.points_from_xy(df['LON'], df['LAT'])
+    # gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['LON'], df['LAT']), crs=32618)
+    # gdf=gdf.to_crs(4326)
+    # gdf['LON']=gdf.geometry.x
+    # gdf['LAT'] = gdf.geometry.y
+    # df=gdf.drop(columns=['geometry'])
+    # print(df.head())
+    # df.to_feather(l)
+quit()
+
+
+
+
+#
+# for f in liste_files:
+#     print(f)
+#     df=pd.read_feather(f)
+#     df['VAR1']=df['NBREED_PAIRS_CHNI']
+#     df=df[['PT_ID', 'XVAL', 'YVAL', 'VAR1']]
+#     df.to_feather(f)
+# quit()
+
+
+# src=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CWRM_2D_num\Bv7\LKO'
+#
+# liste1=os.listdir(src)
+#
+# liste_tiles=[]
+#
+# for l in liste1:
+#     # print(l)
+#     path=os.path.join(src, l)
+#     liste2=os.listdir(path)
+#     # print(liste2)
+#
+#     for ll in liste2:
+#         # print(ll.split('_')[-2])
+#         tile=int(ll.split('_')[-2])
+#         # tile=tile.replace("'", '')
+#         if tile not in liste_tiles:
+#             liste_tiles.append(tile)
+# print(liste_tiles)
+#
+# quit()
 
 
 
@@ -53,7 +130,8 @@ quit()
 
 
 #file=r""
-file=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CHNI_2D\OBS\SLR_DS\1963\CHNI_2D_OBS_SLR_DS_83_1963.feather"
+#file=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\CHNI_2D\Bv7_2014\SLR_US\1980\CHNI_2D_Bv7_2014_SLR_US_126_1980.feather"
+file=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles\GLAM_DEM_ISEE_TILE_78.feather"
 
 df=pd.read_feather(file)
  

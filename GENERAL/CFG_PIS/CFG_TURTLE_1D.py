@@ -1,6 +1,6 @@
 import numpy
 
-name='Turtle winter survival probability (TWSP)'
+name='Turtle survival during winter'
 
 type='1D'
 
@@ -15,26 +15,36 @@ var_agg_stat={'VAR1':['mean'], 'VAR2':['mean'], 'VAR3':['mean']}
 
 units='%'
 
-available_years=list(range(1981, 2020))
+multiplier=1
 
-available_sections=['LKO', 'USL_US', 'USL_DS']
+available_years=list(range(1962, 2021))
+
+divided_by_country=False
+
+available_sections=['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
+
 
 sect_dct={'Lake Ontario':['LKO'],
            'Upper St.Lawrence upstream':['USL_US'],
-            'Lake St.Lawrence':['USL_DS']}
+            'Lake St.Lawrence':['USL_DS'],
+              'St.Lawrence River upstream':['SLR_US'],
+               'St.Lawrence River downstream':['SLR_DS'],
+               'Upstream':['LKO', 'USL_US'],
+               'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
+mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
 
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS']}
+available_plans=['Bv7_2014', 'Bv7', 'OBS']
 
-available_plans=['Bv7p620nosepinfop_v20240115']
+plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
 
-plan_dct={'Optimized Plan': 'Bv7p620nosepinfop_v20240115'}
+available_baselines=['Bv7_GERBL1']
 
-available_baselines=['Bv7baseline_v20240115']
+baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
 
-baseline_dct={'Baseline': 'Bv7baseline_v20240115'}
+available_stats = ['sum', 'mean']
 
-available_stats=['mean']
+id_column_name = 'PT_ID'
 
 
 ## Mock equation just to implement the routine

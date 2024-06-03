@@ -1,21 +1,23 @@
 import numpy
 
-name='Wild rice'
+name='Exposed Riverbed During Winter Index'
 
 type='1D'
 
-dct_var={'VAR1':'Survival probability'}
+dct_var={'VAR1':'Exposed Riverbed During Winter Index'}
 
-#'normal' means higher is better
-var_direction={'Survival probability':'normal'}
+#normal mean higher is better (normal or inverse)
+var_direction={'Exposed Riverbed During Winter Index':'normal'}
 
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['mean']}
 
-units='%'
+units=' '
 
-available_years=list(range(1961, 2021))
+multiplier=1
+
+available_years=list(range(1963, 2021))
 
 divided_by_country=False
 
@@ -31,7 +33,13 @@ sect_dct={'Lake Ontario':['LKO'],
                'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
 
+# sect_dct={'Upstream':['LKO', 'USL_US'],
+#            'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
+
+
 mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
+
+#mock_map_sct_dct={'Upstream':['Lake Ontario', 'Upper St.Lawrence upstream'], 'Downstream':['Lake St.Lawrence', 'St.Lawrence River upstream', 'St.Lawrence River downstream']}
 
 available_plans=['Bv7_2014', 'Bv7', 'OBS']
 

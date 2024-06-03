@@ -1,27 +1,22 @@
-import pandas as pd
 import os
 
-name = 'Black Tern'
+name='Least Bittern'
 
-type = '2D_tiled'
+type='2D_tiled'
 
-#type = '1D'
-
-dct_var = {'VAR1': 'Weighted Usable Area'}
+dct_var={'VAR1': 'Weighted usable area', 'VAR2': 'Sub-Optimal WUA', 'VAR3': 'Optimal WUA'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
-var_agg_stat = {'VAR1': ['sum']}
+var_agg_stat={'VAR1':['sum'],'VAR2':['sum'],'VAR3':['sum']}
 
-# normal mean higher is better
-var_direction = {'Weighted Usable Area': 'normal'}
+#normal mean higher is better
+var_direction={'RPI_IXEX':'normal', 'RPI_sub-optimal_IXEX':'normal', 'RPI_optimal_IXEX':'normal'}
 
-units = 'Hectares'
+units='Hectares'
 
 multiplier=0.01
 
-available_years = list(range(1963, 2021))
-
-# available_sections=['LKO', 'USL_US', 'USL_DS']
+available_years=list(range(1963, 2021))
 
 divided_by_country=False
 
