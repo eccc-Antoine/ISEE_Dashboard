@@ -2,7 +2,7 @@ import os
 
 name='Flooded Buildings'
 
-type='1D'
+type='2D_not_tiled'
 
 dct_var={'VAR1':'Nb'}
 
@@ -33,7 +33,7 @@ dct_tile_sect={'USL_US':[181,184,183,186,191,187,
  430,441,439,440,450,451], 'USL_DS':[167,169,170,171,172,174,175,178,181,182]}
 
  
-mock_map_sct_dct={'Lake Ontario':['Lake Ontario']}
+mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS']}
 
 available_plans=['Bv7p620nosepinfop_v20240115']
 

@@ -3,7 +3,8 @@ import pandas as pd
 #import geopandas as gpd
 import shutil
 import importlib
-import POST_PROCESSING.ISEE.CFG_POST_PROCESS_ISEE as cfg
+# import POST_PROCESSING.ISEE.CFG_POST_PROCESS_ISEE as cfg
+import CFG_POST_PROCESS_ISEE as cfg
 #from pyproj import transform, Proj
 #import pyproj
 #from pyproj import Transformer
@@ -25,19 +26,31 @@ class POST_PROCESS_2D_tiled:
         #self.dct_sect=dct_sect
         #self.id_column_name=id_column_name
            
-    def agg_YEAR(self, folder_space, y):  
-        print(folder_space, y)
+    def agg_YEAR(self, folder_space, y, columns):
+        #print(folder_space, y)
         liste_files=[]
         for root, dirs, files in os.walk(folder_space):
             for name in files:
                 liste_files.append(os.path.join(root, name))
         liste_df=[]
-        liste_file_year=[f for f in liste_files if str(y) in f]
-        for feather in liste_file_year:
-            df_temp=pd.read_feather(feather)
-            liste_df.append(df_temp)
-        df_year=pd.concat(liste_df, ignore_index=True)
-        return df_year
+        liste_file_year=[f for f in liste_files if str(y) in f.split('_')[-1]]
+        print(len(liste_file_year))
+
+        if len(liste_file_year) >0:
+            for feather in liste_file_year:
+                #print(feather)
+                df_temp=pd.read_feather(feather)
+                #cols_var=[for col in col if 'VAR' in col]
+                #df_temp=df_temp.filter(regex='VAR')
+                #df_temp=df_temp.to_numpy()
+                liste_df.append(df_temp)
+            print('concatenating....')
+            df_year=pd.concat(liste_df, ignore_index=True)
+            no_dat_year = 99999
+        else:
+            df_year=pd.DataFrame(0, index=range(1), columns=columns)
+            no_dat_year=y
+        return df_year, no_dat_year
     
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG):
         dct_df_space=dict.fromkeys(tuple(columns),[])
@@ -48,12 +61,18 @@ class POST_PROCESS_2D_tiled:
             os.makedirs(path_res)
         #for y in self.years:
         for y in PI_CFG.available_years:
-            if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':               
-                df_year=self.agg_YEAR(agg_year_param, y)
+            if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':
+                df_year, no_dat_year=self.agg_YEAR(agg_year_param, y, columns)
             elif AGG_SPACE == 'TILE':
                 path_feather_year2=path_feather_year.replace('foo', str(y))
+                if not os.path.exists(path_feather_year2):
+                    continue
                 df_year=pd.read_feather(path_feather_year2)
+                no_dat_year=99999
+            if y == no_dat_year:
+                continue
             for var in list_var:
+                #print(columns, list_var)
                 for stat in stats:
                     if stat=='sum':
                         df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].sum()
@@ -68,37 +87,54 @@ class POST_PROCESS_2D_tiled:
         count_y=0
         #for y in self.years:
         for y in PI_CFG.available_years:
-            count_y+=1
+
+            #count_y+=1
             liste_files=[]
             folder_space=os.path.join(self.ISEE_RES, PI,p, s, str(y))
+            print(folder_space)
+            if not os.path.exists(folder_space):
+                continue
+            else:
+                count_y += 1
             for root, dirs, files in os.walk(folder_space):
                 for name in files:
                     liste_files.append(os.path.join(root, name))
             liste_df=[]
+            print(len(liste_files))
             #liste_file_year=[f for f in liste_files if str(y) in f]
             for feather in liste_files:
                 df_temp=pd.read_feather(feather)
                 df_temp[str(y)]=df_temp[var]
-                
-                
-                
-                ##un comment if there is not lat lon in raw results
-                #===============================================================
-                #t=feather.split('_')[-2]
-                # df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
-                # df_t=df_t[['PT_ID', 'X_COORD', 'Y_COORD']]
-                # #df_temp=df_temp[[self.id_column_name, str(y)]]
-                # df_temp=df_temp[[PI_CFG.id_column_name, str(y)]]
-                # #df_temp=df_temp.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
-                # df_temp=df_temp.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
-                #===============================================================
-                
-                df_temp=df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
-                
+
+
+                if 'XVAL' in list(df_temp):
+                    # print('using XVAL YVAL')
+                    df_temp['LON']=df_temp['XVAL']
+                    df_temp['LAT'] = df_temp['YVAL']
+                    df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
+
+                elif 'LAT' in list(df_temp):
+                    # print('using LAT LON')
+                    df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
+
+                else:
+                    #uncomment if there is not lat lon in raw results
+                    print('fetching lat lon info from isee-tiles...')
+                    t=feather.split('_')[-2]
+                    df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
+                    df_t=df_t[['PT_ID', 'LAT', 'LON']]
+                    #df_temp=df_temp[[self.id_column_name, str(y)]]
+                    df_temp=df_temp[[PI_CFG.id_column_name, str(y)]]
+                    #df_temp=df_temp.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
+                    df_temp=df_temp.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
+
+
                 liste_df.append(df_temp)
             df_y=pd.concat(liste_df, ignore_index=True, axis=0)            
             if count_y==1:
                 df_main=df_y
+            elif count_y==0:
+                continue
             else:
                 #df_main=df_main.merge(df_y, on=[self.id_column_name,'X_COORD','Y_COORD'], how='outer', suffixes=('', ''))
                 df_main=df_main.merge(df_y, on=[PI_CFG.id_column_name,'LAT','LON'], how='outer', suffixes=('', ''))
@@ -118,7 +154,7 @@ class POST_PROCESS_2D_tiled:
         
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
-        
+
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)
@@ -261,6 +297,10 @@ class POST_PROCESS_2D_not_tiled:
             count_y+=1
             liste_files=[]
             folder_space=os.path.join(self.ISEE_RES, PI,p)
+
+            if not os.path.exists(folder_space):
+                continue
+
             for root, dirs, files in os.walk(folder_space):
                 for name in files:
                     year=name.split('_')[-1].replace('.feather', '')
@@ -274,55 +314,32 @@ class POST_PROCESS_2D_not_tiled:
                 #print(feather)
                 df_temp=pd.read_feather(feather)
                 df_temp=df_temp.loc[df_temp['SECTION']==s]
-                
 
-                #===============================================================
-                # tiles=df_temp['TILE'].unique()
-                # #print(tiles)
-                # tiles2=df_temp['TILE'].astype(int).unique()
-                # #print(tiles2)
-                # 
-                # dfs_temp_t=[]
-                # for t in tiles:
-                #     #print(t)
-                #     
-                #     ##uncomment if ther is no lat lon in raw data files
-                #     #===========================================================
-                #     # df_temp_t=df_temp.loc[df_temp['TILE']==t]
-                #     # print(list(df_temp_t))
-                #     # df_temp_t=df_temp_t[['PT_ID', var]]
-                #     # df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
-                #     # df_t=df_t[['PT_ID', 'X_COORD', 'Y_COORD']]
-                #     # 
-                #     # print(df_temp.head())
-                #     # print(df_t.head())
-                #     # 
-                #     # df_temp_t=df_temp_t.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
-                #     #===========================================================
-                #     
-                #     df_temp_t=df_temp.loc[df_temp['TILE']==t]
-                #     print(df_temp_t.head())
-                #     quit()
-                #     
-                #     dfs_temp_t.append(df_temp_t)
-                #     
-                #     
-                # df_temp=pd.concat(dfs_temp_t, ignore_index=True, axis=0)
-                # #print(df_temp.head())
-                #===============================================================
-                
-                #===============================================================
-                # print(df_temp.head())
-                # 
-                # print(list(df_temp))
-                # print(len(df_temp))
-                # print(len(df_temp['PT_ID'].unique()))
-                # print(var)
-                # 
-                #===============================================================
                 df_temp=df_temp.drop_duplicates(subset=['PT_ID'])
-                
-                df_temp[str(y)]=df_temp[var]
+
+                df_temp[str(y)] = df_temp[var]
+
+                if 'XVAL' in list(df_temp):
+                    # print('using XVAL YVAL')
+                    df_temp['LON'] = df_temp['XVAL']
+                    df_temp['LAT'] = df_temp['YVAL']
+                    df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
+
+                elif 'LAT' in list(df_temp):
+                    # print('using LAT LON')
+                    df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
+
+                else:
+                    # uncomment if there is not lat lon in raw results
+                    print('fetching lat lon info from isee-tiles...')
+                    t = feather.split('_')[-2]
+                    df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
+                    df_t = df_t[['PT_ID', 'LAT', 'LON']]
+                    # df_temp=df_temp[[self.id_column_name, str(y)]]
+                    df_temp = df_temp[[PI_CFG.id_column_name, str(y)]]
+                    # df_temp=df_temp.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
+                    df_temp = df_temp.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
+
                 df_temp=df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
                 
                 #print(len(df_temp))
@@ -573,17 +590,17 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
 for pi in tiled.pis:
     print(pi)
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
 
              
-#===============================================================================
-# for pi in not_tiled.pis:  
+
+# for pi in not_tiled.pis:
 #     print(pi)
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID']) 
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
 #     #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-#           
-#===============================================================================
+
          
         
 # for pi in pi_1D.pis:

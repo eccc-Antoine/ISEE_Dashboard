@@ -15,7 +15,7 @@ var_agg_stat={'VAR1':['mean']}
 
 units=''
 
-available_years=list(range(1981, 2020))
+available_years=list(range(1981, 2019))
 
 available_sections=['USL_DS']
 

@@ -17,6 +17,8 @@ units='Number of QM'
 
 available_years=list(range(1961, 2021))
 
+divided_by_country=False
+
 available_sections=['USL']
 
 sect_dct={'Upper St.lawrence':['USL']}

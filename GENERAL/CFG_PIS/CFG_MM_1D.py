@@ -12,9 +12,13 @@ var_direction={'Meadow Marsh Area':'normal'}
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['sum', 'mean']}
 
-units='ha'
+units='Hectares'
+
+multiplier=1
 
 available_years=list(range(1961, 2021))
+
+divided_by_country=False
 
 available_sections=['LKO']
 
@@ -22,24 +26,14 @@ sect_dct={'Lake Ontario':['LKO']}
 
 mock_map_sct_dct={'LKO':['LKO']}
 
-available_plans=['Bv7p620nosepinfop_v20240115']
+available_plans=['Bv7_2014', 'Bv7', 'OBS']
 
-plan_dct={'Optimized Plan': 'Bv7p620nosepinfop_v20240115'}
+plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
 
-available_baselines=['Bv7baseline_v20240115']
+available_baselines=['Bv7_GERBL1']
 
-baseline_dct={'Baseline': 'Bv7baseline_v20240115'}
+baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
 
+available_stats = ['sum', 'mean']
 
-
-## Mock equation just to implement the routine
-locs_for_GLRRM=['alex']
-def GLRRM_1D_equations (df):
-    d = {'year': df['year'].unique(), 'PI_1D_value': np.nan}
-    df_y = pd.DataFrame(data=d)
-    for y in df['year'].unique():
-        value1=df['values_max'].loc[(df['location']=='alex') & (df['kind']=='mlv') & (df['year']==y)].iloc[0]
-        value2=df['values_min'].loc[(df['location']=='alex') & (df['kind']=='mlv') & (df['year']==y)].iloc[0]
-        eq=((value1-value2)*0.42)+120
-        df_y['PI_1D_value'].loc[df_y['year']==y]=eq
-    return df_y
+id_column_name = 'PT_ID'
