@@ -9,19 +9,19 @@ import geopandas as gpd
 import pandas as pd
 import os
 
-gdf=gpd.read_file("H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\section_tiles_countries.geojson")
+# gdf=gpd.read_file("H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\section_tiles_countries.geojson")
+#
+# sections=gdf['SECTION'].unique()
+#
+# for s in sections:
+#     gdf_s=gdf.loc[gdf['SECTION']==s]
+#     tiles=gdf_s['tile'].unique()
+#     print(s, list(tiles))
+# quit()
 
-sections=gdf['SECTION'].unique()
-
-for s in sections:
-    gdf_s=gdf.loc[gdf['SECTION']==s]
-    tiles=gdf_s['tile'].unique()
-    print(s, list(tiles))
-quit()
 
 
-
-df=pd.read_feather(r"F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA\NFBD_2D\YEAR\TILE\Bv7\SLR_DS_CAN\83\NFBD_2D_YEAR_Bv7_SLR_DS_CAN_83_1962_2020.feather")
+df=pd.read_feather(r"F:\GLAM_DASHBOARD\ISEE_RAW_DATA\NFBR_2D\Bv7\NFBR_2D_Bv7_1976.feather")
 
 
 
@@ -31,6 +31,7 @@ print(list(df))
 
 #print(df['SECTION'].unique())
 print(df.head())
+print(df.tail())
 quit()
 
 # tiles_2_merge=[238,237,226]

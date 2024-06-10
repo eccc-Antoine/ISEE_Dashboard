@@ -4,7 +4,9 @@ name='ISEE'
 
 #pi_list=['ERIW_1D', 'MM_1D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'SAUV_2D', 'ERIW_2D', 'BIRDS_2D', 'NFB_2D', 'NFBD_2D', 'CWRM_2D', 'IERM_2D', 'PIKE_2D' ]
 
-pi_list=['SAUV_2D', 'NFBA_2D', 'NFBR_2D']
+#pi_list=['SAUV_2D']
+pi_list=['NFBR_2D', 'SAUV_2D', 'NFBA_2D']
+
 
 #pi_list=['CHNI_2D', 'CWRM_2D', 'ONZI_1D']
 
@@ -16,8 +18,8 @@ raw_data_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA'
 #raw_data_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_RAW_DATA'
 
 #post_process_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
-post_process_folder=fr'C:\GLAM\Dashboard\ISEE_POST_PROCESS_DATA'
-#post_process_folder=fr'F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA'
+#post_process_folder=fr'C:\GLAM\Dashboard\ISEE_POST_PROCESS_DATA'
+post_process_folder=fr'F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA'
 
 file_ext='.feather'
 

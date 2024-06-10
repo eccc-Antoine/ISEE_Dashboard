@@ -19,7 +19,9 @@ import branca.colormap as cm
 import requests
 import sys
 import streamlit.components.v1 as components
-#from streamlit_folium import st_folium
+from streamlit_folium import st_folium
+
+
 
 st.set_page_config(
     page_title = 'ISEE Dashboard',
@@ -116,7 +118,28 @@ with Col2:
                 gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
                                                                                         unique_PI_CFG.available_years, stat5, var,
                                                                                         unique_pi_module_name, start_year, end_year)
-                m= UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 700, 700, Variable, 'compare', unique_pi_module_name, unit_dct[PI_code], 'tile')
+
+                m=UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 700, 700, Variable, 'compare', unique_pi_module_name, unit_dct[PI_code], 'tile')
+                # UTILS.folium_static(m, 1200, 700)
+                # click_data = st_folium(m.m1, height=1200, width=700)
+                # print(click_data)
+                # # if click_data and 'last_clicked' in click_data:
+                # data = click_data['last_object_clicked_popup']
+                # if data != None:
+                #     data = str(data)
+                #     data = data.replace('tile', '')
+                #     data = data.replace(' ', '')
+                #     data = data.replace('\n', '')
+                #     data = int(data)
+                # else:
+                #     data = 'please select a tile'
+                #
+                # # else:
+                # #     data='please select a tile'
+                #
+                # st.write(data)
+
+
             else:
 
                 if unique_PI_CFG.divided_by_country:
@@ -135,10 +158,10 @@ with Col2:
                                                                                      var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name,
                                                                                      start_year, end_year, Baseline)
 
-                m= UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable, 'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
+                m=UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable, 'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
                 #UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable, 'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
 
-            #UTILS.folium_static(m, 1200, 700)
+            UTILS.folium_static(m, 1200, 700)
 
 
         with tab5:        
@@ -170,14 +193,38 @@ with Col2:
                     # folium_map= UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff',
                     #                                                                  unique_pi_module_name, unit_dct[PI_code], division_col)
 
-                    folium_map= UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff',
+                    data= UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff',
                                                                                      unique_pi_module_name, unit_dct[PI_code], division_col)
                 else:
                     # folium_map= UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
                     #                                                                  unique_pi_module_name, unit_dct[PI_code], division_col)
 
-                    folium_map= UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
+                    data= UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
                                                                                      unique_pi_module_name, unit_dct[PI_code], division_col)
+
+                st.session_state.data = data
+
+
+                # def set_tab(index):
+                #     st.session_state.tab_index = index
+                #
+                #
+                # if data != 'please select a tile':
+                #     st.session_state.tab_index = -1
+                if data != 'please select a tile':
+                    st.link_button(
+                        url=f'./test/?data={st.session_state.data}',
+                        label=f'See tile {data} in full resolution'
+                    )
+
+
+
+                # tile_details = st.query_params.get(data, None)
+                # if data=='please select a tile':
+
+
+
+
 
                 #UTILS.folium_static(folium_map, 1200, 700)
 
@@ -223,19 +270,22 @@ with Col2:
 
                 if diff_type2==f'Values ({unit_dct[PI_code]})':
                     #folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
-                    UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
+                    data=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
 
                 else:
                     #folium_map=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
-                    UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
+                    data=UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff', unique_pi_module_name, unit_dct[PI_code], division_col)
 
                 #UTILS.folium_static(folium_map, 1200, 700)
 
 
              
         with tab6:
-            df_PI['YEAR']=df_PI['YEAR'].astype(str)
-            st.dataframe(df_PI.style)
+            #st.write(f'tile selected is {st.session_state.key}')
+
+            st.write(f'tile selected is: {data}')
+            #df_PI['YEAR']=df_PI['YEAR'].astype(str)
+            #st.dataframe(df_PI.style)
 
         #with tab7:
 

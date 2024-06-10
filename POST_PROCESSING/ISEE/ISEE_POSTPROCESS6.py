@@ -367,35 +367,37 @@ class POST_PROCESS_2D_not_tiled:
             df_space=df_space.reset_index()
             df_space.to_feather(os.path.join(path_res, res_name))
     
-    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, res_name, PI_CFG):
+    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, res_name, PI_CFG, t):
         count_y=0
         #for y in self.years:
         #for y in [1990, 1991]:
         for y in PI_CFG.available_years:
-            count_y+=1
+
             liste_files=[]
             folder_space=os.path.join(self.ISEE_RES, PI,p)
 
-            if not os.path.exists(folder_space):
+            name = fr'{PI}_{p}_{y}.feather'
+            feather = os.path.join(folder_space, name)
+            #print(feather)
+            if not os.path.exists(feather):
+                #print('skipping')
+                #quit()
                 continue
+            else:
+                count_y += 1
 
-            for root, dirs, files in os.walk(folder_space):
-                for name in files:
-                    year=name.split('_')[-1].replace('.feather', '')
-                    if year==str(y):
-                        liste_files.append(os.path.join(root, name))
-            liste_df=[]
-            
-            #print(len(liste_files))
-            
-            for feather in liste_files:
-                #print(feather)
                 df_temp=pd.read_feather(feather)
-                df_temp=df_temp.loc[df_temp['SECTION']==s]
+                print(df_temp)
+                print(len(df_temp))
+
+                df_temp=df_temp.loc[df_temp['TILE']==t]
+                #df_temp=df_temp.loc[df_temp['SECTION']==s]
 
                 df_temp=df_temp.drop_duplicates(subset=['PT_ID'])
 
                 df_temp[str(y)] = df_temp[var]
+
+                print(len(df_temp))
 
                 if 'XVAL' in list(df_temp):
                     print('using XVAL YVAL')
@@ -404,7 +406,7 @@ class POST_PROCESS_2D_not_tiled:
                     df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                 elif 'LAT' in list(df_temp):
-                    print('using LAT LON')
+                    #print('using LAT LON')
                     df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                 else:
@@ -419,27 +421,29 @@ class POST_PROCESS_2D_not_tiled:
                     df_temp = df_temp.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
 
                 df_temp=df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
-                
-                #print(len(df_temp))
-                
-                liste_df.append(df_temp)      
-                #print(len(liste_df))          
-            df_y=pd.concat(liste_df, ignore_index=True, axis=0)
+                print(df_temp.head())
+                print(len(df_temp))
+            #     #print(len(df_temp))
+            #
+            #     liste_df.append(df_temp)
+            #     #print(len(liste_df))
+            # df_y=pd.concat(liste_df, ignore_index=True, axis=0)
+            #
+            # #print(len(df_y))
+            # #print(df_y.head())
             
-            #print(len(df_y))
-            #print(df_y.head())
-            
-            if count_y==1:
-                df_main=df_y
-            else:
-                df_main=df_main.merge(df_y, on=[PI_CFG.id_column_name,'LAT','LON'], how='outer', suffixes=('', ''))
+                if count_y==1:
+                    df_main=df_temp
+                else:
+                    df_main=df_main.merge(df_temp, on=[PI_CFG.id_column_name,'LAT','LON'], how='outer', suffixes=('', ''))
             #print(len(df_main))
-        
+
+        if count_y>0:
         #print(df_main.head())
         #print(len(df_main))
         #print(len(df_main['PT_ID'].unique()))
-        df_main=df_main.reset_index()
-        df_main.to_feather(os.path.join(path_res, res_name))
+            df_main=df_main.reset_index()
+            df_main.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         
@@ -513,11 +517,20 @@ class POST_PROCESS_2D_not_tiled:
                             #for s in self.sections: 
                             for s in PI_CFG.available_sections:                             
                                 for var in list(PI_CFG.dct_var.keys()):
-                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                    path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p)
                                     if not os.path.exists(path_res):
                                         os.makedirs(path_res)
-                                    res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
-                                    self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, res_name, PI_CFG)
+                                    for t in cfg.dct_tile_sect[s]:
+                                        res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{t}_{AGG_SPACE}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+                                        self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, res_name, PI_CFG, t)
+
+
+
+                                    # path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                    # if not os.path.exists(path_res):
+                                    #     os.makedirs(path_res)
+                                    # res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+                                    # self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, res_name, PI_CFG)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -669,21 +682,18 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
    
 
-for pi in tiled.pis:
-    print(pi)
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'])
-    tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-    #tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
-
-             
-
-# for pi in not_tiled.pis:
+# for pi in tiled.pis:
 #     print(pi)
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
 
-         
-        
+
+for pi in not_tiled.pis:
+    print(pi)
+    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+
 # for pi in pi_1D.pis:
 #     print(pi)
 #     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
