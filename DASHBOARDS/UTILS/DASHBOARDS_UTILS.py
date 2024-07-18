@@ -146,20 +146,6 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
                 kpis[d].metric(label=fr':green[Reference plan {Stats} ({unit_dct[PI_code]})]', value=round(baseline_value, 2), delta= 0)
             count_kpi+=1
 
-# def popup_html(z, col, plan, stat, var, type):
-#     #sect_id=f'Section: {z["properties"]["SECTION"]}'
-#     #val=f'Value: {z["properties"][col]}'
-#     if type == 'diff':
-#         text=f'Difference of {stat} {var} in {z["properties"]["SECTION"]} under {plan} compared to Reference Plan is {z["properties"][col]}'
-#     else:
-#         text=f'{stat} of {var} in {z["properties"]["SECTION"]} under {plan} is {z["properties"][col]}'
-#     html = """
-#     <!DOCTYPE html>
-#     <html>
-#     <center><p> """ + text + """ </p></center>
-#     </html>
-#     """
-#     return html
 
 def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, var, type, unique_pi_module_name, unit, division_col):
 
@@ -174,10 +160,6 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
 
 
     m = plugins.DualMap(location=(y_med, x_med), tiles='cartodbpositron', zoom_start=8)
-    #m1=folium.Map(location=[y_med, x_med], tiles='cartodbpositron', zoom_start=8, control_scale=True)
-    #m2=folium.Map(location=[y_med, x_med], tiles='cartodbpositron', zoom_start=8, control_scale=True)
-
-
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     direction = unique_PI_CFG.var_direction[var]
@@ -191,7 +173,6 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
         gdf_grille_1[col] = gdf_grille_1[col].astype(float).round(3)
 
 
-
     if direction == 'inverse':
         linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"],
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75), caption=unit)
@@ -201,28 +182,24 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75), caption=unit)
     linear.add_to(m.m1)
 
-    gdf_grille_1[division_col] = gdf_grille_1[division_col].astype(int)
+    if division_col != 'SECTION':
+        gdf_grille_1[division_col] = gdf_grille_1[division_col].astype(int)
 
-    print(gdf_grille_1.dtypes)
+        tiles=gdf_grille_1['tile'].unique()
 
-    print(gdf_grille_1.head())
-    print(gdf_grille_1['tile'].unique())
-
-    tiles=gdf_grille_1['tile'].unique()
-    if 375 in tiles:
-        print(gdf_grille_1.loc[gdf_grille_1['tile']==375])
-    if 176 in tiles:
-        print(gdf_grille_1.loc[gdf_grille_1['tile'] == 176])
-
-
+        ### you might have some problems with those tiles... I c'an't figure out why for the moment. Just quit the process and rerun fix it normally
+        if 375 in tiles:
+            print(gdf_grille_1.loc[gdf_grille_1['tile']==375])
+        if 176 in tiles:
+            print(gdf_grille_1.loc[gdf_grille_1['tile'] == 176])
+        if 282 in tiles:
+            print(gdf_grille_1.loc[gdf_grille_1['tile'] == 282])
 
     val_dict = gdf_grille_1.set_index(division_col)[col]
 
     centro = gdf_grille_1.copy(deep=True)
 
     gdf_grille_1 = gdf_grille_1.to_crs(epsg='4326')
-
-    #gdf_grille_1.to_file(r'C:\GLAM\Dashboard\debug\test.shp')
 
     centro['centroid'] = centro.centroid
     centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
@@ -240,7 +217,7 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
                 "weight": 2,
                 "dashArray": "5, 5",
             },
-        ).add_to(m1)
+        ).add_to(m.m1)
 
         for _, r in centro.iterrows():
             lat = r["centroid"].y
@@ -284,8 +261,6 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
             popup=popup
         ).add_to(m.m1)
 
-
-        
     ######
     
     gdf_grille_2 = gdf_grille_plan.copy(deep=True)
@@ -360,58 +335,6 @@ def create_folium_dual_map(gdf_grille_base, gdf_grille_plan, col, dim_x, dim_y, 
             popup=popup
         ).add_to(m.m2)
 
-    #click_data = st_folium(m.m1, height=dim_y, width=dim_x)
-    #print(click_data)
-    #if click_data and 'last_clicked' in click_data:
-    #print(popup)
-    #print(m.m1)
-    # data = m.m1['last_object_clicked_popup']
-    # if data != None:
-    #     data=str(data)
-    #     data = data.replace('tile', '')
-    #     data = data.replace(' ', '')
-    #     data = data.replace('\n', '')
-    #     data=int(data)
-    # else:
-    #     data = 'please select a tile'
-    #
-    # # else:
-    # #     data='please select a tile'
-    #
-    # st.write(data)
-
-    # def get_pos(tile):
-    #     return tile
-    #
-    #
-    # data = None
-    # data = get_pos(m['last_clicked']['tile'])
-    # print(data)
-    # if m.m1.get("last_clicked"):
-    #     data = get_pos(m.m1["last_clicked"]["tile"])
-    # if data is not None:
-    #     st.write(data)
-    # data = None
-    # if m.get("last_clicked"):
-    #     data = get_pos(m["last_clicked"]["tile"])
-    #
-    # click_data = st_folium(m, key="map")
-    # print(click_data)
-    #
-    # if click_data and 'last_clicked' in click_data:
-    #     data = click_data['last_clicked']['tile']
-    # else:
-    #     data=None
-
-    #m.m1.add_child(folium.LatLngPopup())
-
-    # click_data = st_folium(m, key="m")
-    # if click_data and 'last_clicked' in click_data:
-    #     data = click_data['last_clicked']
-    #
-    #
-    # folium_static(m, dim_x, dim_y)
-
     return m
 
 def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module_name, unit, division_col):
@@ -436,24 +359,20 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
     
     if type=='diff':
         if direction == 'inverse':
-            #linear = cm.StepColormap(["green", "red"], index=[-100000000000000, 0, 100000000000000000], caption=unit)
             linear = cm.LinearColormap(colors=['green', 'white', 'red'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
                                          vmax=gdf_grille[col].quantile(0.75))
 
         else:
-            #linear = cm.StepColormap(["red", "green"], index=[-100000000000000, 0, 100000000000000000], caption=unit)
             linear = cm.LinearColormap(colors=['red', 'white', 'green'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
                                     vmax=gdf_grille[col].quantile(0.75))
 
-        #linear.add_to(folium_map)
     else:
         if direction == 'inverse':
             linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
-            #step=linear.to_step(4)
+
         else:
             linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
-            #step=linear.to_step(4)
-    #linear.add_to(folium_map)
+
     val_dict = gdf_grille.set_index(division_col)[col]
 
     centro=gdf_grille.copy(deep=True)
@@ -462,10 +381,8 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
     gdf_grille= gdf_grille.dropna()
 
-    print('NEW PLAN!!!!!!')
-    print(gdf_grille.head())
-
-    print(gdf_grille['tile'].unique())
+    if division_col != 'SECTION':
+        print(gdf_grille['tile'].unique())
     
     centro['centroid']=centro.centroid
     centro['centroid']=centro["centroid"].to_crs(epsg=4326)
@@ -474,8 +391,6 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
     gjson = gdf_grille.to_json()
     js_data = json.loads(gjson)
     val_dict = gdf_grille.set_index(division_col)[col]
-
-    print(val_dict)
 
     if division_col == 'SECTION':
         folium.GeoJson(
@@ -534,11 +449,6 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
     click_data = st_folium(folium_map, height=dim_y, width=dim_x)
 
-
-
-    #linear.add_to(folium_map)
-    #print(click_data)
-    #
     data = click_data['last_object_clicked_popup']
     if data != None:
         data=str(data)
@@ -551,12 +461,7 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
     else:
         data='please select a tile'
 
-    #st.write(data)
-
     return data
-
-    #folium_static(folium_map, dim_x, dim_y)
-
 
 def folium_static(fig, width, height):
     if isinstance(fig, folium.Map):
@@ -605,59 +510,13 @@ def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variab
     
     return df
 
-# def plot_map_folium(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):
-#     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-#     direction = unique_PI_CFG.var_direction[Variable]
-#     #print(Variable, direction)
-#
-#     x_med = np.round(df[col_x].median(), 3)
-#     y_med = np.round(df[col_y].median(), 3)
-#
-#     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-#
-#     ### transforme les valeurs de hectares à metre carrés!
-#     if unique_PI_CFG.multiplier==0.01:
-#         df[col_value]=df[col_value]*10000
-#
-#     #df[col_value]=df[col_value].astype(int)
-#     df = df.dropna(subset=[col_value])
-#
-#     df = df.loc[df[col_value]!=0]
-#
-#     m = folium.Map(location=[x_med, y_med], zoom_start=10)
-#
-#     marker_group = folium.FeatureGroup(name='Markers')
-#
-#     for _, row in df.iterrows():
-#         folium.CircleMarker(
-#             location=[row[col_y], row[col_x]],
-#             radius=8,
-#             popup=f"Value: {row[col_value]}",
-#             color='blue',
-#             fill=True,
-#             fill_color='blue'
-#         ).add_to(marker_group)
-#
-#     def add_marker(row):
-#         folium.CircleMarker(
-#             location=[row[col_y], row[col_x]],
-#             radius=8,
-#             popup=f"Value: {row[col_value]}",
-#             color='blue',
-#             fill=True,
-#             fill_color='blue'
-#         ).add_to(m)
-#
-#     marker_group.add_to(m)
-#
-#     #df.apply(add_marker, axis=1)
-#
-#     return m
-
 def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     direction = unique_PI_CFG.var_direction[Variable]
     print(Variable, direction)
+
+    print(len(df))
+    print(df.head())
 
     x_med = np.round(df[col_x].median(), 3)
     y_med = np.round(df[col_y].median(), 3)
@@ -684,38 +543,7 @@ def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_na
     print(len(df))
     print(df.head())
 
-    #gdf=gpd.GeoDataFrame(df, crs='4326', geometry=gpd.points_from_xy(df[col_x], df[col_y]))
-
     value_range = [df[col_value].min(), df[col_value].max()]
-
-    # if direction == 'inverse':
-    #     custom_diverging_colormap = [
-    #         [0, 'rgb(0, 128, 0)'],  # Dark green
-    #         [0.1, 'rgb(34, 139, 34)'],  # Forest green
-    #         [0.2, 'rgb(0, 255, 0)'],  # Green
-    #         [0.3, 'rgb(144, 238, 144)'],  # Light green
-    #         [0.4, 'rgb(173, 255, 47)'],  # Yellow green
-    #         [0.5, 'rgb(255, 255, 255)'],  # White
-    #         [0.6, 'rgb(255, 160, 122)'],  # Light salmon
-    #         [0.7, 'rgb(255, 99, 71)'],  # Tomato
-    #         [0.8, 'rgb(255, 69, 0)'],  # Orange red
-    #         [0.9, 'rgb(220, 20, 60)'],  # Crimson
-    #         [1, 'rgb(255, 0, 0)']  # Red
-    #     ]
-    # else:
-    #     custom_diverging_colormap = [
-    #         [0, 'rgb(255, 0, 0)'],  # Red
-    #         [0.1, 'rgb(220, 20, 60)'],  # Crimson
-    #         [0.2, 'rgb(255, 69, 0)'],  # Orange red
-    #         [0.3, 'rgb(255, 99, 71)'],  # Tomato
-    #         [0.4, 'rgb(255, 160, 122)'],  # Light salmon
-    #         [0.5, 'rgb(255, 255, 255)'],  # White
-    #         [0.6, 'rgb(173, 255, 47)'],  # Yellow green
-    #         [0.7, 'rgb(144, 238, 144)'],  # Light green
-    #         [0.8, 'rgb(0, 255, 0)'],  # Green
-    #         [0.9, 'rgb(34, 139, 34)'],  # Forest green
-    #         [1, 'rgb(0, 128, 0)']  # Dark green
-    #     ]
 
     df_neg=df.loc[df[col_value]<0]
     df_pos = df.loc[df[col_value] > 0]
@@ -796,71 +624,11 @@ def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_na
         margin={"r": 0, "t": 0, "l": 0, "b": 0}
     )
 
-
-    # percentiles_neg = np.percentile(df.loc[df[col_value]<0, col_value], [0, 25, 50, 75, 100])
-    # colors_neg = ['darkred', 'red', 'orange', 'yellow', 'lightyellow']
-    #
-    # print(percentiles_neg)
-    #
-    # percentiles_pos = np.percentile(df.loc[df[col_value]>0, col_value], [0, 25, 50, 75, 100])
-    # colors_pos = ['lightgreen', 'green', 'lightblue', 'blue', 'darkblue']
-    #
-    # # Map values to colors based on percentiles
-    # def get_color(value):
-    #     if value < percentiles_neg[1]:
-    #         return colors_neg[0]
-    #     elif value <= percentiles_neg[2]:
-    #         return colors_neg[1]
-    #     elif value <= percentiles_neg[3]:
-    #         return colors_neg[2]
-    #     elif value <= percentiles_neg[4]:
-    #         return colors_neg[3]
-    #
-    #     elif value < 0 and value <= percentiles_pos[0]:
-    #         return 'white'
-    #     elif value <= percentiles_pos[1]:
-    #         return colors_pos[0]
-    #     elif value <= percentiles_pos[2]:
-    #         return colors_pos[1]
-    #     elif value <= percentiles_pos[3]:
-    #         return colors_pos[2]
-    #     elif value <= percentiles_pos[4]:
-    #         return colors_pos[3]
-    #     else:
-    #         return 'rgb(0,0,0)'
-    #
-    # df['color'] = df[col_value].apply(get_color)
-    #
-    #
-    # # fig = px.density_mapbox(df, lat=col_y, lon=col_x, z=col_value, radius=10,
-    # #                         center=dict(lat=y_med, lon=x_med), zoom=10,
-    # #                         mapbox_style="open-street-map")
-    #
-    #
-    # # fig = px.density_mapbox(df, lat=col_y, lon=col_x, z=col_value, radius=10,
-    # #                         center=dict(lat=y_med, lon=x_med), zoom=9,
-    # #                         mapbox_style="open-street-map")
-    #
-    # df['size']=0.1
-    #
-    # fig = px.scatter_mapbox(df, lat=col_y, lon=col_x, color='color', hover_name=col_value, hover_data={col_x: False, col_y: False, col_value: False, 'size':False, 'color':False}, size_max=1, size="size",
-    #                            center=dict(lat=y_med, lon=x_med), zoom=11,
-    #                          mapbox_style="open-street-map")
-    #
-    # # fig = px.scatter_mapbox(df, lat=col_y, lon=col_x,  hover_name=col_value, hover_data={col_x: False, col_y: False, col_value: False, 'size':False, 'color':False}, size_max=1, color_discrete_sequence=[df.color],  size="size",
-    # #                            center=dict(lat=y_med, lon=x_med), zoom=9,
-    # #                          mapbox_style="open-street-map")
-    #
     fig.update_traces(
         marker=dict(sizemode='area', sizeref=2, sizemin=2)
         # Adjust sizeref and sizemin for smaller markers
     )
 
-    # fig.update_traces(
-    #     hovertemplate="<b>%{hovertext}</b><br>Value: %{marker.size}<extra></extra>"
-    # )
-
-    # print('WTF!!')
 
     coords_lat=df[col_y]
 
@@ -870,8 +638,6 @@ def plot_map_plotly(PIs, Variable, df, col_x, col_y, id_col, unique_pi_module_na
                    [coords_lon.max(), coords_lat.min()],
                    [coords_lon.max(), coords_lat.max()],
                    [coords_lon.min(), coords_lat.max()]]
-
-    #fig.update_layout(mapbox_style='cartodbpositron', mapbox_layers = [{"coordinates": coordinates}])
 
     fig.update_layout(mapbox_layers=[{"coordinates": coordinates}],  autosize=True,
     margin=dict(l=0, r=0, t=0, b=0),

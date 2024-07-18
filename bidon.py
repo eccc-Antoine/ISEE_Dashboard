@@ -21,8 +21,7 @@ import os
 
 
 
-df=pd.read_feather(r"F:\GLAM_DASHBOARD\ISEE_RAW_DATA\NFBR_2D\Bv7\NFBR_2D_Bv7_1976.feather")
-
+df=pd.read_feather(r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA\NFBR_2D\YEAR\TILE\OBS\LKO_CAN\471\NFBR_2D_YEAR_OBS_LKO_CAN_471_1962_2020.feather")
 
 
 print(list(df))
@@ -31,7 +30,7 @@ print(list(df))
 
 #print(df['SECTION'].unique())
 print(df.head())
-print(df.tail())
+print(df)
 quit()
 
 # tiles_2_merge=[238,237,226]

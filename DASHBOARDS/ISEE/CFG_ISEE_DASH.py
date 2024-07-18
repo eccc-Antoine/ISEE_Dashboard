@@ -2,31 +2,16 @@ import os
 
 name='ISEE'
 
-#pi_list=['ERIW_1D', 'MM_1D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'SAUV_2D', 'ERIW_2D', 'BIRDS_2D', 'NFB_2D', 'NFBD_2D', 'CWRM_2D', 'IERM_2D', 'PIKE_2D' ]
-
-#pi_list=['SAUV_2D']
-pi_list=['NFBR_2D', 'SAUV_2D', 'NFBA_2D']
-
-
-#pi_list=['CHNI_2D', 'CWRM_2D', 'ONZI_1D']
-
-#pi_list=['CWRM_2D']
+pi_list=['NFBR_2D', 'ONZI_1D']
 
 title=f'{name} DASHBOARD 0.5.'
 
-raw_data_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA'
-#raw_data_folder=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_RAW_DATA'
-
-#post_process_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
-#post_process_folder=fr'C:\GLAM\Dashboard\ISEE_POST_PROCESS_DATA'
-post_process_folder=fr'F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA'
-
 file_ext='.feather'
 
+##edit those paths:
+post_process_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
 sct_poly=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames.geojson"
-
 sct_poly_country=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames_countries.geojson"
-
 tiles_shp=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\TILES_SHP.geojson"
 
 maximum_plan_to_compare=3
@@ -48,20 +33,3 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
 
-
-
-
-
-
-
-# dct_tile_sect = {'SLR_DS': [100, 102, 103, 105, 109, 110, 111, 112, 116, 117, 118, 83, 86, 87, 88, 90, 91, 92, 93, 94, 95, 99, 89, 98, 84],
-#                  'SLR_US': [121, 126, 127, 128, 133, 134, 141, 142],
-#                  'USL_US': [181, 184, 183, 186, 191, 187,
-#                             197, 198, 205, 206, 216, 217, 226],
-#                  'LKO': [202, 209, 212, 213, 215, 219, 222, 225, 236, 237, 248, 249, 251, 261, 262, 273,
-#                          283, 284, 285, 292, 293, 294, 295, 296, 306, 307, 318, 319, 330, 331, 334, 343, 344,
-#                          346, 354, 357, 365, 366, 413, 420, 430, 447, 457, 459, 466, 483, 487, 489, 490, 491],
-#                  'USL_DS': [167, 169, 170, 171, 172, 174, 175, 178, 181, 182],
-#                  'SLR_DS_CAN': [100, 102, 103, 105, 109, 110, 111, 112, 116, 117, 118, 83, 86, 87, 88, 90, 91, 92, 93, 94, 95,
-#                           99, 89, 98, 84]
-#                  }
