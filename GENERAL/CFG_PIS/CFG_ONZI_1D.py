@@ -22,7 +22,9 @@ available_years=list(range(1962, 2018))
 divided_by_country=False
 
 #available_sections=['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
-available_sections=['LKO', 'USL_US', 'SLR_US', 'SLR_DS']
+#available_sections=['LKO', 'USL_US', 'SLR_US', 'SLR_DS']
+available_sections=['LKO', 'USL_US', 'SLR_US']
+
 
 
 sect_dct={'Lake Ontario':['LKO'],

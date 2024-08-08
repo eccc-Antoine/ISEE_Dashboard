@@ -10,7 +10,7 @@ dct_var={'VAR1':'Migration habitat', 'VAR2':'Rearing habitat'}
 var_agg_stat={'VAR1':['sum'],'VAR2':['sum']}
 
 #normal mean higher is better
-var_direction={'Migration habitat':'normal', 'Young wildfowl survival':'normal'}
+var_direction={'Migration habitat':'normal', 'Rearing habitat':'normal'}
 
 units='Hectares'
 

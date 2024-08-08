@@ -2,7 +2,7 @@ import os
 
 name='ISEE'
 
-pi_list=['NFBR_2D', 'ONZI_1D']
+pi_list=['SAUV_2D', 'NFBR_2D']
 
 title=f'{name} DASHBOARD 0.5.'
 

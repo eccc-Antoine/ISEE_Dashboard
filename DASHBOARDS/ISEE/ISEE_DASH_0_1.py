@@ -68,6 +68,8 @@ with Col1:
 
     baseline_value, plan_values=UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG)
 
+
+
 with Col2:         
     placeholder3 = st.empty()
     with placeholder3.container():
@@ -179,16 +181,44 @@ with Col2:
                                                                                      unique_pi_module_name, unit_dct[PI_code], division_col)
 
                 st.session_state.data = data
+                st.session_state.PI= PI_code
+                st.session_state.folder = folder
+                st.session_state.baseline_code = baseline_code
+                st.session_state.var = var
+                st.session_state.years = unique_PI_CFG.available_years
+                st.session_state.ext = CFG_DASHBOARD.file_ext
+                st.session_state.start_year = start_year3
+                st.session_state.end_year = end_year3
+                st.session_state.stat = stat3
+                st.session_state.Variable = Variable
+                st.session_state.unique_pi_module_name = unique_pi_module_name
+                st.session_state.ze_plan_code = ze_plan_code
+                st.session_state.unit_dct=unit_dct
+                st.session_state.diff_type = diff_type2
+                st.session_state.PIs = PIs
+                st.session_state.ze_plan = ze_plan
+                st.session_state.Baseline = Baseline
 
-                st.session_state['PI'] = PI_code
                 for item in st.session_state.items():
                     print(item)
 
+                # if data != 'please select a tile':
+                #     # st.link_button(
+                #     #     url=f'./test/?data={st.session_state.data}',
+                #     #     label=f'See tile {data} in full resolution'
+                #     # )
+                #     st.link_button(
+                #         url='f./test/?pi_code={st.session_state.PI}&data={st.session_state.data}',
+                #         label=f'See tile {data} in full resolution'
+                #     )
+
                 if data != 'please select a tile':
                     st.link_button(
-                        url=f'./test/?data={st.session_state.data}',
-                        label=f'See tile {data} in full resolution'
-                    )
+                            url=f'./test?pi_code={PI_code}&data={data}&folder={folder}&baseline_code={baseline_code}&var={var}&years={unique_PI_CFG.available_years}&ext={CFG_DASHBOARD.file_ext}&start_year={start_year3}&end_year={end_year3}&stat={stat3}&Variable={Variable}&unique_pi_module_name={unique_pi_module_name}&ze_plan_code={ze_plan_code}&unit_dct={unit_dct}&diff_type={diff_type2}&PIs={PIs}&ze_plan={ze_plan}&Baseline={Baseline}',
+                            label=f"See tile {data} in full resolution"
+                        )
+
+                #st.markdown(f'[Go to Test](./test?pi_code={PI_code}&data={data})')
 
             else:
 
