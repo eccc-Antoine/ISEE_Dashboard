@@ -164,9 +164,6 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
     plan_values=list(map(float, plan_values))
     baseline_value=float(baseline_value)
 
-    # plans_text=''
-    # for p in plans_selected:
-
     placeholder1 = st.empty()
     with placeholder1.container():
         st.subheader(f':blue[{Stats}] of :blue[{PIs}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
@@ -181,8 +178,6 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
             else:
                 kpis[d].metric(label=fr':green[Reference plan {Stats} ({unit_dct[PI_code]})]', value=round(baseline_value, 2), delta= 0)
             count_kpi+=1
-
-
 
 def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y, var, type, unique_pi_module_name, unit, division_col):
 
@@ -540,15 +535,9 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     print('PLOT_MAP_PLOTLY')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     direction = unique_PI_CFG.var_direction[Variable]
-    #print(Variable, direction)
-
-    #print(len(df))
-    #print(df.head())
 
     x_med = np.round(df[col_x].median(), 3)
     y_med = np.round(df[col_y].median(), 3)
-
-    #unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
     ### transforme les valeurs de hectares à metre carrés!
     if unique_PI_CFG.multiplier==0.01:
@@ -565,10 +554,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
         size=7
     else:
         size=10
-
-
-    #print(len(df))
-    #print(df.head())
 
     value_range = [df[col_value].min(), df[col_value].max()]
 
@@ -668,7 +653,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     fig.update_layout(mapbox_layers=[{"coordinates": coordinates}],  autosize=True,
     margin=dict(l=0, r=0, t=0, b=0),
     height=1000)
-    #fig.update_layout(mapbox_style='cartodbpositron')
 
     return fig
 
