@@ -21,16 +21,16 @@ import os
 
 
 
-df=pd.read_feather(r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA\NFBR_2D\YEAR\TILE\OBS\LKO_CAN\471\NFBR_2D_YEAR_OBS_LKO_CAN_471_1962_2020.feather")
+df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles\GLAM_DEM_ISEE_TILE_78.feather")
 
 
 print(list(df))
 
-#df.to_csv(fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\test.csv', sep=';')
+#df.to_csv(fr"C:\Users\MarandaA\Downloads\WATER_INTAKES_2D_Bv7_2014_2012.csv", sep=';', index=None)
 
 #print(df['SECTION'].unique())
 print(df.head())
-print(df)
+#print(df)
 quit()
 
 # tiles_2_merge=[238,237,226]

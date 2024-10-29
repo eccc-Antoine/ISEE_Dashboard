@@ -133,11 +133,11 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['diff']=df_both['diff'].round(3)
     df_both.dropna(subset = ['diff'], inplace=True)
 
-    df_both.to_csv(fr'H:\Projets\GLAM\Dashboard\debug\full_res_both_pre.csv' , sep=';', index=None)
+    #df_both.to_csv(fr'P:\GLAM\Dashboard\debug\full_res_both_pre.csv' , sep=';', index=None)
 
     df_both=df_both.loc[df_both['diff']!=0]
 
-    df_both.to_csv(fr'H:\Projets\GLAM\Dashboard\debug\full_res_both.csv' , sep=';', index=None)
+    #df_both.to_csv(fr'P:\GLAM\Dashboard\debug\full_res_both.csv' , sep=';', index=None)
 
 
     lon_cols=[col for col in list(df_both) if 'LON' in col]
@@ -148,8 +148,12 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['LAT']=np.where(df_both['LAT_base'] == 0, df_both['LAT_plan'], df_both['LAT_base'])
     df_both['LON']=np.where(df_both['LON_base'] == 0, df_both['LON_plan'], df_both['LON_base'])
 
+    #print(df_both['LAT'])
+    #print(df_both['LON'])
+
     #print(f'!!!!!! {len(df_both)}')
     fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
+    #print(fig)
     #fig=UTILS.plot_map_plotly(PIs, Variable, df_both, 'LAT', 'LON', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
     st.plotly_chart(fig, use_container_width=True)
 

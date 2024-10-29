@@ -9,10 +9,10 @@ title=f'{name} DASHBOARD 0.5.'
 file_ext='.feather'
 
 ##edit those paths:
-post_process_folder=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
-sct_poly=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames.geojson"
-sct_poly_country=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames_countries.geojson"
-tiles_shp=r"H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\TILES_SHP.geojson"
+post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
+sct_poly=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames.geojson"
+sct_poly_country=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames_countries.geojson"
+tiles_shp=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\TILES_SHP.geojson"
 
 maximum_plan_to_compare=3
 

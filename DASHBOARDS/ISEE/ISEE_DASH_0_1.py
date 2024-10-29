@@ -26,7 +26,9 @@ from streamlit_folium import st_folium
 st.set_page_config(
     page_title='ISEE Dashboard',
     page_icon=':floppy_disk:',
-    layout='wide'
+    layout='wide',
+    initial_sidebar_state="collapsed"
+
 )
 
 folder = CFG_DASHBOARD.post_process_folder
@@ -56,6 +58,8 @@ def update_PI_code():
 
 st.title(CFG_DASHBOARD.title)
 
+st.markdown('Welcome to ISEE GLAM Dashboard \U0001F60A \n\r This interface allows you to interactively query ISEE results in order to compare Performance Indicator results under various water regulation plans \n\r First, please select a tab according to the way you want results to be displayed'
+         )
 
 max_plans = CFG_DASHBOARD.maximum_plan_to_compare
 

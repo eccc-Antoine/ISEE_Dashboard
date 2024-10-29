@@ -560,36 +560,72 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     df_neg=df.loc[df[col_value]<0]
     df_pos = df.loc[df[col_value] > 0]
 
-    colormap1 = [
-        [0, "white"],
-        [0.1, "#e6f5e6"],  # very light green
-        [0.2, "#cceccf"],  # light green
-        [0.3, "#b3e6b3"],  # light-medium green
-        [0.4, "#99e699"],  # medium green
-        [0.5, "#80e680"],  # medium-dark green
-        [0.6, "#66e666"],  # dark green
-        [0.7, "#4de64d"],  # very dark green
-        [0.8, "#33e633"],  # green
-        [0.9, "#1ae61a"],  # green with a hint of dark
-        [1, "green"]  # green
+    if direction == 'normal':
+        colormap1 = [
+            [0, "white"],
+            [0.1, "#e6f5e6"],  # very light green
+            [0.2, "#cceccf"],  # light green
+            [0.3, "#b3e6b3"],  # light-medium green
+            [0.4, "#99e699"],  # medium green
+            [0.5, "#80e680"],  # medium-dark green
+            [0.6, "#66e666"],  # dark green
+            [0.7, "#4de64d"],  # very dark green
+            [0.8, "#33e633"],  # green
+            [0.9, "#1ae61a"],  # green with a hint of dark
+            [1, "green"]  # green
+        ]
+
+        colormap2 = [
+        [0, "#800000"],    # dark red
+        [0.1, "#990000"],  # slightly lighter dark red
+        [0.2, "#b30000"],  # lighter dark red
+        [0.3, "#cc0000"],  # medium red
+        [0.4, "#e60000"],  # medium-light red
+        [0.5, "#ff1a1a"],  # light red
+        [0.6, "#ff3333"],  # very light red
+        [0.7, "#ff6666"],  # even lighter red
+        [0.8, "#ff9999"],  # very light red
+        [0.9, "#ffcccc"],  # almost white with a hint of red
+        [1, "white"]       # white
     ]
 
-    colormap2 = colormap2 = [
-    [0, "#800000"],    # dark red
-    [0.1, "#990000"],  # slightly lighter dark red
-    [0.2, "#b30000"],  # lighter dark red
-    [0.3, "#cc0000"],  # medium red
-    [0.4, "#e60000"],  # medium-light red
-    [0.5, "#ff1a1a"],  # light red
-    [0.6, "#ff3333"],  # very light red
-    [0.7, "#ff6666"],  # even lighter red
-    [0.8, "#ff9999"],  # very light red
-    [0.9, "#ffcccc"],  # almost white with a hint of red
-    [1, "white"]       # white
-]
+    elif direction == 'inverse':
+        colormap2 = [
+            [0, "white"],
+            [0.1, "#e6f5e6"],  # very light green
+            [0.2, "#cceccf"],  # light green
+            [0.3, "#b3e6b3"],  # light-medium green
+            [0.4, "#99e699"],  # medium green
+            [0.5, "#80e680"],  # medium-dark green
+            [0.6, "#66e666"],  # dark green
+            [0.7, "#4de64d"],  # very dark green
+            [0.8, "#33e633"],  # green
+            [0.9, "#1ae61a"],  # green with a hint of dark
+            [1, "green"]  # green
+        ]
+
+        colormap1 = [
+            [0, "#800000"],  # dark red
+            [0.1, "#990000"],  # slightly lighter dark red
+            [0.2, "#b30000"],  # lighter dark red
+            [0.3, "#cc0000"],  # medium red
+            [0.4, "#e60000"],  # medium-light red
+            [0.5, "#ff1a1a"],  # light red
+            [0.6, "#ff3333"],  # very light red
+            [0.7, "#ff6666"],  # even lighter red
+            [0.8, "#ff9999"],  # very light red
+            [0.9, "#ffcccc"],  # almost white with a hint of red
+            [1, "white"]  # white
+        ]
+
+    else:
+        print('There is a problem with variable direction!!')
+        quit()
 
     norm1 = (df_pos[col_value] - df_pos[col_value].quantile(0.25)) / (df_pos[col_value].quantile(0.75) - df_pos[col_value].quantile(0.25))
     norm2 = (df_neg[col_value] - df_neg[col_value].quantile(0.25)) / (df_neg[col_value].quantile(0.75) - df_neg[col_value].quantile(0.25))
+
+    print(norm2)
 
     trace1 = go.Scattermapbox(
         lat=df_pos[col_y],
