@@ -13,6 +13,7 @@ from folium import plugins
 import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
+import tempfile
 from streamlit_folium import st_folium
 
 
@@ -668,15 +669,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     )
 
     fig = go.Figure(data=[trace1, trace2])
-
-    # fig.update_layout(
-    #     mapbox=dict(
-    #         style='open-street-map',
-    #         center=dict(lat=y_med, lon=x_med),
-    #         zoom=13
-    #     ),
-    #     margin={"r": 0, "t": 0, "l": 0, "b": 0}
-    # )
 
     fig.update_layout(
         mapbox_style="white-bg",

@@ -14,6 +14,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import CFG_ISEE_DASH as CFG_DASHBOARD
 from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 import geopandas as gpd
+import tempfile
 import json
 import folium as f
 from folium import plugins
@@ -291,9 +292,6 @@ def function_for_tab4(exec):
                 st.session_state.ze_plan = ze_plan
                 st.session_state.Baseline = Baseline
 
-                # for item in st.session_state.items():
-                #     print(item)
-
                 if st.session_state.data:
                     st.link_button(
                         url=f'./Full_resolution_maps?pi_code={PI_code}&data={tile_selected}&folder={folder}&baseline_code={baseline_code}&var={var3}&years={unique_PI_CFG.available_years}&ext={CFG_DASHBOARD.file_ext}&start_year={start_year3}&end_year={end_year3}&stat={stat3}&Variable={Variable}&unique_pi_module_name={unique_pi_module_name}&ze_plan_code={ze_plan_code}&unit_dct={unit_dct}&diff_type={diff_type2}&PI_code={PI_code}&ze_plan={ze_plan}&Baseline={Baseline}&pi_type={pi_type}',
@@ -301,7 +299,6 @@ def function_for_tab4(exec):
                     )
 
                 click_data1 = UTILS.folium_static(folium_map, height=700, width=1200)
-
 
             else:
                 if unique_PI_CFG.divided_by_country:
@@ -333,7 +330,6 @@ def function_for_tab4(exec):
                 else:
                     data = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
                                                    unique_pi_module_name, unit_dct[PI_code], division_col)
-
 
 def render_column1():
 
