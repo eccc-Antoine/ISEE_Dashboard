@@ -1,16 +1,16 @@
 import os
 
-name='Wildfowl'
+name='Least Bittern'
 
 type='2D_tiled'
 
-dct_var={'VAR1':'Migration habitat', 'VAR2':'Rearing habitat'}
-# need to be 'mean' or 'sum', values need to be a list even if there is only one item
+dct_var={'VAR1': 'Weighted usable area', 'VAR2': 'Sub-Optimal WUA', 'VAR3': 'Optimal WUA'}
 
-var_agg_stat={'VAR1':['sum'],'VAR2':['sum']}
+# need to be 'mean' or 'sum', values need to be a list even if there is only one item
+var_agg_stat={'VAR1':['sum'],'VAR2':['sum'],'VAR3':['sum']}
 
 #normal mean higher is better
-var_direction={'Migration habitat':'normal', 'Rearing habitat':'normal'}
+var_direction={'RPI_IXEX':'normal', 'RPI_sub-optimal_IXEX':'normal', 'RPI_optimal_IXEX':'normal'}
 
 units='Hectares'
 
@@ -38,6 +38,7 @@ plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}
 available_baselines=['PreProjectHistorical']
 
 baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
+
 available_stats = ['sum', 'mean']
 
 id_column_name = 'PT_ID'

@@ -21,10 +21,12 @@ import os
 
 
 
-df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles\GLAM_DEM_ISEE_TILE_78.feather")
+df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ERIW_MIN_2D\1958DD\LKO\1975\ERIW_2D_1958DD_LKO_413_1975.feather")
 
 
 print(list(df))
+
+#print(df['SECTION'].unique())
 
 #df.to_csv(fr"C:\Users\MarandaA\Downloads\WATER_INTAKES_2D_Bv7_2014_2012.csv", sep=';', index=None)
 

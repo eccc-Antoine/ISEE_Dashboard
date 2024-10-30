@@ -36,13 +36,13 @@ dct_tile_sect = {'SLR_DS': [100, 102, 103, 105, 109, 110, 111, 112, 116, 117, 11
 
 mock_map_sct_dct = {'St.Lawrence River upstream': ['St.Lawrence River upstream'], 'St.Lawrence River downstream': ['St.Lawrence River downstream']}
 
-available_plans=['Bv7_2014', 'Bv7', 'OBS']
+available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 
-plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
+plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
-available_baselines=['Bv7_GERBL1']
+available_baselines=['PreProjectHistorical']
 
-baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
 
 available_stats = ['sum', 'mean']
 

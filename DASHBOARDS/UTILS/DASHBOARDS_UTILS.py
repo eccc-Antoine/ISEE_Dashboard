@@ -491,7 +491,7 @@ def folium_static(_fig, width, height):
             _fig._repr_html_(), height=height + 10, width=width)
 
 @st.cache_data(ttl=3600)
-def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name):
+def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name, pi_type, tile):
 
     print('PREP_DATA_MAP')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -500,7 +500,13 @@ def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variab
         df=pd.read_feather(file)
     else:
         df=pd.read_csv(file, sep=';')
-    
+
+    print(list(df))
+
+    if pi_type=='2D_not_tiled':
+        df=df.loc[df['TILE']==tile]
+
+
     df.fillna(0, inplace=True)
     
     liste_year=list(range(start_year, end_year+1))
@@ -663,14 +669,32 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
     fig = go.Figure(data=[trace1, trace2])
 
+    # fig.update_layout(
+    #     mapbox=dict(
+    #         style='open-street-map',
+    #         center=dict(lat=y_med, lon=x_med),
+    #         zoom=13
+    #     ),
+    #     margin={"r": 0, "t": 0, "l": 0, "b": 0}
+    # )
+
     fig.update_layout(
-        mapbox=dict(
+        mapbox_style="white-bg",
+        mapbox_layers=[
+            {
+                "below": 'traces',
+                "sourcetype": "raster",
+                "sourceattribution": "United States Geological Survey",
+                "source": [
+                    "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                ]
+            }
+        ],  mapbox=dict(
             style='open-street-map',
             center=dict(lat=y_med, lon=x_med),
             zoom=13
-        ),
-        margin={"r": 0, "t": 0, "l": 0, "b": 0}
-    )
+        ))
+
 
     fig.update_traces(
         marker=dict(sizemode='area', sizeref=2, sizemin=2)

@@ -59,6 +59,8 @@ if 'pi_code' in qp and 'data' in qp:
     diff_type=qp['diff_type']
     ze_plan = qp['ze_plan']
     Baseline = qp['Baseline']
+    pi_type=qp['pi_type']
+
 
 
     st.write(f'Difference of :blue[{PI_code} {Variable} {stat}] between :blue[{ze_plan} and {Baseline}] from :blue[{start_year} to {end_year}]\n for tile :blue[{data}] at each ISEE 10x10m grid node')
@@ -92,9 +94,14 @@ if 'pi_code' in qp and 'data' in qp:
 
     #pt_id_file_base=os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{int(data)}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
 
-    pt_id_file_base = os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{int(data)}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+    print(type)
+    if pi_type=='2D_not_tiled':
+        pt_id_file_base = os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+        df_base=UTILS.prep_data_map(pt_id_file_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name, pi_type, int(data))
 
-    df_base=UTILS.prep_data_map(pt_id_file_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
+    else:
+        pt_id_file_base = os.path.join(df_folder_base, f'{var}_{PI_code}_YEAR_{baseline_code}_{int(data)}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+        df_base=UTILS.prep_data_map(pt_id_file_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name,pi_type, int(data))
 
     df_base = df_base.sort_values(by='LAT')
     # df_base['tile_mock']=df_base['PT_ID']/1000000
@@ -107,9 +114,14 @@ if 'pi_code' in qp and 'data' in qp:
 
     df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID', ze_plan_code)
 
-    pt_id_file_plan=os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{int(data)}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+    if pi_type == '2D_not_tiled':
+        pt_id_file_plan = os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+        df_plan=UTILS.prep_data_map(pt_id_file_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name, pi_type, int(data))
 
-    df_plan=UTILS.prep_data_map(pt_id_file_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
+
+    else:
+        pt_id_file_plan=os.path.join(df_folder_plan, f'{var}_{PI_code}_YEAR_{ze_plan_code}_{int(data)}_PT_ID_{np.min(years)}_{np.max(years)}{ext}')
+        df_plan=UTILS.prep_data_map(pt_id_file_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name, pi_type, int(data))
 
     # df_plan = df_plan.sort_values(by='LAT')
     # df_plan['tile_mock']=df_plan['PT_ID']/1000000

@@ -38,13 +38,13 @@ dct_tile_sect={'USL_US':[181,184,183,186,191,187,
  
 mock_map_sct_dct={'Lake Ontario':['Lake Ontario'], 'Upper St.Lawrence upstream':['Upper St.Lawrence upstream'], 'Lake St.Lawrence':['Lake St.Lawrence']}
 
-available_plans=['OBS']
+available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 
-plan_dct={'Observation':'OBS'}
+plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
-available_baselines=['Bv7_GERBL1']
+available_baselines=['PreProjectHistorical']
 
-baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
 
 available_stats = ['sum', 'mean']
 

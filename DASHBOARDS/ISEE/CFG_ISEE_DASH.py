@@ -2,14 +2,14 @@ import os
 
 name='ISEE'
 
-pi_list=['SAUV_2D', 'NFBR_2D']
+pi_list=['BIRDS_2D']
 
 title=f'{name} DASHBOARD 0.5.'
 
 file_ext='.feather'
 
 ##edit those paths:
-post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
+post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_NEW'
 sct_poly=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames.geojson"
 sct_poly_country=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\SECTIONS_simple_longnames_countries.geojson"
 tiles_shp=r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\TILES_SHP.geojson"

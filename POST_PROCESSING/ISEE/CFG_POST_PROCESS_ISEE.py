@@ -2,13 +2,15 @@ import os
 
 name='ISEE'
 
-pis_2D_tiled=['SAUV_2D']
+#pis_2D_tiled=['SAUV_2D', 'CWRM_2D' 'IXEX_RPI_2D', 'CHNI_2D']
+
+pis_2D_tiled=['CHNI_2D']
 
 #pis_2D_tiled=['IERM_2D', "IXEX_2D"]
 
 #pis_2D_tiled=['PIKE_2D']
 
-pis_2D_not_tiled=['NFBR_2D', 'NFBA_2D']
+pis_2D_not_tiled=['BIRDS_2D']
 #pis_2D_not_tiled=['NFB_2D', 'NFBD_2D']
 
 
@@ -16,7 +18,7 @@ pis_2D_not_tiled=['NFBR_2D', 'NFBA_2D']
 
 #pis_1D=['EX_RB_1D']
 
-pis_1D=['ONZI_1D']
+pis_1D=['ZIPA_1D']
 
 #pis_1D=['ZIPA_1D', 'TURTLE_1D', 'ONZI_1D', 'MM_1D', 'ERIW_1D']
 
@@ -31,17 +33,17 @@ pis_1D=['ONZI_1D']
 #years=list(range(1961, 2021))
 
 #ISEE_RES=fr'C:\GLAM\Dashboard\ISEE_RAW_DATA'
-ISEE_RES=fr'F:\GLAM_DASHBOARD\ISEE_RAW_DATA'
+ISEE_RES=fr'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'
 #ISEE_RES=fr'\\131.235.232.206\prod2\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS'
 #ISEE_RES=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA'
 #ISEE_RES=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_RAW_DATA'
 
-POST_PROCESS_RES=fr'F:\GLAM_DASHBOARD\ISEE_POST_PROCESS_DATA'
+POST_PROCESS_RES=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_NEW'
 #POST_PROCESS_RES=fr'C:\GLAM\Dashboard\ISEE_POST_PROCESS_DATA'
 #POST_PROCESS_RES=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA'
 #POST_PROCESS_RES=f'https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/DATA/{name}/{name}_POST_PROCESS_DATA'
 
-tiles_folder='H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
+tiles_folder='P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
 
 sep=';'
 

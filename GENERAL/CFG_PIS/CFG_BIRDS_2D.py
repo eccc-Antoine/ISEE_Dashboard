@@ -16,7 +16,7 @@ units=' '
 
 multiplier=1
 
-available_years=list(range(1995, 2021))
+available_years=list(range(1962, 2021))
 
 divided_by_country=False
 
@@ -36,13 +36,13 @@ dct_tile_sect={
  
 mock_map_sct_dct={'Lake Ontario':['Lake Ontario']}
 
-available_plans=['Bv7_2014', 'Bv7', 'OBS']
+available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 
-plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
+plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
-available_baselines=['Bv7_GERBL1']
+available_baselines=['PreProjectHistorical']
 
-baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
 
 available_stats = ['sum', 'mean']
 

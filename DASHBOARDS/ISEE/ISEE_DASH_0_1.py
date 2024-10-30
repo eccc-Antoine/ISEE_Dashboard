@@ -272,6 +272,8 @@ def function_for_tab4(exec):
                 else:
                     st.session_state.data = None
 
+                pi_type=unique_PI_CFG.type
+                st.session_state.pi_type = pi_type
                 st.session_state.folder = folder
                 st.session_state.baseline_code = baseline_code
                 st.session_state.var = var3
@@ -294,7 +296,7 @@ def function_for_tab4(exec):
 
                 if st.session_state.data:
                     st.link_button(
-                        url=f'./Full_resolution_maps?pi_code={PI_code}&data={tile_selected}&folder={folder}&baseline_code={baseline_code}&var={var3}&years={unique_PI_CFG.available_years}&ext={CFG_DASHBOARD.file_ext}&start_year={start_year3}&end_year={end_year3}&stat={stat3}&Variable={Variable}&unique_pi_module_name={unique_pi_module_name}&ze_plan_code={ze_plan_code}&unit_dct={unit_dct}&diff_type={diff_type2}&PI_code={PI_code}&ze_plan={ze_plan}&Baseline={Baseline}',
+                        url=f'./Full_resolution_maps?pi_code={PI_code}&data={tile_selected}&folder={folder}&baseline_code={baseline_code}&var={var3}&years={unique_PI_CFG.available_years}&ext={CFG_DASHBOARD.file_ext}&start_year={start_year3}&end_year={end_year3}&stat={stat3}&Variable={Variable}&unique_pi_module_name={unique_pi_module_name}&ze_plan_code={ze_plan_code}&unit_dct={unit_dct}&diff_type={diff_type2}&PI_code={PI_code}&ze_plan={ze_plan}&Baseline={Baseline}&pi_type={pi_type}',
                         label=f"See tile {tile_selected} in full resolution"
                     )
 
