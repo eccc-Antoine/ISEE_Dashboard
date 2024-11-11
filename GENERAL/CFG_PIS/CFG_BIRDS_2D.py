@@ -22,19 +22,7 @@ divided_by_country=False
 
 available_sections=['LKO']
 
-# available_sections=['LKO']
-
 sect_dct={'Lake Ontario':['LKO']}
-
-# sect_dct={'Lake Ontario':['LKO']}
-
-dct_tile_sect={
- 'LKO':[202, 209, 212, 213, 215, 219, 222, 225, 236, 237, 248, 249, 251, 261, 262, 273,
- 283, 284, 285, 292, 293, 294, 295, 296, 306, 307, 318, 319, 330, 331, 334, 343, 344,
- 346, 354, 357, 365, 366, 413, 420, 430, 447, 457, 459, 466, 483, 487, 489, 490, 491],}
-
- 
-mock_map_sct_dct={'Lake Ontario':['Lake Ontario']}
 
 available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 

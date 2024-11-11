@@ -1,6 +1,6 @@
 import numpy
 
-name='Exposed Riverbed During Winter Index'
+name='Exposed Riverbed During Winter 1D'
 
 type='1D'
 
@@ -32,22 +32,13 @@ sect_dct={'Lake Ontario':['LKO'],
                'Upstream':['LKO', 'USL_US'],
                'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
+available_plans=['OBS', 'Bv7_GERBL1']
 
-# sect_dct={'Upstream':['LKO', 'USL_US'],
-#            'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
+plan_dct={'OBS':'OBS', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
+available_baselines=['PreProjectHistorical']
 
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
-
-#mock_map_sct_dct={'Upstream':['Lake Ontario', 'Upper St.Lawrence upstream'], 'Downstream':['Lake St.Lawrence', 'St.Lawrence River upstream', 'St.Lawrence River downstream']}
-
-available_plans=['Bv7_2014', 'Bv7', 'OBS']
-
-plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
-
-available_baselines=['Bv7_GERBL1']
-
-baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
 
 available_stats = ['sum', 'mean']
 

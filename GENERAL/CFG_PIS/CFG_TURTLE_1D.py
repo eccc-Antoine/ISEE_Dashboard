@@ -32,8 +32,6 @@ sect_dct={'Lake Ontario':['LKO'],
                'Upstream':['LKO', 'USL_US'],
                'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
-
 available_plans=['Bv7_2014', 'Bv7', 'OBS']
 
 plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}

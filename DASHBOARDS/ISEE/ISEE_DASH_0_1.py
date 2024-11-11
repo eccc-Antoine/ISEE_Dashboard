@@ -45,7 +45,8 @@ for pi in pis_code:
 
 pis = [pi_dct[pi] for pi in pis_code]
 
-default_PI=pis_code[0]
+#default_PI=pis_code[0]
+default_PI=next(iter(pi_dct.values()), None)
 # State management
 if 'PI_code' not in st.session_state:
     st.session_state['PI_code'] = pis_code[0]
@@ -54,13 +55,15 @@ if 'PI_code' not in st.session_state:
 
 def update_PI_code():
     selected_pi_name = st.session_state['selected_pi']
-    st.session_state['PI_code'] = selected_pi_name
+    pi_code = [key for key, value in pi_dct.items() if value == selected_pi_name]
+    #st.session_state['PI_code'] = selected_pi_name
+    st.session_state['PI_code'] = pi_code[0]
 
 
 st.title(CFG_DASHBOARD.title)
 
-st.markdown('Welcome to ISEE GLAM Dashboard \U0001F60A \n\r This interface allows you to interactively query ISEE results in order to compare Performance Indicator results under various water regulation plans \n\r First, please select a tab according to the way you want results to be displayed'
-         )
+# st.markdown('Welcome to ISEE GLAM Dashboard \U0001F60A \n\r This interface allows you to interactively query ISEE results in order to compare Performance Indicator results under various water regulation plans \n\r First, please select a tab according to the way you want results to be displayed'
+#          )
 
 max_plans = CFG_DASHBOARD.maximum_plan_to_compare
 
@@ -79,24 +82,33 @@ def function_for_tab1(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans=render_column1()
+            LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans=render_column1()
 
         with Col2:
 
+            unique_PI_CFG.type == '2D_tiled'
+
             st.write('👈 Set parameters with widgets on the left to display results accordingly')
 
-            UTILS.header(Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
-                         baseline_value, PI_code, unit_dct, var_direction)
+
+
+            UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                         baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
+
+            if LakeSL_prob_1D:
+                st.write(
+                    ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
             fig = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                         PI_code, unit_dct)
+
             st.plotly_chart(fig, use_container_width=True)
 
 def function_for_tab2(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans=render_column1()
+            LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans=render_column1()
 
         with Col2:
             diff_type = st.selectbox("Select a type of difference to compute",
@@ -104,20 +116,24 @@ def function_for_tab2(exec):
 
             st.write('👈 Set parameters with widgets on the left to display results accordingly')
 
-            UTILS.header(Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
-                         baseline_value, PI_code, unit_dct, var_direction)
-            fig2 = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
-                                                    PI_code, unit_dct, unique_pi_module_name, diff_type)
-            st.plotly_chart(fig2, use_container_width=True)
+            UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                         baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
+
+            if LakeSL_prob_1D:
+                st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
+            else:
+
+                fig2 = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
+                                                        PI_code, unit_dct, unique_pi_module_name, diff_type)
+                st.plotly_chart(fig2, use_container_width=True)
 
 
 def function_for_tab3(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable=render_column1_simple()
+            selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable=render_column1_simple()
             var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-            print(unique_PI_CFG.var_agg_stat[var])
             if unique_PI_CFG.var_agg_stat[var][0] =='sum':
                 stat5 = st.selectbox("Select a way to aggregate values for the selected period",
                                      unique_PI_CFG.var_agg_stat[var] + ['mean', 'min', 'max'], key='stat5', index=0)
@@ -126,7 +142,6 @@ def function_for_tab3(exec):
                                      unique_PI_CFG.var_agg_stat[var] + ['min', 'max'], key='stat5', index=0)
 
         with Col2:
-
             baseline, candidate = st.columns(2)
             baselines = list(unique_PI_CFG.baseline_dct.keys())
             with baseline:
@@ -164,13 +179,16 @@ def function_for_tab3(exec):
 
                 gdf_grille_base = UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, sct_shp, folder,
                                                          PI_code, baseline_code, unique_PI_CFG.available_years, stat5,
-                                                         var, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name,
-                                                         start_year, end_year, Baseline)
+                                                         var, unique_pi_module_name,
+                                                         start_year, end_year, Baseline2)
 
                 gdf_grille_plan = UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, sct_shp, folder,
                                                          PI_code, ze_plan_code, unique_PI_CFG.available_years, stat5,
-                                                         var2, unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name,
-                                                         start_year, end_year, Baseline)
+                                                         var2, unique_pi_module_name,
+                                                         start_year, end_year, Baseline2)
+
+                if baseline_code=='PreProjectHistorical':
+                    st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable,
                                                  'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
@@ -191,10 +209,14 @@ def function_for_tab4(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable=render_column1_simple()
+            selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable=render_column1_simple()
             var3 = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-            stat3 = st.selectbox("Select a way to aggregate values for the selected period",
-                                 unique_PI_CFG.var_agg_stat[var3] + ['Min', 'Max'], key='stat3', index=0)
+            if unique_PI_CFG.var_agg_stat[var3][0]=='sum':
+                stat3 = st.selectbox("Select a way to aggregate values for the selected period",
+                                     unique_PI_CFG.var_agg_stat[var3] + ['mean', 'min', 'max'], key='stat3', index=0)
+            else:
+                stat3 = st.selectbox("Select a way to aggregate values for the selected period",
+                                     unique_PI_CFG.var_agg_stat[var3] + ['min', 'max'], key='stat3', index=0)
             diff_type2 = st.selectbox("Select a type of difference to compute",
                                       [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'],
                                       key='diff_type2')
@@ -218,13 +240,11 @@ def function_for_tab4(exec):
             end_year3 = end_year
 
             if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
-
-
-                gdf_grille_base = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
+                gdf_grille_base = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, baseline_code,
                                                             unique_PI_CFG.available_years, stat3, var3,
                                                             unique_pi_module_name, start_year, end_year)
 
-                gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, baseline_code,
+                gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
                                                             unique_PI_CFG.available_years, stat3, var3,
                                                             unique_pi_module_name, start_year, end_year)
 
@@ -234,6 +254,7 @@ def function_for_tab4(exec):
                 gdf_both['geometry'] = np.where(gdf_both['geometry_base'] == None, gdf_both['geometry_plan'],
                                                 gdf_both['geometry_base'])
                 gdf_both = gdf_both[['tile', 'VAL_base', 'VAL_plan', 'geometry']]
+
 
                 gdf_both = gdf_both.fillna(0)
                 gdf_both['DIFF'] = gdf_both['VAL_plan'] - gdf_both['VAL_base']
@@ -254,9 +275,7 @@ def function_for_tab4(exec):
                 tile_selected = st.text_input(
                     "Enter a tile number to see its results in full resolution (click on a tile to see its number) 👇", value=None)
 
-                print(list(gdf_both['tile']))
                 dtypes = [type(element) for element in list(gdf_both['tile'])]
-                print(dtypes)
 
                 if tile_selected != None:
 
@@ -308,13 +327,15 @@ def function_for_tab4(exec):
 
                 gdf_grille_base = UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, sct_shp, folder, PI_code,
                                                          baseline_code, unique_PI_CFG.available_years, stat3, var3,
-                                                         unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name,
+                                                         unique_pi_module_name,
                                                          start_year3, end_year3, Baseline)
 
                 gdf_grille_plan = UTILS.prep_for_prep_1d(unique_PI_CFG.sect_dct, sct_shp, folder, PI_code, ze_plan_code,
                                                          unique_PI_CFG.available_years, stat3, var3,
-                                                         unique_PI_CFG.mock_map_sct_dct, unique_pi_module_name,
+                                                         unique_pi_module_name,
                                                          start_year3, end_year3, Baseline)
+
+
 
                 division_col = 'SECTION'
 
@@ -323,17 +344,21 @@ def function_for_tab4(exec):
                 gdf_grille_plan['DIFF_PROP'] = (
                             ((gdf_grille_plan['VAL'] - gdf_grille_base['VAL']) / gdf_grille_base['VAL']) * 100).round(3)
 
+                if unique_PI_CFG.type=='1D' and Baseline=='PreProjectHistorical':
+                    gdf_grille_plan=gdf_grille_plan.loc[gdf_grille_plan['SECTION']!='Lake St.Lawrence']
+                    st.write(':red[It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
+
                 if diff_type2 == f'Values ({unit_dct[PI_code]})':
-                    data = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
+                    data = UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff',
                                                    unique_pi_module_name, unit_dct[PI_code], division_col)
 
                 else:
                     data = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
                                                    unique_pi_module_name, unit_dct[PI_code], division_col)
-
+                UTILS.folium_static(data, 1200, 700)
 def render_column1():
 
-    selected_pi=st.selectbox("Select a Performance Indicator", list(pi_dct.keys()), key='selected_pi', on_change=update_PI_code)
+    selected_pi=st.selectbox("Select a Performance Indicator", list(pi_dct.values()), key='selected_pi', on_change=update_PI_code)
 
     PI_code = st.session_state['PI_code']
 
@@ -341,17 +366,22 @@ def render_column1():
         unique_pi_module_name = f'CFG_{PI_code}'
         unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
+
         start_year, end_year, Region, plans_selected, Baseline, Stats, Variable = UTILS.MAIN_FILTERS_streamlit(
             unique_pi_module_name, CFG_DASHBOARD,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
 
+
+        LakeSL_prob_1D =False
+        if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and Baseline=='PreProjectHistorical' :
+            LakeSL_prob_1D=True
+
         var_direction = unique_PI_CFG.var_direction[Variable]
 
-        df_PI = UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region,
-                                                  start_year, end_year, Variable, CFG_DASHBOARD)
+        df_PI = UTILS.yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
 
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
-                                                                   unique_PI_CFG)
+                                                                   unique_PI_CFG, LakeSL_prob_1D)
 
         list_plans = []
         for p in plans_selected:
@@ -359,10 +389,10 @@ def render_column1():
             list_plans.append(pp)
         list_plans.append(unique_PI_CFG.baseline_dct[Baseline])
 
-    return unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans
+    return LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans
 
 def render_column1_simple():
-    selected_pi=st.selectbox("Select a Performance Indicator", list(pi_dct.keys()), key='selected_pi', on_change=update_PI_code)
+    selected_pi=st.selectbox("Select a Performance Indicator", list(pi_dct.values()), key='selected_pi', on_change=update_PI_code)
 
     PI_code = st.session_state['PI_code']
 
@@ -374,8 +404,7 @@ def render_column1_simple():
             unique_pi_module_name, CFG_DASHBOARD,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
 
-
-    return unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable
+    return selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable
 
 
 button_col1, button_col2, button_col3, button_col4  = st.columns(4)

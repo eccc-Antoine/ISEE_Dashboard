@@ -18,7 +18,7 @@ from streamlit_folium import st_folium
 
 
 #@st.cache_data(ttl=3600)
-def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, sct_map_dct, s, var_stat, df_PI, Variable, multiplier):
+def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, s, var_stat, df_PI, Variable, multiplier):
 
     print('PREP_DATA_MAP')
 
@@ -46,7 +46,7 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     return gdf_grille
 
 #@st.cache_data(ttl=3600)
-def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, sct_map_dct, unique_pi_module_name, start_year, end_year, Baseline):
+def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, unique_pi_module_name, start_year, end_year, Baseline):
     print('PREP_FOR_PREP_1D')
 
     gdf_grille_origin=gpd.read_file(sct_poly)
@@ -54,13 +54,11 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
     
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     var_stat=unique_PI_CFG.var_agg_stat[var][0]
-    #sect_PI=unique_PI_CFG.available_sections
     gdfs=[]
     
     list_sect=sect_dct.keys()
     
     for s in list_sect:
-        #if s in sect_PI:
         df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION',  scen_code, s)
         pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
         
@@ -69,13 +67,26 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
             plans_selected=[key for key,value in unique_PI_CFG.baseline_dct.items() if value == scen_code]
         Variable=unique_PI_CFG.dct_var[var]      
 
-        df_PI=yearly_timeseries_data_prep(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD)
+        if s=='Lake St.Lawrence':
+
+            LakeSL_prob_1D =False
+            if unique_PI_CFG.type=='1D'and s=='Lake St.Lawrence' and plans_selected[0]=='PreProjectHistorical':
+                LakeSL_prob_1D=True
+                continue
+
+            df_PI=yearly_timeseries_data_prep_map(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+
+        else:
+            LakeSL_prob_1D = False
+            df_PI = yearly_timeseries_data_prep_map(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s,
+                                                    start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+
         df_PI = df_PI.loc[df_PI['ALT']==scen_code]
 
         multiplier=unique_PI_CFG.multiplier
-        gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, sct_map_dct, s, var_stat, df_PI, Variable, multiplier)
+        gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, s, var_stat, df_PI, Variable, multiplier)
         
-        gdf_grille_unique.to_file(fr'H:\Projets\GLAM\Dashboard\debug\{PI_code}_{scen_code}_{s}.shp')
+        gdf_grille_unique.to_file(fr'{CFG_DASHBOARD.debug_folder}\{PI_code}_{scen_code}_{s}.shp')
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
@@ -102,7 +113,6 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 
         for t in liste_tiles:
 
-            # if s in sect_PI:
             df_folder = os.path.join(folder, PI_code, 'YEAR', 'TILE', scen_code, s, str(t))
             pt_id_file = os.path.join(df_folder,
                                       f'{PI_code}_YEAR_{scen_code}_{s}_{str(t)}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
@@ -153,7 +163,7 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
     return gdf_tiles
 
 @st.cache_data(ttl=3600)
-def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction):
+def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction, LakeSL_prob_1D):
 
     print('HEADER')
 
@@ -167,7 +177,7 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
 
     placeholder1 = st.empty()
     with placeholder1.container():
-        st.subheader(f':blue[{Stats}] of :blue[{PIs}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
+        st.subheader(f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
     placeholder2 = st.empty()
     with placeholder2.container():   
         kpis = st.columns(max_plans+1)
@@ -175,7 +185,13 @@ def header(Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, m
         while count_kpi <= len(plans_selected)+1:
             d=count_kpi-1
             if count_kpi!=len(plans_selected)+1:
-                kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit_dct[PI_code]})', value=round(plan_values[d], 2), delta= round(round(plan_values[d], 2) -round(baseline_value, 2), 2), delta_color=delta_color)
+                if LakeSL_prob_1D:
+                    kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit_dct[PI_code]})', value=round(plan_values[d], 2), delta=0)
+                else:
+                    kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit_dct[PI_code]})',
+                                   value=round(plan_values[d], 2),
+                                   delta=round(round(plan_values[d], 2) - round(baseline_value, 2), 2),
+                                   delta_color=delta_color)
             else:
                 kpis[d].metric(label=fr':green[Reference plan {Stats} ({unit_dct[PI_code]})]', value=round(baseline_value, 2), delta= 0)
             count_kpi+=1
@@ -228,7 +244,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
     centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
 
     gjson = gdf_grille_1.to_json()
-    #print(gjson)
     js_data = json.loads(gjson)
 
     if division_col == 'SECTION':
@@ -284,8 +299,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
             tooltip=tooltip,
             popup=popup
         ).add_to(m.m1)
-
-
 
     ######
     
@@ -492,21 +505,10 @@ def folium_static(_fig, width, height):
             _fig._repr_html_(), height=height + 10, width=width)
 
 @st.cache_data(ttl=3600)
-def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name, pi_type, tile):
+def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name, pi_type, tile):
 
     print('PREP_DATA_MAP')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-
-    if CFG_DASHBOARD.file_ext =='.feather':
-        df=pd.read_feather(file)
-    else:
-        df=pd.read_csv(file, sep=';')
-
-    print(list(df))
-
-    if pi_type=='2D_not_tiled':
-        df=df.loc[df['TILE']==tile]
-
 
     df.fillna(0, inplace=True)
     
@@ -516,9 +518,9 @@ def prep_data_map(file, start_year, end_year, id_col, col_x, col_y, stat, Variab
     
     columns=[id_col, col_x, col_y] + liste_year
     df=df[columns]
-    if stat=='Min':
+    if stat=='min':
         df['stat']=df[liste_year].min(axis=1)
-    if stat=='Max':
+    if stat=='max':
         df['stat']=df[liste_year].max(axis=1)
     if stat=='mean':
         df['stat']=df[liste_year].mean(axis=1)
@@ -550,69 +552,92 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     if unique_PI_CFG.multiplier==0.01:
         df[col_value]=df[col_value]*10000
 
-    df[col_value]=df[col_value].astype(int)
+    df=df[['PT_ID', col_value, 'LAT', 'LON']]
+
+    df[col_value]=df[col_value].astype(float)
+    df[col_value] = df[col_value].round(3)
     df = df.dropna(subset=[col_value])
 
     df = df.loc[df[col_value]!=0]
 
     if len(df)>10000:
-        size=4
-    elif len(df)>1000:
         size=7
-    else:
+    elif len(df)>1000:
         size=10
+    else:
+        size=12
 
     value_range = [df[col_value].min(), df[col_value].max()]
-
     df_neg=df.loc[df[col_value]<0]
     df_pos = df.loc[df[col_value] > 0]
 
-    if direction == 'normal':
-        colormap1 = [
-            [0, "white"],
-            [0.1, "#e6f5e6"],  # very light green
-            [0.2, "#cceccf"],  # light green
-            [0.3, "#b3e6b3"],  # light-medium green
-            [0.4, "#99e699"],  # medium green
-            [0.5, "#80e680"],  # medium-dark green
-            [0.6, "#66e666"],  # dark green
-            [0.7, "#4de64d"],  # very dark green
-            [0.8, "#33e633"],  # green
-            [0.9, "#1ae61a"],  # green with a hint of dark
-            [1, "green"]  # green
-        ]
+    print(df_neg[col_value].unique())
+    print(df_pos[col_value].unique())
 
-        colormap2 = [
-        [0, "#800000"],    # dark red
-        [0.1, "#990000"],  # slightly lighter dark red
-        [0.2, "#b30000"],  # lighter dark red
-        [0.3, "#cc0000"],  # medium red
-        [0.4, "#e60000"],  # medium-light red
-        [0.5, "#ff1a1a"],  # light red
-        [0.6, "#ff3333"],  # very light red
-        [0.7, "#ff6666"],  # even lighter red
-        [0.8, "#ff9999"],  # very light red
-        [0.9, "#ffcccc"],  # almost white with a hint of red
-        [1, "white"]       # white
-    ]
+    if len(df_neg[col_value].unique())==0 and len(df_pos[col_value].unique())==0:
+        print(df_neg[col_value].unique())
+        print(df_pos[col_value].unique())
 
-    elif direction == 'inverse':
-        colormap2 = [
-            [0, "white"],
-            [0.1, "#e6f5e6"],  # very light green
-            [0.2, "#cceccf"],  # light green
-            [0.3, "#b3e6b3"],  # light-medium green
-            [0.4, "#99e699"],  # medium green
-            [0.5, "#80e680"],  # medium-dark green
-            [0.6, "#66e666"],  # dark green
-            [0.7, "#4de64d"],  # very dark green
-            [0.8, "#33e633"],  # green
-            [0.9, "#1ae61a"],  # green with a hint of dark
-            [1, "green"]  # green
-        ]
+        colormap1 = 'greens'
+        colormap2 = 'greens'
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+        empty_map=True
 
-        colormap1 = [
-            [0, "#800000"],  # dark red
+    elif len(df_neg[col_value].unique())<5 or len(df_pos[col_value].unique())<5:
+        if direction == 'normal':
+            colormap1 = 'greens'
+            colormap2 = 'reds_r'
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = 'reds'
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map=False
+
+    elif df_pos[col_value].quantile(0.25)==df_pos[col_value].quantile(0.75) or df_neg[col_value].quantile(0.25)==df_neg[col_value].quantile(0.75):
+        if direction == 'normal':
+            colormap1 = 'greens'
+            colormap2 = 'reds_r'
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = 'reds'
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map=False
+
+    else:
+        if direction == 'normal':
+            colormap1 = [
+                [0, "white"],
+                [0.1, "#e6f5e6"],  # very light green
+                [0.2, "#cceccf"],  # light green
+                [0.3, "#b3e6b3"],  # light-medium green
+                [0.4, "#99e699"],  # medium green
+                [0.5, "#80e680"],  # medium-dark green
+                [0.6, "#66e666"],  # dark green
+                [0.7, "#4de64d"],  # very dark green
+                [0.8, "#33e633"],  # green
+                [0.9, "#1ae61a"],  # green with a hint of dark
+                [1, "green"]  # green
+            ]
+
+            colormap2 = [
+            [0, "#800000"],    # dark red
             [0.1, "#990000"],  # slightly lighter dark red
             [0.2, "#b30000"],  # lighter dark red
             [0.3, "#cc0000"],  # medium red
@@ -622,17 +647,51 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
             [0.7, "#ff6666"],  # even lighter red
             [0.8, "#ff9999"],  # very light red
             [0.9, "#ffcccc"],  # almost white with a hint of red
-            [1, "white"]  # white
+            [1, "white"]       # white
         ]
 
-    else:
-        print('There is a problem with variable direction!!')
-        quit()
+        elif direction == 'inverse':
+            colormap2 = [
+                [0, "green"],  # green
+                [0.1, "#1ae61a"],  # green with a hint of dark
+                [0.2, "#33e633"],  # green
+                [0.3, "#4de64d"],  # very dark green
+                [0.4, "#66e666"],  # dark green
+                [0.5, "#80e680"],  # medium-dark green
+                [0.6, "#99e699"],  # medium green
+                [0.7, "#b3e6b3"],  # light-medium green
+                [0.8, "#cceccf"],  # light green
+                [0.9, "#e6f5e6"],  # very light green
+                [1, "white"]  # white
+            ]
 
-    norm1 = (df_pos[col_value] - df_pos[col_value].quantile(0.25)) / (df_pos[col_value].quantile(0.75) - df_pos[col_value].quantile(0.25))
-    norm2 = (df_neg[col_value] - df_neg[col_value].quantile(0.25)) / (df_neg[col_value].quantile(0.75) - df_neg[col_value].quantile(0.25))
+            colormap1 = [
+                [0, "white"],  # white
+                [0.1, "#ffcccc"],  # almost white with a hint of red
+                [0.2, "#ff9999"],  # very light red
+                [0.3, "#ff6666"],  # even lighter red
+                [0.4, "#ff3333"],  # very light red
+                [0.5, "#ff1a1a"],  # light red
+                [0.6, "#e60000"],  # medium-light red
+                [0.7, "#cc0000"],  # medium red
+                [0.8, "#b30000"],  # lighter dark red
+                [0.9, "#990000"],  # slightly lighter dark red
+                [1, "#800000"]  # dark red
+            ]
 
-    print(norm2)
+
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = (df_pos[col_value] - df_pos[col_value].quantile(0.25)) / (df_pos[col_value].quantile(0.75) - df_pos[col_value].quantile(0.25))
+        norm2 = (df_neg[col_value] - df_neg[col_value].quantile(0.25)) / (df_neg[col_value].quantile(0.75) - df_neg[col_value].quantile(0.25))
+
+        empty_map = False
+
+    print(df_pos[col_value].quantile(0.25), df_pos[col_value].quantile(0.75))
+    print(df_neg[col_value].quantile(0.25), df_neg[col_value].quantile(0.75))
 
     trace1 = go.Scattermapbox(
         lat=df_pos[col_y],
@@ -706,13 +765,14 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     margin=dict(l=0, r=0, t=0, b=0),
     height=1000)
 
+    if empty_map:
+        fig='empty'
+
     return fig
 
 @st.cache_data(ttl=3600)
 def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct, unique_pi_module_name, diff_type):
-
     print('PLOT_DTS')
-
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
     df_PI_plans['BASELINE_VALUE']=1.0
@@ -724,13 +784,11 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
             if len(df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])])>0:
                 df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0].round(3)
             else:
-                #print(f'WARNING value id missing for {p} during year {y}')
                 df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
                 
     df_PI_plans['DIFF_PROP']=((df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
     df_PI_plans['DIFF']=df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE']
     diff_dct={f'Values ({unit_dct[PI_code]})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
-    #diff_type= st.selectbox("Select a type of difference to compute", [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'])
     fig2=px.bar(df_PI_plans, x='YEAR', y=df_PI_plans[diff_dct[diff_type]], color='ALT', barmode='group', hover_data={'ALT': True, 'YEAR': True, diff_dct[diff_type]:True})
     fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
            xaxis_title='Years',
@@ -753,40 +811,64 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
     return fig
 
 @st.cache_data(ttl=3600)
-def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG):
+def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG, LakeSL_prob_1D):
 
     print('PLAN AGRREGATED')
-
     multiplier = unique_PI_CFG.multiplier
-    if Stats == 'mean':
-        plan_values=[]
-        baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
-        baseline_value = baseline_value * multiplier
-        for c in range(len(plans_selected)):
-            plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
-            plan_value=plan_value*multiplier
-            plan_values.append(plan_value)
+    if LakeSL_prob_1D:
+        baseline_value=0
 
-    if Stats == 'sum':
-        plan_values=[]
-        baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
-        baseline_value = baseline_value * multiplier
-        for c in range(len(plans_selected)):
-            plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
-            plan_value = plan_value * multiplier
-            plan_values.append(plan_value)
-            
+        if Stats == 'mean':
+            plan_values = []
+            for c in range(len(plans_selected)):
+                plan_value = df_PI[Variable].loc[
+                    df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
+                plan_value = plan_value * multiplier
+                plan_values.append(plan_value)
+
+        if Stats == 'sum':
+            plan_values = []
+            for c in range(len(plans_selected)):
+                plan_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(
+                    3)
+                plan_value = plan_value * multiplier
+                plan_values.append(plan_value)
+
+
+    else:
+        if Stats == 'mean':
+            plan_values=[]
+            baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
+            baseline_value = baseline_value * multiplier
+            for c in range(len(plans_selected)):
+                plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
+                plan_value=plan_value*multiplier
+                plan_values.append(plan_value)
+
+        if Stats == 'sum':
+            plan_values=[]
+            baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
+            baseline_value = baseline_value * multiplier
+            for c in range(len(plans_selected)):
+                plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
+                plan_value = plan_value * multiplier
+                plan_values.append(plan_value)
+
     return baseline_value, plan_values
 
 @st.cache_data(ttl=3600)
-def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD):
+def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
 
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_folder=os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
     dfs=[]
     feather_done=[]
-    plans_all=plans_selected+[Baseline]
+
+    if LakeSL_prob_1D:
+        plans_all=plans_selected
+    else:
+        plans_all = plans_selected + [Baseline]
 
     for p in plans_all:
 
@@ -804,6 +886,7 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
                     df=pd.read_csv(os.path.join(df_folder, alt, s, feather_name), sep=';')
                 df['ALT']=alt
                 df['SECT']=s
+
                 dfs.append(df)
                 #to make sure that a same feather is not compiled more than once in the results
                 feather_done.append(feather_name)
@@ -830,8 +913,6 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
         df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
     else:
         print('problem w. agg stat!!')
-    
-    #unique_PI_CFG.dct_var.items()
 
     df_PI[Variable]=df_PI[f'{var}_{stats[0]}']
 
@@ -840,6 +921,78 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
 
     df_PI=df_PI[['YEAR', 'ALT', 'SECT', Variable]]
     
+    return df_PI
+
+
+@st.cache_data(ttl=3600)
+def yearly_timeseries_data_prep_map(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
+                                start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
+    print('TIMESERIES_PREP')
+
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
+    dfs = []
+    feather_done = []
+
+    plans_all = plans_selected
+
+    for p in plans_all:
+
+        if p == Baseline:
+            alt = unique_PI_CFG.baseline_dct[p]
+        else:
+            alt = unique_PI_CFG.plan_dct[p]
+        sect = unique_PI_CFG.sect_dct[Region]
+
+        if  p == Baseline:
+            sect = [item for item in sect if item != "USL_DS"]
+
+        for s in sect:
+            feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}'
+            if feather_name not in feather_done:
+                if CFG_DASHBOARD.file_ext == '.feather':
+                    df = pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
+                else:
+                    df = pd.read_csv(os.path.join(df_folder, alt, s, feather_name), sep=';')
+                df['ALT'] = alt
+                df['SECT'] = s
+
+                dfs.append(df)
+                # to make sure that a same feather is not compiled more than once in the results
+                feather_done.append(feather_name)
+
+    df_PI = pd.concat(dfs, ignore_index=True)
+    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
+    df_PI = df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
+
+    # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
+    var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+
+    stats = unique_PI_CFG.var_agg_stat[var]
+
+    df_PI['SECT'] = Region
+    # when a variable can be aggregated by mean or sum, sum is done in priority
+    if len(stats) > 1:
+        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
+    elif stats[0] == 'sum':
+        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
+    elif stats[0] == 'mean':
+        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_mean']]
+        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
+    else:
+        print('problem w. agg stat!!')
+
+    # unique_PI_CFG.dct_var.items()
+
+    df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
+
+    multiplier = unique_PI_CFG.multiplier
+    df_PI[Variable] = df_PI[Variable] * multiplier
+
+    df_PI = df_PI[['YEAR', 'ALT', 'SECT', Variable]]
+
     return df_PI
 
 
@@ -863,7 +1016,6 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
         end_year='N/A'
     
     if Region:
-        #available_sections={i for i in CFG_DASHBOARD.sect_dct if all(item in unique_PI_CFG.available_sections for item in  CFG_DASHBOARD.sect_dct[i])}
         available_sections=list(unique_PI_CFG.sect_dct.keys())
         Regions=st.selectbox("Select regions", available_sections)
         
@@ -871,14 +1023,12 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
         Regions='N/A'
   
     if Plans:
-        #available_plans={i for i in CFG_DASHBOARD.plan_dct if CFG_DASHBOARD.plan_dct[i] in unique_PI_CFG.available_plans}
         available_plans=list(unique_PI_CFG.plan_dct.keys())
         plans_selected=st.multiselect('Regulation plans to compare', available_plans, max_selections=CFG_DASHBOARD.maximum_plan_to_compare, default=next(iter(available_plans)))
     else:
         plans_selected='N/A'
         
     if Baselines:
-        #baselines={i for i in CFG_DASHBOARD.baseline_dct if CFG_DASHBOARD.baseline_dct[i] in unique_PI_CFG.available_baselines}
         baselines= list(unique_PI_CFG.baseline_dct.keys())
         Baseline=st.selectbox("Select a reference plan", baselines)
     else:

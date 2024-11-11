@@ -24,17 +24,7 @@ divided_by_country=False
 
 available_sections=['SLR_DS', 'SLR_US']
 
-# available_sections=['LKO']
-
 sect_dct = {'St.Lawrence River downstream': ['SLR_DS'], 'St.Lawrence River upstream': ['SLR_US'] }
-
-# sect_dct={'Lake Ontario':['LKO']}
-
-dct_tile_sect=dct_tile_sect = {'SLR_DS': [100, 102, 103, 105, 109, 110, 111, 112, 116, 117, 118, 83, 86, 87, 88, 90, 91, 92, 93, 94, 95, 99, 89, 98, 84],
-                 'SLR_US': [121, 126, 127, 128, 133, 134, 141, 142]}
-
- 
-mock_map_sct_dct={'St.Lawrence River upstream': ['St.Lawrence River upstream'], 'St.Lawrence River downstream': ['St.Lawrence River downstream']}
 
 available_plans=['Bv7', 'OBS']
 

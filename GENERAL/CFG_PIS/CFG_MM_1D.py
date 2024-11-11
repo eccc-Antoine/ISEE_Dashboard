@@ -24,8 +24,6 @@ available_sections=['LKO']
 
 sect_dct={'Lake Ontario':['LKO']}
 
-mock_map_sct_dct={'LKO':['LKO']}
-
 available_plans=['Bv7_2014', 'Bv7', 'OBS']
 
 plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}

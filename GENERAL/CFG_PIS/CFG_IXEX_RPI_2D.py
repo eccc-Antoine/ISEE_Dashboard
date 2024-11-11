@@ -26,11 +26,6 @@ available_sections = ['SLR_DS', 'SLR_US']
 
 sect_dct = {'St.Lawrence River downstream': ['SLR_DS'], 'St.Lawrence River upstream': ['SLR_US'] }
 
-dct_tile_sect = {'SLR_DS': [100, 102, 103, 105, 109, 110, 111, 112, 116, 117, 118, 83, 86, 87, 88, 90, 91, 92, 93, 94, 95, 99, 89, 98, 84],
-                 'SLR_US': [121, 126, 127, 128, 133, 134, 141, 142]}
-
-mock_map_sct_dct = {'St.Lawrence River upstream': ['St.Lawrence River upstream'], 'St.Lawrence River downstream': ['St.Lawrence River downstream']}
-
 available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 
 plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}

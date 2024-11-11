@@ -15,6 +15,8 @@ var_agg_stat={'VAR1':['mean']}
 
 units='%'
 
+multiplier=1
+
 available_years=list(range(1961, 2021))
 
 divided_by_country=False
@@ -31,15 +33,13 @@ sect_dct={'Lake Ontario':['LKO'],
                'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
 
-mock_map_sct_dct={'LKO':['LKO'], 'USL_US':['USL_US'], 'USL_DS':['USL_DS'], 'SLR_US':['SLR_US'], 'SLR_DS':['SLR_DS'], 'USL':['USL'], 'SLR':['SLR']}
+available_plans=['1958DD', 'Bv7_2014', 'Bv7_GERBL1']
 
-available_plans=['Bv7_2014', 'Bv7', 'OBS']
+plan_dct={'1958DD':'1958DD', 'Bv7_2014':'Bv7_2014', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
-plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
+available_baselines=['PreProjectHistorical']
 
-available_baselines=['Bv7_GERBL1']
-
-baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
 
 available_stats = ['sum', 'mean']
 

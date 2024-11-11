@@ -23,8 +23,6 @@ sect_dct={'Lake_ontario': ['LKO'],
           'Lower St. Lawrence upstream':['SLR_UP'],
           'Lower St.Lawrence downstream':['SLR_DN']}
 
-mock_map_sct_dct={'LKO_CAN':['LKO'], 'USL_CAN':['SLR_DS', 'SLR_UP', 'USL_DS', 'USL_UP' ], 'USL_DS':['USL_DS'], 'USL':['USL_DS', 'USL_UP']}
-
 dct_station_section={'LKO':'ont', 'USL_UP':'broc', 'USL_DN':'morr', 'SLR_UP':'ptcl', 'SLR_DN':'sorl'}
 
 available_plans=['Bv7_policy_1025_Flim_skipT1_add3T_NG_historical_1900_2020', 'Bv7_policy_1025_NG_historical_1900_2020' ]

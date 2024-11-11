@@ -23,8 +23,6 @@ available_sections=['USL']
 
 sect_dct={'Upper St.lawrence':['USL']}
 
-mock_map_sct_dct={'Upper St.lawrence':['Upper St.Lawrence upstream', 'Lake St.Lawrence']}
-
 available_plans=['Bv7_infop_policy_620_nosepRule']
 plan_dct={'Optimized Plan': 'Bv7_infop_policy_620_nosepRule'}
 

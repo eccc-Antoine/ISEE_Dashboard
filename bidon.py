@@ -21,36 +21,36 @@ import os
 
 
 
-df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ERIW_MIN_2D\1958DD\LKO\1975\ERIW_2D_1958DD_LKO_413_1975.feather")
+df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\NFB_2D\Bv7_GERBL1\NFB_2D_Bv7_GERBL1_1962.feather")
 
 
 print(list(df))
 
-#print(df['SECTION'].unique())
+print(df['SECTION'].unique())
 
-#df.to_csv(fr"C:\Users\MarandaA\Downloads\WATER_INTAKES_2D_Bv7_2014_2012.csv", sep=';', index=None)
+#df.to_csv(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ZIPA_1D\PreProjectHistorical\USL_DS\ZIPA_1D_PreProjectHistorical_USL_US.csv", sep=';', index=None)
 
 #print(df['SECTION'].unique())
 print(df.head())
 #print(df)
 quit()
-
-# tiles_2_merge=[238,237,226]
 #
-# src1=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\LKO'
-# src2=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\USL_US'
-# dst=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
-#
-# for t in tiles_2_merge:
-#     df1=pd.read_feather(fr'{src1}\GLAM_DEM_ISEE_TILE_{t}.feather')
-#     df2=pd.read_feather(fr'{src2}\GLAM_DEM_ISEE_TILE_{t}.feather')
-#     df3=pd.concat([df1, df2])
-#     print(len(df3), len(df2), len(df1))
-#     df3.to_feather(fr'{dst}\GLAM_DEM_ISEE_TILE_{t}.feather')
-# quit()
-#
-#
-src=r'F:\GLAM_DASHBOARD\ISEE_RAW_DATA\NFB_2D'
+# # tiles_2_merge=[238,237,226]
+# #
+# # src1=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\LKO'
+# # src2=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\USL_US'
+# # dst=fr'H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
+# #
+# # for t in tiles_2_merge:
+# #     df1=pd.read_feather(fr'{src1}\GLAM_DEM_ISEE_TILE_{t}.feather')
+# #     df2=pd.read_feather(fr'{src2}\GLAM_DEM_ISEE_TILE_{t}.feather')
+# #     df3=pd.concat([df1, df2])
+# #     print(len(df3), len(df2), len(df1))
+# #     df3.to_feather(fr'{dst}\GLAM_DEM_ISEE_TILE_{t}.feather')
+# # quit()
+# #
+# #
+src=r'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ERIW_MIN_2D'
 liste_files=[]
 for root, dirs, files in os.walk(src):
     for name in files:
@@ -58,9 +58,8 @@ for root, dirs, files in os.walk(src):
 
 print(len(liste_files))
 print(liste_files[0])
-
 for l in liste_files:
-    dst=l.replace('NFB_OBS', 'NFB_2D_OBS')
+    dst=l.replace('ERIW_2D_', 'ERIW_MIN_2D_')
     os.rename(l, dst)
     #
     #
