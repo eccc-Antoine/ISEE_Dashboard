@@ -86,7 +86,7 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
         multiplier=unique_PI_CFG.multiplier
         gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, s, var_stat, df_PI, Variable, multiplier)
         
-        gdf_grille_unique.to_file(fr'{CFG_DASHBOARD.debug_folder}\{PI_code}_{scen_code}_{s}.shp')
+        #gdf_grille_unique.to_file(fr'{CFG_DASHBOARD.debug_folder}\{PI_code}_{scen_code}_{s}.shp')
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
