@@ -43,23 +43,31 @@ units = ''
 
 multiplier = 1
 
-available_years = list(range(1961, 2021))
+available_years_hist=list(range(1961, 2021))
+available_years_future=list(range(2011, 2071))
 
 divided_by_country = False
 
 available_sections = ['LKO', 'USL_US', 'USL_DS']
 
-
 sect_dct = {'Lake Ontario': ['LKO'], 'Upper St.Lawrence upstream': ['USL_US'], 'Lake St.Lawrence': ['USL_DS']}
 
 
-available_plans = ['OBS', 'Bv7_GERBL1']
+available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45']
 
-plan_dct = {'OBS':'OBS', 'Bv7_GERBL1': 'Bv7_GERBL1'}
+plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014'], 'sto':['PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45']}
 
-available_baselines = ['PreProjectHistorical']
+plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC']
 
-baseline_dct = {'PreProjectHistorical': 'PreProjectHistorical'}
+plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45':'GERBL2_2014_ComboC_RCP45'}
+
+available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'PreProject_STO_330']
+
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical' , 'Bv7_2014':'Bv7_2014', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'PreProject_STO_330':'PreProject_STO_330'}
+
+baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014'], 'sto':['PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
+
+
 
 available_stats = ['sum', 'mean']
 

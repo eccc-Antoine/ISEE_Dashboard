@@ -21,12 +21,12 @@ import os
 
 
 
-df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\NFB_2D\Bv7_GERBL1\NFB_2D_Bv7_GERBL1_1962.feather")
+df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\SAUV_2D\YEAR\PLAN\Bv7_2014\SAUV_2D_YEAR_Bv7_2014_1963_2020.feather")
 
 
 print(list(df))
 
-print(df['SECTION'].unique())
+#print(df['SECTION'].unique())
 
 #df.to_csv(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ZIPA_1D\PreProjectHistorical\USL_DS\ZIPA_1D_PreProjectHistorical_USL_US.csv", sep=';', index=None)
 
@@ -50,7 +50,7 @@ quit()
 # # quit()
 # #
 # #
-src=r'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ERIW_MIN_2D'
+src=r'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\IXEX_RPI_2D\PreProject_RCP45'
 liste_files=[]
 for root, dirs, files in os.walk(src):
     for name in files:
@@ -59,7 +59,7 @@ for root, dirs, files in os.walk(src):
 print(len(liste_files))
 print(liste_files[0])
 for l in liste_files:
-    dst=l.replace('ERIW_2D_', 'ERIW_MIN_2D_')
+    dst=l.replace('IXEX_2D_', 'IXEX_RPI_2D_')
     os.rename(l, dst)
     #
     #

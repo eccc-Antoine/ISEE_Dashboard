@@ -3,7 +3,16 @@ import os
 name='ISEE'
 
 ## thsoe are the PIs that are ready for the moment
-pi_list=['BIRDS_2D', 'SAUV_2D', 'CHNI_2D', 'ZIPA_1D', 'AYL_2D', 'ROADS_2D', 'ERIW_MIN_2D', 'ERIW_MIN_1D', 'CWRM_2D']
+#pi_list=['BIRDS_2D', 'SAUV_2D', 'CHNI_2D','AYL_2D', 'ROADS_2D', 'ERIW_MIN_2D', 'CWRM_2D', 'IERM_2D', 'IXEX_RPI_2D',  'ZIPA_1D', 'TURTLE_1D', 'ONZI_1D', 'ERIW_MIN_1D']
+
+pi_list=['BIRDS_2D', 'SAUV_2D', 'CHNI_2D','AYL_2D', 'ROADS_2D', 'CWRM_2D', 'IERM_2D', 'IXEX_RPI_2D',  'ZIPA_1D', 'TURTLE_1D', 'ONZI_1D', 'ERIW_MIN_1D']
+
+#pi_list=['BIRDS_2D', 'SAUV_2D', 'CHNI_2D']
+
+
+#pi_list=['BIRDS_2D']
+
+ts_list=['hist', 'sto', 'cc']
 
 title=f'{name} DASHBOARD 0.5.'
 
@@ -11,7 +20,7 @@ file_ext='.feather'
 
 ##edit those paths according to your local repositories:
 shapefile_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA'
-post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_NEW'
+post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 
 
 sct_poly=fr"{shapefile_folder}\SECTIONS_simple_longnames.geojson"
@@ -21,7 +30,7 @@ tiles_shp=fr"{shapefile_folder}\TILES_SHP.geojson"
 
 debug_folder=r"P:\GLAM\Dashboard\ISEE_Dash_portable\debug"
 
-maximum_plan_to_compare=3
+maximum_plan_to_compare=10
 
 crs=2618
 

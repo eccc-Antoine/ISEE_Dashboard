@@ -4,8 +4,6 @@ import importlib
 import CFG_POST_PROCESS_ISEE as cfg
 
 
-
-
 class POST_PROCESS_2D_tiled:
 
     def __init__(self, pis, ISEE_RES, POST_PROCESS_RES, sep):
@@ -35,13 +33,15 @@ class POST_PROCESS_2D_tiled:
             no_dat_year=y
         return df_year, no_dat_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
-        df_space[AGG_TIME]=PI_CFG.available_years
+
+        df_space[AGG_TIME]=years_list
+
         if not os.path.exists(path_res):
             os.makedirs(path_res)
-        for y in PI_CFG.available_years:
+        for y in years_list:
             if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':
                 df_year, no_dat_year=self.agg_YEAR(agg_year_param, y, columns)
             elif AGG_SPACE == 'TILE':
@@ -63,13 +63,13 @@ class POST_PROCESS_2D_tiled:
         df_space=df_space.reset_index()
         df_space.to_feather(os.path.join(path_res, res_name))
     
-    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, AGG_TIME, PI_CFG):
+    def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, AGG_TIME, PI_CFG, years_list):
         count_y=0
         tiles=cfg.dct_tile_sect[s]
 
         for t in tiles:
             count_y=0
-            for y in PI_CFG.available_years:
+            for y in years_list:
 
                 feather=os.path.join(self.ISEE_RES, PI,p, s, str(y), f'{PI}_{p}_{s}_{t}_{y}.feather')
 
@@ -107,7 +107,7 @@ class POST_PROCESS_2D_tiled:
                 continue
             else:
                 print(df_main.head())
-            res_name=os.path.join(path_res, f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}')
+            res_name=os.path.join(path_res, f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(years_list)}_{max(years_list)}')
             df_main.to_feather(os.path.join(path_res, res_name))
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
@@ -137,39 +137,86 @@ class POST_PROCESS_2D_tiled:
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+
+                            if os.path.exists(path_res):
+                                print(f'AGG level of {AGG_SPACE} for plan {space} already exists skipping....')
+                                continue
+
+                            if space in PI_CFG.plans_hist:
+                                years_list=PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
+
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
                               
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if p in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
                             for space in PI_CFG.available_sections:
                                 print(space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+
+                                if os.path.exists(path_res):
+                                    print(f'AGG level of {AGG_SPACE} for plan {p} and section {space} already exists skipping....')
+                                    continue
+
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
 
                     elif AGG_SPACE=='TILE':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if p in PI_CFG.plans_hist:
+                                years_list=PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
                             for s in PI_CFG.available_sections:
-                                for space in PI_CFG.dct_tile_sect[s]:
+                                for space in cfg.dct_tile_sect[s]:
                                     print(space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
-                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+                                    if os.path.exists(path_res):
+                                        print(
+                                            f'AGG level of {AGG_SPACE} for plan {p} and section {s} and tile {space} already exists skipping....')
+                                        continue
+                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                     path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_feather_year, PI_CFG)
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_feather_year, PI_CFG, years_list)
                     
                     elif AGG_SPACE=='PT_ID':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
-                            for s in PI_CFG.available_sections:                                
+
+                            if p in PI_CFG.plans_hist:
+                                years_list=PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
+                            for s in PI_CFG.available_sections:
+
+
                                 for var in list(PI_CFG.dct_var.keys()):
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                     if not os.path.exists(path_res):
                                         os.makedirs(path_res)
-                                    res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
-                                    self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, AGG_TIME, PI_CFG)
+                                    res_name=f'{var}_{PI}_{AGG_TIME}_{p}_{s}_{AGG_SPACE}_{min(years_list)}_{max(years_list)}.feather'
+
+                                    path_check=os.path.join(path_res, res_name)
+                                    if os.path.exists(path_check):
+                                        print(
+                                            f'AGG level of {AGG_SPACE} for plan {p} and section {s} and var {var} already exists skipping....')
+                                        continue
+
+                                    self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, AGG_TIME, PI_CFG, years_list)
                     
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -203,13 +250,13 @@ class POST_PROCESS_2D_not_tiled:
         df_year=pd.concat(liste_df, ignore_index=True)
         return df_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
-        df_space[AGG_TIME]=PI_CFG.available_years
+        df_space[AGG_TIME]=years_list
         if not os.path.exists(path_res):
             os.makedirs(path_res)
-        for y in PI_CFG.available_years:
+        for y in years_list:
             if AGG_SPACE == 'PLAN':               
                 df_year=self.agg_YEAR(agg_year_param, y)
             
@@ -234,12 +281,12 @@ class POST_PROCESS_2D_not_tiled:
         df_space=df_space.reset_index()
         df_space.to_feather(os.path.join(path_res, res_name))
 
-    def AGG_PT_ID_ALL_YEARS(self, PI, p, var, path_res, AGG_TIME, PI_CFG, s):
+    def AGG_PT_ID_ALL_YEARS(self, PI, p, var, path_res, AGG_TIME, PI_CFG, s, years_list):
 
         tiles = cfg.dct_tile_sect[s]
         for t in tiles:
             count_y = 0
-            for y in PI_CFG.available_years:
+            for y in years_list:
                 feather = os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.feather')
                 if not os.path.exists(feather):
                     continue
@@ -288,7 +335,7 @@ class POST_PROCESS_2D_not_tiled:
                 print(df_main.head())
 
             res_name = os.path.join(path_res,
-                                    f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}')
+                                    f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(years_list)}_{max(years_list)}')
             df_main.to_feather(res_name)
 
 
@@ -320,40 +367,79 @@ class POST_PROCESS_2D_not_tiled:
                 if AGG_TIME=='YEAR':
                     if AGG_SPACE=='PLAN':
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if space in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+
+                            if os.path.exists(path_res):
+                                print(
+                                    f'AGG level of {AGG_SPACE} for plan {space}  already exists skipping....')
+                                continue
+
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
 
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+                            if p in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
                             for space in PI_CFG.available_sections:
                                 print(p, space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
+
+                                if os.path.exists(path_res):
+                                    print(
+                                        f'AGG level of {AGG_SPACE} for plan {p} and section {space} already exists skipping....')
+                                    continue
+
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
 
                     elif AGG_SPACE=='TILE':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+                            if p in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
                             for s in PI_CFG.available_sections:
-                                for space in PI_CFG.dct_tile_sect[s]:
+                                for space in cfg.dct_tile_sect[s]:
                                     print(p, s, space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
-                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+
+                                    if os.path.exists(path_res):
+                                        print(
+                                            f'AGG level of {AGG_SPACE} for plan {p} and section {s} and tile {space} already exists skipping....')
+                                        continue
+
+                                    res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                     agg_year_param=os.path.join(self.ISEE_RES, PI, p)
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG)
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
 
                     elif AGG_SPACE=='PT_ID':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if p in PI_CFG.plans_hist:
+                                years_list=PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
                             for s in PI_CFG.available_sections:
                                 for var in list(PI_CFG.dct_var.keys()):
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                     if not os.path.exists(path_res):
                                         os.makedirs(path_res)
-                                    self.AGG_PT_ID_ALL_YEARS(PI, p, var, path_res, AGG_TIME, PI_CFG, s)
+
+                                    # deja la condition pour voir si ca existe dans cette fonntion
+                                    self.AGG_PT_ID_ALL_YEARS(PI, p, var, path_res, AGG_TIME, PI_CFG, s, years_list)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -394,10 +480,10 @@ class POST_PROCESS_1D:
             exists = False
         return df_year, exists
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
-        df_space[AGG_TIME]=PI_CFG.available_years
+        df_space[AGG_TIME]=years_list
         if not os.path.exists(path_res):
             os.makedirs(path_res)
         if AGG_SPACE == 'PLAN':               
@@ -462,20 +548,44 @@ class POST_PROCESS_1D:
                 if AGG_TIME=='YEAR':
                     if AGG_SPACE=='PLAN':
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if space in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
                             print(space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'                           
+
+                            if os.path.exists(path_res):
+                                print(
+                                    f'AGG level of {AGG_SPACE} for plan {space} already exists skipping...')
+                                continue
+
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG )
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
                               
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
+
+                            if p in PI_CFG.plans_hist:
+                                years_list = PI_CFG.available_years_hist
+                            else:
+                                years_list = PI_CFG.available_years_future
+
                             for space in PI_CFG.available_sections:
                                 print(p, space)
-                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)                                
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(PI_CFG.available_years)}_{max(PI_CFG.available_years)}.feather'
+                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
+
+                                if os.path.exists(path_res):
+                                    print(
+                                        f'AGG level of {AGG_SPACE} for plan {p} in section {space} already exists skipping...')
+                                    continue
+
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG )
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
 
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
@@ -499,9 +609,9 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
 # for pi in tiled.pis:
 #     print(pi)
-#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-#     #tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
 
 for pi in not_tiled.pis:
     print(pi)

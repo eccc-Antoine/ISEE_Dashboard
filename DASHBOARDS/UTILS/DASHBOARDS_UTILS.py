@@ -13,6 +13,7 @@ from folium import plugins
 import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
+import numpy as np
 import tempfile
 from streamlit_folium import st_folium
 
@@ -46,7 +47,7 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     return gdf_grille
 
 #@st.cache_data(ttl=3600)
-def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, unique_pi_module_name, start_year, end_year, Baseline):
+def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, unique_pi_module_name, start_year, end_year, Baseline):
     print('PREP_FOR_PREP_1D')
 
     gdf_grille_origin=gpd.read_file(sct_poly)
@@ -70,15 +71,15 @@ def prep_for_prep_1d(sect_dct, sct_poly, folder, PI_code, scen_code, avail_years
         if s=='Lake St.Lawrence':
 
             LakeSL_prob_1D =False
-            if unique_PI_CFG.type=='1D'and s=='Lake St.Lawrence' and plans_selected[0]=='PreProjectHistorical':
+            if unique_PI_CFG.type=='1D'and s=='Lake St.Lawrence' and 'PreProject' in plans_selected[0]:
                 LakeSL_prob_1D=True
                 continue
 
-            df_PI=yearly_timeseries_data_prep_map(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+            df_PI=yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
 
         else:
             LakeSL_prob_1D = False
-            df_PI = yearly_timeseries_data_prep_map(unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s,
+            df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s,
                                                     start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
 
         df_PI = df_PI.loc[df_PI['ALT']==scen_code]
@@ -160,7 +161,48 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 
     gdf_tiles=gdf_tiles.drop(columns=["VAL_MEAN", 'VAL_SUM', 'VAL_MIN', 'VAL_MAX'])
 
+    gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
+
     return gdf_tiles
+
+    #         if f'{var}_mean' in list(df_tile):
+    #             if stat == 'mean':
+    #                 val= df_tile[f'{var}_mean'].mean() * multiplier
+    #             elif stat == 'sum':
+    #                 val= df_tile[f'{var}_mean'].sum() * multiplier
+    #             elif stat == 'min':
+    #                 val= df_tile[f'{var}_mean'].min() * multiplier
+    #             elif stat == 'max':
+    #                 val= df_tile[f'{var}_mean'].max() * multiplier
+    #             else:
+    #                 print('problem with stats')
+    #
+    #
+    #         elif f'{var}_sum' in list(df_tile):
+    #             if stat == 'mean':
+    #                 val = df_tile[f'{var}_sum'].mean() * multiplier
+    #             elif stat == 'sum':
+    #                 val= df_tile[f'{var}_sum'].sum() * multiplier
+    #             elif stat == 'min':
+    #                 val= df_tile[f'{var}_sum'].min() * multiplier
+    #             elif stat == 'max':
+    #                 val= df_tile[f'{var}_sum'].max() * multiplier
+    #             else:
+    #                 print('problem with stats')
+    #
+    #         else:
+    #             print('problem with stats')
+    #
+    #         gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val, 3)
+    #
+    #
+    # gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
+    #
+    # gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
+    #
+    # return gdf_tiles
+
+
 
 @st.cache_data(ttl=3600)
 def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction, LakeSL_prob_1D):
@@ -180,7 +222,7 @@ def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected
         st.subheader(f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
     placeholder2 = st.empty()
     with placeholder2.container():   
-        kpis = st.columns(max_plans+1)
+        kpis = st.columns(len(plans_selected)+1)
         count_kpi=1
         while count_kpi <= len(plans_selected)+1:
             d=count_kpi-1
@@ -381,114 +423,158 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
     print('FOLIUM_MAPS')
 
-    geometry_types = gdf_grille.geom_type.unique()[0]
+    values=gdf_grille.loc[gdf_grille[col]!=0, col]
 
-    if geometry_types == 'MultiPolygon' or geometry_types == 'Polygon':
-        x_med=np.round(gdf_grille.geometry.centroid.x.median(), 3)
-        y_med=np.round(gdf_grille.geometry.centroid.y.median(), 3)
-    else:
-        x_med = np.round(gdf_grille.geometry.x.median(), 3)
-        y_med = np.round(gdf_grille.geometry.y.median(), 3)
+    empty_map=False
 
-    folium_map = folium.Map(location=[y_med, x_med], zoom_start=8, tiles='cartodbpositron', height=dim_y, width=dim_x)
-
-    unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    
-    direction=unique_PI_CFG.var_direction[var]
-           
-    gdf_grille[col]=gdf_grille[col].astype(float)
-    
-    if type=='diff':
-        if direction == 'inverse':
-            linear = cm.LinearColormap(colors=['green', 'white', 'red'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
-                                         vmax=gdf_grille[col].quantile(0.75))
-
-        else:
-            linear = cm.LinearColormap(colors=['red', 'white', 'green'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
-                                    vmax=gdf_grille[col].quantile(0.75))
+    if len(values)==0:
+        empty_map=True
+        folium_map=0
 
     else:
-        if direction == 'inverse':
-            linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
+
+        geometry_types = gdf_grille.geom_type.unique()[0]
+
+        if geometry_types == 'MultiPolygon' or geometry_types == 'Polygon':
+            x_med=np.round(gdf_grille.geometry.centroid.x.median(), 3)
+            y_med=np.round(gdf_grille.geometry.centroid.y.median(), 3)
+        else:
+            x_med = np.round(gdf_grille.geometry.x.median(), 3)
+            y_med = np.round(gdf_grille.geometry.y.median(), 3)
+
+        folium_map = folium.Map(location=[y_med, x_med], zoom_start=8, tiles='cartodbpositron', height=dim_y, width=dim_x)
+
+        unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+
+        direction=unique_PI_CFG.var_direction[var]
+
+        gdf_grille[col]=gdf_grille[col].astype(float)
+
+        pos_values=gdf_grille.loc[gdf_grille[col]>0]
+        pos_values = pos_values.sort_values(by=col)
+        pos_values = pos_values[col]
+        #pos_values = sorted(pos_values)
+        neg_values=gdf_grille.loc[gdf_grille[col]<0]
+        neg_values = neg_values.sort_values(by=col)
+        neg_values = neg_values[col]
+        #neg_values = sorted(neg_values)
+
+        if type=='diff':
+            if direction == 'inverse':
+                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=pos_values.quantile(0.85))
+
+                # linear = cm.LinearColormap(colors=['green', 'white', 'red'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
+                #                              vmax=gdf_grille[col].quantile(0.75))
+
+            else:
+                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=pos_values.quantile(0.85))
+
+                # linear = cm.LinearColormap(colors=['red', 'white', 'green'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
+                #                         vmax=gdf_grille[col].quantile(0.75))
 
         else:
-            linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
+            if direction == 'inverse':
 
-    val_dict = gdf_grille.set_index(division_col)[col]
+                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=gdf_grille[col].min(), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=gdf_grille[col].max())
 
-    centro=gdf_grille.copy(deep=True)
+                #linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
 
-    gdf_grille=gdf_grille.to_crs(epsg='4326')
+            else:
+                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=gdf_grille[col].min(), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=gdf_grille[col].max())
 
-    gdf_grille= gdf_grille.dropna()
+                #linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
 
-    if division_col != 'SECTION':
-        print(gdf_grille['tile'].unique())
-    
-    centro['centroid']=centro.centroid
-    centro['centroid']=centro["centroid"].to_crs(epsg=4326)
-    
-    
-    gjson = gdf_grille.to_json()
-    js_data = json.loads(gjson)
-    val_dict = gdf_grille.set_index(division_col)[col]
+        def get_color(value):
+            print(value)
+            return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
 
-    if division_col == 'SECTION':
-        folium.GeoJson(
-            gjson,
-            style_function=lambda feature: {
-                "fillColor": linear(val_dict[feature["properties"][division_col]]),
-                "color": "black",
-                "weight": 2,
-                "dashArray": "5, 5",
-            },
-        ).add_to(folium_map)
+        #linear.add_to(folium_map)
 
-        for _, r in centro.iterrows():
-            lat = r["centroid"].y
-            lon = r["centroid"].x
-            folium.Marker(
-                location=[lat, lon],
-                icon=folium.DivIcon(html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-                #popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+        val_dict = gdf_grille.set_index(division_col)[col]
+
+        centro=gdf_grille.copy(deep=True)
+
+        gdf_grille=gdf_grille.to_crs(epsg='4326')
+
+        gdf_grille= gdf_grille.dropna()
+
+        # if division_col != 'SECTION':
+        #     print(gdf_grille['tile'].unique())
+
+        centro['centroid']=centro.centroid
+        centro['centroid']=centro["centroid"].to_crs(epsg=4326)
+
+
+        gjson = gdf_grille.to_json()
+        js_data = json.loads(gjson)
+        val_dict = gdf_grille.set_index(division_col)[col]
+
+        if division_col == 'SECTION':
+            folium.GeoJson(
+                gjson,
+                style_function=lambda feature: {
+                    "fillColor": get_color(val_dict[feature["properties"][division_col]]),
+                    "color": "black",
+                    "weight": 2,
+                    "dashArray": "5, 5",
+                },
             ).add_to(folium_map)
 
-    else:
-        tooltip = folium.GeoJsonTooltip(
-            fields=['tile', col],
-            aliases=['tile', var],
-            localize=True,
-            sticky=True,
-            labels=True,
-            style="""
-                background-color: #F0EFEF;
-                border: 2px solid black;
-                border-radius: 3px;
-                box-shadow: 3px;
-            """,
-            max_width=800,
-        )
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                    #popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+                ).add_to(folium_map)
 
-        popup = folium.GeoJsonPopup(
-            fields=["tile", col],
-            aliases=["tile", var],
-            localize=True,
-            labels=True,
-            style="background-color: yellow;",
-        )
+        else:
+            tooltip = folium.GeoJsonTooltip(
+                fields=['tile', col],
+                aliases=['tile', f'{var} difference'],
+                localize=True,
+                sticky=True,
+                labels=True,
+                style="""
+                    background-color: #F0EFEF;
+                    border: 2px solid black;
+                    border-radius: 3px;
+                    box-shadow: 3px;
+                """,
+                max_width=800,
+            )
 
-        g = folium.GeoJson(
-            gjson,
-            style_function=lambda x: {
-                "fillColor": linear(val_dict[x["properties"][division_col]]),
-                "color": "black",
-                "fillOpacity": 0.4,
-            },
-            tooltip=tooltip,
-            popup=popup,
-        ).add_to(folium_map)
+            popup = folium.GeoJsonPopup(
+                fields=["tile", col],
+                aliases=["tile", f'{var} difference'],
+                localize=True,
+                labels=True,
+                style="background-color: yellow;",
+            )
 
-    return folium_map
+            g = folium.GeoJson(
+                gjson,
+                style_function=lambda x: {
+                    "fillColor": get_color(val_dict[x["properties"][division_col]]),
+                    "color": "black",
+                    "fillOpacity": 0.4,
+                },
+                tooltip=tooltip,
+                popup=popup,
+            ).add_to(folium_map)
+
+        neg_colormap.caption = "Negative Values"
+        neg_colormap.add_to(folium_map)
+
+        pos_colormap.caption = "Positive Values"
+        pos_colormap.add_to(folium_map)
+
+    return folium_map, empty_map
 
 #@st.cache_data(ttl=3600)
 def folium_static(_fig, width, height):
@@ -571,12 +657,7 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     df_neg=df.loc[df[col_value]<0]
     df_pos = df.loc[df[col_value] > 0]
 
-    print(df_neg[col_value].unique())
-    print(df_pos[col_value].unique())
-
     if len(df_neg[col_value].unique())==0 and len(df_pos[col_value].unique())==0:
-        print(df_neg[col_value].unique())
-        print(df_pos[col_value].unique())
 
         colormap1 = 'greens'
         colormap2 = 'greens'
@@ -765,6 +846,35 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     margin=dict(l=0, r=0, t=0, b=0),
     height=1000)
 
+    fig.add_annotation(
+        x=0.02, y=0.6, xref='paper', yref='paper',
+        text="Positive Values",
+        showarrow=False,
+        font=dict(size=12)
+    )
+
+    fig.add_annotation(
+        x=0.02, y=0.5, xref='paper', yref='paper',
+        text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap1]),
+        showarrow=False,
+        font=dict(size=10)
+    )
+
+    fig.add_annotation(
+        x=0.98, y=0.6, xref='paper', yref='paper',
+        text="Negative Values",
+        showarrow=False,
+        font=dict(size=12)
+    )
+
+    fig.add_annotation(
+        x=0.98, y=0.5, xref='paper', yref='paper',
+        text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap2]),
+        showarrow=False,
+        font=dict(size=10)
+    )
+
+
     if empty_map:
         fig='empty'
 
@@ -787,7 +897,9 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
                 df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
                 
     df_PI_plans['DIFF_PROP']=((df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
+    df_PI_plans['DIFF_PROP'] = df_PI_plans['DIFF_PROP'].round(3)
     df_PI_plans['DIFF']=df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE']
+    df_PI_plans['DIFF'] = df_PI_plans['DIFF'].round(3)
     diff_dct={f'Values ({unit_dct[PI_code]})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
     fig2=px.bar(df_PI_plans, x='YEAR', y=df_PI_plans[diff_dct[diff_type]], color='ALT', barmode='group', hover_data={'ALT': True, 'YEAR': True, diff_dct[diff_type]:True})
     fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
@@ -797,7 +909,7 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     return fig2
 
 @st.cache_data(ttl=3600)
-def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct):
+def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct, full_min, full_max):
 
     print('PLOT_TS')
 
@@ -808,6 +920,8 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
     fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
            xaxis_title='Years',
            yaxis_title=f'{unit_dct[PI_code]}')
+    fig.update_yaxes(range=[full_min, full_max])
+
     return fig
 
 @st.cache_data(ttl=3600)
@@ -857,13 +971,60 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
     return baseline_value, plan_values
 
 @st.cache_data(ttl=3600)
-def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
+def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
 
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_folder=os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
     dfs=[]
     feather_done=[]
+
+    var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+    stats = unique_PI_CFG.var_agg_stat[var]
+    if len(stats)>1:
+        var_s=f'{var}_sum'
+    elif stats[0]=='sum':
+        var_s = f'{var}_sum'
+    elif stats[0]=='mean':
+        var_s = f'{var}_mean'
+    else:
+        print('problem w. agg stat!!')
+
+
+    all_plans=unique_PI_CFG.available_plans+unique_PI_CFG.available_baselines
+
+    all_plans_unique = list(set(all_plans))
+
+    maxs=[]
+    mins=[]
+    plans_count=0
+    for p in all_plans_unique:
+        plans_count+=1
+        src=os.path.join(df_folder, p)
+
+        liste_files = []
+        for root, dirs, files in os.walk(src):
+            for name in files:
+                liste_files.append(os.path.join(root, name))
+        #print(src, len(liste_files))
+        for l in liste_files:
+            df=pd.read_feather(l)
+            #print(l, df.head())
+            max=df[var_s].max()
+            maxs.append(max)
+            min=df[var_s].min()
+            mins.append(min)
+
+        # if plans_count==1:
+        #     continue
+        #     df_previous=df
+        # else:
+        #     df_diff=df-df_previous
+
+
+    full_max=np.max(maxs)
+    full_min=np.min(mins)
+
 
     if LakeSL_prob_1D:
         plans_all=plans_selected
@@ -878,7 +1039,11 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
             alt=unique_PI_CFG.plan_dct[p]
         sect=unique_PI_CFG.sect_dct[Region]
         for s in sect:
-            feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}'
+            if ts_code=='hist':
+                feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
+            else:
+                feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_future)}_{np.max(unique_PI_CFG.available_years_future)}{CFG_DASHBOARD.file_ext}'
+
             if feather_name not in feather_done:
                 if CFG_DASHBOARD.file_ext =='.feather':
                     df=pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
@@ -896,20 +1061,20 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     df_PI=df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
 
     # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
-    var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+    #var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     
-    stats=unique_PI_CFG.var_agg_stat[var]
+
 
     df_PI['SECT']=Region 
     # when a variable can be aggregated by mean or sum, sum is done in priority
     if len(stats)>1:
-        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', var_s]]
         df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
     elif stats[0]=='sum':
-        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', var_s]]
         df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
     elif stats[0]=='mean':
-        df_PI=df_PI[['YEAR', 'ALT', 'SECT', f'{var}_mean']]
+        df_PI=df_PI[['YEAR', 'ALT', 'SECT', var_s]]
         df_PI=df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
     else:
         print('problem w. agg stat!!')
@@ -917,15 +1082,18 @@ def yearly_timeseries_data_prep(unique_pi_module_name, folder_raw, PI_code, plan
     df_PI[Variable]=df_PI[f'{var}_{stats[0]}']
 
     multiplier=unique_PI_CFG.multiplier
+    full_max=full_max*multiplier
+    full_min = full_min * multiplier
+
     df_PI[Variable]=df_PI[Variable]*multiplier
 
     df_PI=df_PI[['YEAR', 'ALT', 'SECT', Variable]]
-    
-    return df_PI
+
+    return df_PI, full_min, full_max
 
 
 @st.cache_data(ttl=3600)
-def yearly_timeseries_data_prep_map(unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
+def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
                                 start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
 
@@ -948,7 +1116,11 @@ def yearly_timeseries_data_prep_map(unique_pi_module_name, folder_raw, PI_code, 
             sect = [item for item in sect if item != "USL_DS"]
 
         for s in sect:
-            feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years)}_{np.max(unique_PI_CFG.available_years)}{CFG_DASHBOARD.file_ext}'
+
+            if ts_code=='hist':
+                feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
+            else:
+                feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_future)}_{np.max(unique_PI_CFG.available_years_future)}{CFG_DASHBOARD.file_ext}'
             if feather_name not in feather_done:
                 if CFG_DASHBOARD.file_ext == '.feather':
                     df = pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
@@ -996,9 +1168,10 @@ def yearly_timeseries_data_prep_map(unique_pi_module_name, folder_raw, PI_code, 
     return df_PI
 
 
-def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
+def MAIN_FILTERS_streamlit(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
 
     print('FILTERS')
+
 
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     
@@ -1009,8 +1182,12 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
         Variable='N/A'
       
     if Years:
-        start_year, end_year=st.select_slider('Select a period', options=unique_PI_CFG.available_years, 
-                                          value=(np.min(unique_PI_CFG.available_years), np.max(unique_PI_CFG.available_years)))
+        if ts_code=='hist':
+            start_year, end_year=st.select_slider('Select a period', options=unique_PI_CFG.available_years_hist,
+                                              value=(np.min(unique_PI_CFG.available_years_hist), np.max(unique_PI_CFG.available_years_hist)))
+        else:
+            start_year, end_year=st.select_slider('Select a period', options=unique_PI_CFG.available_years_future,
+                                              value=(np.min(unique_PI_CFG.available_years_future), np.max(unique_PI_CFG.available_years_future)))
     else:
         start_year='N/A'
         end_year='N/A'
@@ -1023,13 +1200,18 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
         Regions='N/A'
   
     if Plans:
-        available_plans=list(unique_PI_CFG.plan_dct.keys())
+        #available_plans=list(unique_PI_CFG.plan_dct.keys())
+        available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
+        no_plans_for_ts = False
+        if len(available_plans)==0:
+            no_plans_for_ts=True
         plans_selected=st.multiselect('Regulation plans to compare', available_plans, max_selections=CFG_DASHBOARD.maximum_plan_to_compare, default=next(iter(available_plans)))
     else:
         plans_selected='N/A'
         
     if Baselines:
-        baselines= list(unique_PI_CFG.baseline_dct.keys())
+        #baselines= list(unique_PI_CFG.baseline_dct.keys())
+        baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
         Baseline=st.selectbox("Select a reference plan", baselines)
     else:
         Baseline='N/A'
@@ -1040,10 +1222,10 @@ def MAIN_FILTERS_streamlit(unique_pi_module_name, CFG_DASHBOARD, Years, Region, 
     else:
         Stats='N/A'
     
-    return  start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable
+    return  start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts
 
 
-def MAIN_FILTERS_streamlit_simple(unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
+def MAIN_FILTERS_streamlit_simple(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
     print('FILTERS')
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -1055,9 +1237,12 @@ def MAIN_FILTERS_streamlit_simple(unique_pi_module_name, CFG_DASHBOARD, Years, R
         Variable = 'N/A'
 
     if Years:
-        start_year, end_year = st.select_slider('Select a period', options=unique_PI_CFG.available_years,
-                                                value=(np.min(unique_PI_CFG.available_years),
-                                                       np.max(unique_PI_CFG.available_years)))
+        if ts_code=='hist':
+            start_year, end_year=st.select_slider('Select a period', options=unique_PI_CFG.available_years_hist,
+                                              value=(np.min(unique_PI_CFG.available_years_hist), np.max(unique_PI_CFG.available_years_hist)))
+        else:
+            start_year, end_year=st.select_slider('Select a period', options=unique_PI_CFG.available_years_future,
+                                              value=(np.min(unique_PI_CFG.available_years_future), np.max(unique_PI_CFG.available_years_future)))
     else:
         start_year = 'N/A'
         end_year = 'N/A'

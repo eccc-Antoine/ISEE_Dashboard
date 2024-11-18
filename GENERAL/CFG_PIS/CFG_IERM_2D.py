@@ -4,21 +4,22 @@ name='Wetland class area (LOSLR)'
 
 type='2D_tiled'
 
-dct_var={'VAR1':'Open Water', 'VAR2':'Submerged Aquatic Vegetation', 'VAR3':'Emergent Marsh', 'VAR4':'Wet Meadow', 'VAR5':'Swamp', 'VAR6':'Upland', 'VAR7':'Total Wetland Area'}
+#dct_var={'VAR1':'Open Water', 'VAR2':'Submerged Aquatic Vegetation', 'VAR3':'Emergent Marsh', 'VAR4':'Wet Meadow', 'VAR5':'Swamp', 'VAR6':'Upland', 'VAR7':'Total Wetland Area'}
 
-dct_var={'VAR1': 'Open Water', 'VAR2': 'MP_V', 'VAR3': 'MP', 'VAR4': 'MPP', 'VAR5': 'PH', 'VAR6': 'PH_A', 'VAR7': 'MARBU', 'VAR8': 'MARBO', 'VAR9': 'FORET_H', 'VAR10': 'URBAIN', 'VAR11':'IND', 'VAR12':'TOTAL_WETLANDS'}
+dct_var={'VAR1': 'Open water', 'VAR2': 'Emergent marshes', 'VAR3': 'Wet meadow', 'VAR4': 'Swamp', 'VAR5': 'Upland', 'VAR6': 'Total wetland'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
-var_agg_stat={'VAR1': ['sum'], 'VAR2': ['sum'], 'VAR3': ['sum'], 'VAR4': ['sum'], 'VAR5': ['sum'], 'VAR6': ['sum'], 'VAR7': ['sum'], 'VAR8': ['sum'], 'VAR9': ['sum'], 'VAR10': ['sum'], 'VAR11':['sum'], 'VAR12':['sum']}
+var_agg_stat={'VAR1': ['sum'], 'VAR2': ['sum'], 'VAR3': ['sum'], 'VAR4': ['sum'], 'VAR5': ['sum'], 'VAR6': ['sum']}
 
 #normal mean higher is better
-var_direction={'Open Water':'normal', 'MP_V':'normal', 'MP':'normal', 'MPP':'normal', 'PH':'normal', 'PH_A':'normal', 'MARBU':'normal', 'MARBO':'normal', 'FORET_H':'normal', 'URBAIN':'normal', 'IND':'normal', 'TOTAL_WETLANDS':'normal'}
+var_direction={'Open water':'inverse', 'Emergent marshes':'normal', 'Wet meadow':'normal', 'Swamp':'normal', 'Upland':'inverse', 'Total wetland':'normal'}
 
 units='Hectares'
 
 multiplier=0.01
 
-available_years=list(range(1962, 2021))
+available_years_hist=list(range(1962, 2021))
+available_years_future=list(range(2012, 2071))
 
 divided_by_country=False
 
@@ -26,26 +27,20 @@ available_sections=['SLR_DS', 'SLR_US']
 
 sect_dct = {'St.Lawrence River downstream': ['SLR_DS'], 'St.Lawrence River upstream': ['SLR_US'] }
 
-available_plans=['Bv7', 'OBS']
+available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330', 'PreProject_STO_330']
 
-plan_dct={'Bv7': 'Bv7', 'Observation':'OBS'}
+plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
 
-available_baselines=[]
+plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC']
 
-baseline_dct={}
+plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330'}
+
+available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330', 'PreProject_RCP45', 'PreProject_STO_330']
+
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical' , 'Bv7_2014':'Bv7_2014', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_RCP45':'PreProject_RCP45', 'PreProject_STO_330':'PreProject_STO_330'}
+
+baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
 
 available_stats = ['sum', 'mean']
 
 id_column_name = 'PT_ID'
-
-# available_plans=['Bv7_2014', 'Bv7', 'OBS']
-#
-# plan_dct={'Bv7_2014':'Bv7_2014' , 'Bv7': 'Bv7', 'Observation':'OBS'}
-#
-# available_baselines=['Bv7_GERBL1']
-#
-# baseline_dct={'Bv7_GERBL1':'Bv7_GERBL1'}
-#
-# available_stats = ['sum', 'mean']
-#
-# id_column_name = 'PT_ID'
