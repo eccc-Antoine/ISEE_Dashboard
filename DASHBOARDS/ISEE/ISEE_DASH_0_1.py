@@ -97,8 +97,8 @@ def function_for_tab1(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            full_min, full_max, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
-
+            folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+            full_min, full_max = UTILS.find_full_min_full_max(unique_pi_module_name, folder, PI_code, Variable)
         with Col2:
 
             #unique_PI_CFG.type == '2D_tiled'
@@ -116,6 +116,8 @@ def function_for_tab1(exec):
                     st.write(
                         ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
+
+
                 fig = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                             PI_code, unit_dct, full_min, full_max)
 
@@ -125,7 +127,9 @@ def function_for_tab2(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
-            full_min, full_max, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+            folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+            full_min_diff, full_max_diff = UTILS.find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code,
+                                                                             Variable)
 
         with Col2:
             diff_type = st.selectbox("Select a type of difference to compute",
@@ -144,8 +148,10 @@ def function_for_tab2(exec):
                     st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
                 else:
 
+
+
                     fig2 = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
-                                                            PI_code, unit_dct, unique_pi_module_name, diff_type)
+                                                            PI_code, unit_dct, unique_pi_module_name, diff_type, full_min_diff, full_max_diff)
                     st.plotly_chart(fig2, use_container_width=True)
 
 
@@ -446,7 +452,8 @@ def render_column1():
 
         var_direction = unique_PI_CFG.var_direction[Variable]
 
-        df_PI, full_min, full_max = UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+        df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+
 
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
@@ -457,7 +464,7 @@ def render_column1():
             list_plans.append(pp)
         list_plans.append(unique_PI_CFG.baseline_dct[Baseline])
 
-    return full_min, full_max, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
+    return folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
 def render_column1_simple():
     timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',

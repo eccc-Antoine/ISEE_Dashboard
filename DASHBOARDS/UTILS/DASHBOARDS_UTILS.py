@@ -93,6 +93,9 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
     gdf_grille_all=pd.concat(gdfs)
     gdf_grille_all=gdf_grille_all.loc[gdf_grille_all['VAL']!=0]
     gdf_grille_all=gdf_grille_all.dissolve(by='SECTION', as_index=False)
+
+    gdf_grille_all['VAL']=gdf_grille_all['VAL']*multiplier
+
     return gdf_grille_all
 
 
@@ -115,10 +118,13 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
         for t in liste_tiles:
 
             df_folder = os.path.join(folder, PI_code, 'YEAR', 'TILE', scen_code, s, str(t))
+
             pt_id_file = os.path.join(df_folder,
                                       f'{PI_code}_YEAR_{scen_code}_{s}_{str(t)}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
+
             if not os.path.exists(pt_id_file):
                 continue
+
             df_tile = pd.read_feather(pt_id_file)
 
             df_tile = df_tile.loc[(df_tile['YEAR'] >= start_year) & (df_tile['YEAR'] <= end_year)]
@@ -162,6 +168,8 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
     gdf_tiles=gdf_tiles.drop(columns=["VAL_MEAN", 'VAL_SUM', 'VAL_MIN', 'VAL_MAX'])
 
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
+
+    gdf_tiles['VAL']=gdf_tiles['VAL']*multiplier
 
     return gdf_tiles
 
@@ -489,7 +497,7 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
                 #linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
 
         def get_color(value):
-            print(value)
+            #print(value)
             return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
 
         #linear.add_to(folium_map)
@@ -881,7 +889,7 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     return fig
 
 @st.cache_data(ttl=3600)
-def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct, unique_pi_module_name, diff_type):
+def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, PI_code, unit_dct, unique_pi_module_name, diff_type, full_min_diff, full_max_diff):
     print('PLOT_DTS')
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
@@ -905,6 +913,7 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
            xaxis_title='Years',
            yaxis_title=f'Difference in {diff_type}')
+    fig2.update_yaxes(range=[full_min_diff, full_max_diff])
     
     return fig2
 
@@ -970,6 +979,160 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
 
     return baseline_value, plan_values
 
+
+@st.cache_data(ttl=3600)
+def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable):
+    print('FULL_MIN, FULL_MAX')
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+    stats = unique_PI_CFG.var_agg_stat[var]
+
+    if len(stats) > 1:
+        var_s = f'{var}_sum'
+    elif stats[0] == 'sum':
+        var_s = f'{var}_sum'
+    elif stats[0] == 'mean':
+        var_s = f'{var}_mean'
+    else:
+        print('problem w. agg stat!!')
+
+    all_plans=unique_PI_CFG.available_plans+unique_PI_CFG.available_baselines
+    all_plans_unique = list(set(all_plans))
+
+    maxs=[]
+    mins=[]
+
+    df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
+
+    for p in all_plans_unique:
+        src=os.path.join(df_folder, p)
+
+        liste_files = []
+        for root, dirs, files in os.walk(src):
+            for name in files:
+                liste_files.append(os.path.join(root, name))
+        #print(src, len(liste_files))
+        for l in liste_files:
+            df=pd.read_feather(l)
+            #print(l, df.head())
+            max=df[var_s].max()
+            maxs.append(max)
+            min=df[var_s].min()
+            mins.append(min)
+
+    #print(mins, maxs)
+
+    full_max=np.max(maxs)
+    full_min=np.min(mins)
+
+    multiplier=unique_PI_CFG.multiplier
+    full_max=full_max*multiplier
+    full_min = full_min * multiplier
+
+    return full_min, full_max
+
+@st.cache_data(ttl=3600)
+def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable):
+    print('FULL_MIN_DIFF, FULL_MAX_DIFF')
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+    stats = unique_PI_CFG.var_agg_stat[var]
+    if len(stats) > 1:
+        var_s = f'{var}_sum'
+    elif stats[0] == 'sum':
+        var_s = f'{var}_sum'
+    elif stats[0] == 'mean':
+        var_s = f'{var}_mean'
+    else:
+        print('problem w. agg stat!!')
+
+    all_plans = unique_PI_CFG.available_plans + unique_PI_CFG.available_baselines
+    all_plans_unique = list(set(all_plans))
+
+    maxs = []
+    mins = []
+
+    maxs_diff = []
+    mins_diff = []
+
+    plans_count = 0
+
+    df_folder = os.path.join(folder, PI_code, 'YEAR', 'SECTION')
+
+    print('finding min and max diffs.......')
+
+    for p in all_plans_unique:
+
+        print(p)
+
+        supply1=[k for k, v in unique_PI_CFG.plans_ts_dct.items() if p in v]
+        supply2 = [k for k, v in unique_PI_CFG.baseline_ts_dct.items() if p in v]
+        supply=supply1+supply2
+        supply=list(set(supply))
+
+        if len(supply)==0:
+            continue
+
+        supply=supply[0]
+
+        #keys = [k for k, v in my_dict.items() if v == target_value]
+
+        print(PI_code, p, supply)
+
+        plans_supply=unique_PI_CFG.plans_ts_dct[supply]+unique_PI_CFG.baseline_ts_dct[supply]
+
+        plans_supply_modif= [item for item in plans_supply if item != p]
+
+        print(plans_supply_modif)
+
+        src = os.path.join(df_folder, p)
+
+        liste=os.listdir(src)
+
+        for l in liste:
+            path=os.path.join(src, l)
+            print(path)
+
+            liste_files2 = []
+            for root, dirs, files in os.walk(path):
+                for name in files:
+                    liste_files2.append(os.path.join(root, name))
+            print(liste_files2)
+            for ll in liste_files2:
+                df_plan= pd.read_feather(ll)
+
+                for plan in plans_supply_modif:
+                    ll_other=ll.replace(p, plan)
+
+                    if not os.path.exists(ll_other):
+                        continue
+
+                    df_other = pd.read_feather(ll_other)
+
+                    df_diff=df_plan-df_other
+
+
+
+                    max_diff = df_diff[var_s].max()
+                    maxs_diff.append(max_diff)
+                    min_diff = df_diff[var_s].min()
+                    mins_diff.append(min_diff)
+
+                    print(min_diff, max_diff)
+
+    mins_diff = np.array(mins_diff)
+    maxs_diff = np.array(maxs_diff)
+    mins_diff = mins_diff[~np.isnan(mins_diff)]
+    maxs_diff = maxs_diff[~np.isnan(maxs_diff)]
+    full_min_diff = np.min(mins_diff)
+    full_max_diff = np.max(maxs_diff)
+    multiplier = unique_PI_CFG.multiplier
+    full_max_diff = full_max_diff*multiplier
+    full_min_diff = full_min_diff * multiplier
+
+    return full_min_diff, full_max_diff
+
+
 @st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
@@ -990,40 +1153,50 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
     else:
         print('problem w. agg stat!!')
 
-
-    all_plans=unique_PI_CFG.available_plans+unique_PI_CFG.available_baselines
-
-    all_plans_unique = list(set(all_plans))
-
-    maxs=[]
-    mins=[]
-    plans_count=0
-    for p in all_plans_unique:
-        plans_count+=1
-        src=os.path.join(df_folder, p)
-
-        liste_files = []
-        for root, dirs, files in os.walk(src):
-            for name in files:
-                liste_files.append(os.path.join(root, name))
-        #print(src, len(liste_files))
-        for l in liste_files:
-            df=pd.read_feather(l)
-            #print(l, df.head())
-            max=df[var_s].max()
-            maxs.append(max)
-            min=df[var_s].min()
-            mins.append(min)
-
-        # if plans_count==1:
-        #     continue
-        #     df_previous=df
-        # else:
-        #     df_diff=df-df_previous
-
-
-    full_max=np.max(maxs)
-    full_min=np.min(mins)
+    # all_plans=unique_PI_CFG.available_plans+unique_PI_CFG.available_baselines
+    #
+    # all_plans_unique = list(set(all_plans))
+    #
+    # maxs=[]
+    # mins=[]
+    #
+    # maxs_diff=[]
+    # mins_diff=[]
+    #
+    # plans_count=0
+    # for p in all_plans_unique:
+    #     plans_count+=1
+    #     src=os.path.join(df_folder, p)
+    #
+    #     liste_files = []
+    #     for root, dirs, files in os.walk(src):
+    #         for name in files:
+    #             liste_files.append(os.path.join(root, name))
+    #     #print(src, len(liste_files))
+    #     for l in liste_files:
+    #         df=pd.read_feather(l)
+    #         #print(l, df.head())
+    #         max=df[var_s].max()
+    #         maxs.append(max)
+    #         min=df[var_s].min()
+    #         mins.append(min)
+    #
+    #     if plans_count==1:
+    #         df_previous=df
+    #         continue
+    #     else:
+    #         df_diff=df-df_previous
+    #         print(df_diff.head())
+    #
+    #         max_diff=df_diff[var_s].max()
+    #         min = df_diff[var_s].min()
+    #         maxs_diff.append(max_diff)
+    #         mins_diff.append(min_diff)
+    #         df_previous=df
+    #         quit()
+    #
+    # full_max=np.max(maxs)
+    # full_min=np.min(mins)
 
 
     if LakeSL_prob_1D:
@@ -1037,7 +1210,9 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
             alt=unique_PI_CFG.baseline_dct[p]
         else:
             alt=unique_PI_CFG.plan_dct[p]
+
         sect=unique_PI_CFG.sect_dct[Region]
+
         for s in sect:
             if ts_code=='hist':
                 feather_name=f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
@@ -1081,15 +1256,13 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
 
     df_PI[Variable]=df_PI[f'{var}_{stats[0]}']
 
-    multiplier=unique_PI_CFG.multiplier
-    full_max=full_max*multiplier
-    full_min = full_min * multiplier
+    multiplier = unique_PI_CFG.multiplier
 
     df_PI[Variable]=df_PI[Variable]*multiplier
 
     df_PI=df_PI[['YEAR', 'ALT', 'SECT', Variable]]
 
-    return df_PI, full_min, full_max
+    return df_PI
 
 
 @st.cache_data(ttl=3600)
@@ -1212,6 +1385,8 @@ def MAIN_FILTERS_streamlit(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years,
     if Baselines:
         #baselines= list(unique_PI_CFG.baseline_dct.keys())
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
+
+        #baselines = [item for item in baselines if item not in plans_selected]
         Baseline=st.selectbox("Select a reference plan", baselines)
     else:
         Baseline='N/A'
