@@ -24,6 +24,37 @@ import sys
 import streamlit.components.v1 as components
 from streamlit_folium import st_folium
 
+
+def get_env_var(var, env_name):
+    """This function check if an env var is set and if the path of the env var
+    exists.
+    :param var: Value of the environment variable from os.getenv, if any
+    :param env_name: Name of the environment variable
+    :return: Path of the env var
+    Called from set_path()
+    """
+    if not var:
+        sys.exit(f'Variable {env_name} is not set')
+    elif not os.path.isdir(var):
+        sys.exit(f'Variable {env_name} is not a directory: {var}')
+    else:
+        print(f'{env_name} sets to {var} (exists).')
+        return var
+
+
+def set_base_path():
+    CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
+
+    CFG_DASHBOARD.shapefile_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.shapefile_folder_name)
+    CFG_DASHBOARD.post_process_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.post_process_folder_name)
+
+    CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
+    CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
+    CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
+
+
+set_base_path()
+
 st.set_page_config(
     page_title='ISEE Dashboard',
     page_icon=':floppy_disk:',

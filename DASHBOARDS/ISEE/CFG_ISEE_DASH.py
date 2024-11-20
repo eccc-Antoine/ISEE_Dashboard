@@ -18,17 +18,25 @@ title=f'{name} DASHBOARD 0.5.'
 
 file_ext='.feather'
 
+root_data = ''
+
 ##edit those paths according to your local repositories:
-shapefile_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA'
-post_process_folder=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 
+shapefile_folder = ''
+post_process_folder = ''
 
-sct_poly=fr"{shapefile_folder}\SECTIONS_simple_longnames.geojson"
-sct_poly_country=fr"{shapefile_folder}\SECTIONS_simple_longnames_countries.geojson"
-tiles_shp=fr"{shapefile_folder}\TILES_SHP.geojson"
+shapefile_folder_name=fr'ISEE_RAW_DATA'
+post_process_folder_name=fr'ISEE_POST_PROCESS_DATA_3'
 
+sct_poly = ''
+sct_poly_country = ''
+tiles_shp = ''
 
-debug_folder=r"P:\GLAM\Dashboard\ISEE_Dash_portable\debug"
+sct_poly_name = r"SECTIONS_simple_longnames.geojson"
+sct_poly_country_name = r"SECTIONS_simple_longnames_countries.geojson"
+tiles_shp_name = r"TILES_SHP.geojson"
+
+debug_folder=r"debug"
 
 maximum_plan_to_compare=10
 
