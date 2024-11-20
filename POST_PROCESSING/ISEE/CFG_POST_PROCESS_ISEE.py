@@ -2,13 +2,15 @@ import os
 
 name='ISEE'
 
-#pis_2D_tiled=['SAUV_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
+pis_2D_tiled=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
 
-pis_2D_tiled=['PIKE_2D']
+#pis_2D_tiled=['PIKE_2D']
 
-pis_2D_not_tiled=['AYL_2D']
+pis_2D_not_tiled=['BIRDS_2D']
 
 pis_1D=['ERIW_MIN_1D', 'ZIPA_1D', 'TURTLE_1D', 'ONZI_1D']
+
+#pis_1D=['ERIW_MIN_1D']
 
 
 ISEE_RES=fr'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'
