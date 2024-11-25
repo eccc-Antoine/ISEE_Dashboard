@@ -13,6 +13,8 @@ import tempfile
 
 qp = st.query_params
 
+#qp= st.experimental_set_query_params
+
 if 'pi_code' in qp and 'data' in qp:
 
     st.cache_data.clear()

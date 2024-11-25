@@ -1,31 +1,39 @@
-import pandas as pd
 import os
 
-name='Exposed Riverbed During Winter 2D'
+name = 'Marina Functionality Impacts'
 
-type='2D_tiled'
+type = '2D_not_tiled'
 
-dct_var={'VAR1':'Total exposed riverbed area during winter'}
-
-#normal mean higher is better (normal or inverse)
-var_direction={'Total exposed riverbed area during winter':'inverse'}
-
+dct_var = {
+    'VAR1': 'Impacts during the navigation season',
+    'VAR2': 'Number of QMs with impacts'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
-var_agg_stat={'VAR1':['sum']}
+var_agg_stat = {'VAR1': ['sum'],
+           'VAR2': ['sum']}
 
-multiplier=0.01
+# normal mean higher is better
+var_direction = {'Impacts during the navigation season': 'inverse',
+           'Number of QMs with impacts': 'inverse'}
 
-units='Hectares'
+units = ''
 
-available_years_hist=list(range(1963, 2021))
-available_years_future=list(range(2012, 2071))
+multiplier = 1
 
-divided_by_country=False
+available_years_hist=list(range(1962, 2021))
+available_years_future=list(range(2011, 2071))
 
-available_sections=['LKO', 'USL_US', 'USL_DS', 'SLR_DS', 'SLR_US']
+divided_by_country = False
 
-sect_dct={'Lake Ontario':['LKO'], 'Upper St.Lawrence upstream':['USL_US'], 'Lake St.Lawrence':['USL_DS'], 'St.Lawrence River downstream': ['SLR_DS'], 'St.Lawrence River upstream': ['SLR_US']}
+available_sections = ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
+
+sect_dct = sect_dct={'Lake Ontario':['LKO'],
+           'Upper St.Lawrence upstream':['USL_US'],
+            'Lake St.Lawrence':['USL_DS'],
+              'St.Lawrence River upstream':['SLR_US'],
+               'St.Lawrence River downstream':['SLR_DS'],
+               'Upstream':['LKO', 'USL_US'],
+               'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
 
 
 available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330']

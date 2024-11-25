@@ -21,7 +21,7 @@ import os
 
 
 
-df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\ONZI_1D\YEAR\SECTION\PreProject_STO_330\USL_DS\ONZI_1D_YEAR_PreProject_STO_330_USL_DS_2011_2070.feather")
+df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ROADS_2D\Bv7_2014\ROADS_2D_Bv7_2014_1961.feather")
 
 
 print(list(df))
@@ -30,7 +30,7 @@ print(list(df))
 
 #df.to_csv(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ZIPA_1D\PreProjectHistorical\USL_DS\ZIPA_1D_PreProjectHistorical_USL_US.csv", sep=';', index=None)
 
-#print(df['SECTION'].unique())
+print(df['SECTION'].unique())
 print(df.head())
 #print(df)
 quit()
@@ -50,7 +50,7 @@ quit()
 # # quit()
 # #
 # #
-src=r'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\IXEX_RPI_2D\PreProject_RCP45'
+src=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\IERM_2D'
 liste_files=[]
 for root, dirs, files in os.walk(src):
     for name in files:
@@ -59,8 +59,11 @@ for root, dirs, files in os.walk(src):
 print(len(liste_files))
 print(liste_files[0])
 for l in liste_files:
-    dst=l.replace('IXEX_2D_', 'IXEX_RPI_2D_')
-    os.rename(l, dst)
+    dst=l.replace('_1962_', '_1963_')
+    if not os.path.exists(dst):
+        os.rename(l, dst)
+    else:
+        os.remove(l)
     #
     #
     # df=pd.read_feather(l)
