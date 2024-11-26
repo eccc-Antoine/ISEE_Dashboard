@@ -853,34 +853,34 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     fig.update_layout(mapbox_layers=[{"coordinates": coordinates}],  autosize=True,
     margin=dict(l=0, r=0, t=0, b=0),
     height=1000)
-
-    fig.add_annotation(
-        x=0.02, y=0.6, xref='paper', yref='paper',
-        text="Positive Values",
-        showarrow=False,
-        font=dict(size=12)
-    )
-
-    fig.add_annotation(
-        x=0.02, y=0.5, xref='paper', yref='paper',
-        text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap1]),
-        showarrow=False,
-        font=dict(size=10)
-    )
-
-    fig.add_annotation(
-        x=0.98, y=0.6, xref='paper', yref='paper',
-        text="Negative Values",
-        showarrow=False,
-        font=dict(size=12)
-    )
-
-    fig.add_annotation(
-        x=0.98, y=0.5, xref='paper', yref='paper',
-        text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap2]),
-        showarrow=False,
-        font=dict(size=10)
-    )
+    #
+    # fig.add_annotation(
+    #     x=0.02, y=0.6, xref='paper', yref='paper',
+    #     text="Positive Values",
+    #     showarrow=False,
+    #     font=dict(size=12)
+    # )
+    #
+    # fig.add_annotation(
+    #     x=0.02, y=0.5, xref='paper', yref='paper',
+    #     text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap1]),
+    #     showarrow=False,
+    #     font=dict(size=10)
+    # )
+    #
+    # fig.add_annotation(
+    #     x=0.98, y=0.6, xref='paper', yref='paper',
+    #     text="Negative Values",
+    #     showarrow=False,
+    #     font=dict(size=12)
+    # )
+    #
+    # fig.add_annotation(
+    #     x=0.98, y=0.5, xref='paper', yref='paper',
+    #     text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap2]),
+    #     showarrow=False,
+    #     font=dict(size=10)
+    # )
 
 
     if empty_map:
