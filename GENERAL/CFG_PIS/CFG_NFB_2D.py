@@ -4,30 +4,16 @@ name='Number of Flooded Buildings'
 
 type='2D_not_tiled'
 
-#dct_var={'VAR1': 'Primary residential buildings', 'VAR2': 'Secondary residential buildings', 'VAR3': 'All residential buildings' }
-
 dct_var = {'VAR1': 'Accessory buildings (boolean)',
 	   'VAR2': 'Accessory building (Nb of QMs)',
-	   'VAR3': 'Agricultural buildings (boolean)',
-	   'VAR4': 'Agricultural buildings (Nb of QMs)',
-	   'VAR5': 'Strategic assets buildings (boolean)',
-	   'VAR6': 'Strategic assets buildings (Nb of QMs)',
-	   'VAR7': 'Non-categorized (boolean)',
-	   'VAR8': 'Non-categorized (Nb of QMs)',
-	   'VAR9': 'Boathouse buildings (boolean)',
-	   'VAR10': 'Boathouse buildings (Nb of QMs)',
-	   'VAR11': 'Commercial buildings (boolean)',
-	   'VAR12': 'Commercial buildings (Nb of QMs)',
-	   'VAR13': 'Industrial buildings (boolean)',
-	   'VAR14': 'Industrial buildings (Nb of QMs)',
-	   'VAR15': 'Infrastructure buildings (boolean)',
-	   'VAR16': 'Infrastructure buildings (Nb of QMs)',
-	   'VAR17': 'Government-owned buildings (boolean)',
-	   'VAR18': 'Government-owned buildings (Nb of QMs)',
-	   'VAR19': 'Recreational buildings (boolean)',
-	   'VAR20': 'Recreational buildings (Nb of QMs)',
-	   'VAR21': 'Residential buildings (boolean)',
-	   'VAR22': 'Residential buildings (Nb of QMs)'}
+	   'VAR3': 'Strategic assets buildings (boolean)',
+	   'VAR4': 'Strategic assets buildings (Nb of QMs)',
+	   'VAR5': 'Non-residential (boolean)',
+	   'VAR6': 'Non-residential (Nb of QMs)',
+	   'VAR7': 'Residential (boolean)',
+	   'VAR8': 'Residential (Nb of QMs)',
+	   'VAR9': 'Total buildings (boolean)',
+	   'VAR10': 'Total buildings (Nb of QMs)'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1': ['sum'],
@@ -39,51 +25,28 @@ var_agg_stat={'VAR1': ['sum'],
 	   'VAR7': ['sum'],
 	   'VAR8': ['sum'],
 	   'VAR9': ['sum'],
-	   'VAR10': ['sum'],
-	   'VAR11': ['sum'],
-	   'VAR12': ['sum'],
-	   'VAR13': ['sum'],
-	   'VAR14': ['sum'],
-	   'VAR15': ['sum'],
-	   'VAR16': ['sum'],
-	   'VAR17': ['sum'],
-	   'VAR18': ['sum'],
-	   'VAR19': ['sum'],
-	   'VAR20': ['sum'],
-	   'VAR21': ['sum'],
-	   'VAR22': ['sum']}
+	   'VAR10': ['sum']}
 
 #normal mean higher is better
-var_direction={'VAR1': 'inverse',
-	   'VAR2': 'inverse',
-	   'VAR3': 'inverse',
-	   'VAR4': 'inverse',
-	   'VAR5': 'inverse',
-	   'VAR6': 'inverse',
-	   'VAR7': 'inverse',
-	   'VAR8': 'inverse',
-	   'VAR9': 'inverse',
-	   'VAR10': 'inverse',
-	   'VAR11': 'inverse',
-	   'VAR12': 'inverse',
-	   'VAR13': 'inverse',
-	   'VAR14': 'inverse',
-	   'VAR15': 'inverse',
-	   'VAR16': 'inverse',
-	   'VAR17': 'inverse',
-	   'VAR18': 'inverse',
-	   'VAR19': 'inverse',
-	   'VAR20': 'inverse',
-	   'VAR21': 'inverse',
-	   'VAR22': 'inverse'}
+var_direction={'Accessory buildings (boolean)': 'inverse',
+	   'Accessory building (Nb of QMs)': 'inverse',
+	   'Strategic assets buildings (boolean)': 'inverse',
+	   'Strategic assets buildings (Nb of QMs)': 'inverse',
+	   'Non-residential (boolean)': 'inverse',
+	   'Non-residential (Nb of QMs)': 'inverse',
+	   'Residential (boolean)': 'inverse',
+	   'Residential (Nb of QMs)': 'inverse',
+	   'Total buildings (boolean)': 'inverse',
+	   'Total buildings (Nb of QMs)': 'inverse'}
 
 units=' '
 
 multiplier=1
 
-available_years=list(range(1962, 2021))
+available_years_hist=list(range(1962, 2021))
+available_years_future=list(range(2011, 2071))
 
-divided_by_country=True
+divided_by_country=False
 
 available_sections=['SLR_DS_CAN', 'SLR_US_CAN', 'USL_DS_US', 'USL_DS_CAN', 'USL_US_US',
  'USL_US_CAN', 'LKO_US', 'LKO_CAN']
@@ -100,13 +63,25 @@ sect_dct={'Lake Ontario Canada':['LKO_CAN'],
     'St.Lawrence River upstreamn Canada': ['SLR_US_CAN']}
 
 
-available_plans=['OBS', 'Bv7_GERBL1']
+#available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330']
+available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45']
 
-plan_dct={'OBS':'OBS', 'Bv7_GERBL1':'Bv7_GERBL1'}
 
-available_baselines=['PreProjectHistorical']
 
-baseline_dct={'PreProjectHistorical':'PreProjectHistorical'}
+#plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45']}
+plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC'], 'sto':[], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
+
+plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC']
+
+plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45':'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330':'GERBL2_2014_ComboC_STO_330'}
+
+#available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330', 'PreProject_RCP45', 'PreProject_STO_330']
+available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45']
+
+baseline_dct={'PreProjectHistorical':'PreProjectHistorical' , 'Bv7_2014':'Bv7_2014', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_RCP45':'PreProject_RCP45', 'PreProject_STO_330':'PreProject_STO_330'}
+
+#baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
+baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014'], 'sto':[], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
 
 available_stats = ['sum', 'mean']
 

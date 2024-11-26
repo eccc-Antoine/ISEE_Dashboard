@@ -2,11 +2,12 @@ import os
 
 name='ISEE'
 
-pis_2D_tiled=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
+#pis_2D_tiled=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
 
-#pis_2D_tiled=['PIKE_2D']
+pis_2D_tiled=['IERM_2D']
 
-pis_2D_not_tiled=['BIRDS_2D']
+#pis_2D_not_tiled=['WATER_INTAKES_2D', 'WASTE_WATER_2D']
+pis_2D_not_tiled=['NFB_2D']
 
 pis_1D=['ERIW_MIN_1D', 'ZIPA_1D', 'TURTLE_1D', 'ONZI_1D']
 

@@ -91,7 +91,7 @@ class POST_PROCESS_2D_tiled:
                         df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                     else:
-                        print('fetching lat lon info from isee-tiles...')
+                        print('fetching lat lon info from isee-tiles...', PI)
                         t = feather.split('_')[-2]
                         df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
                         df_t = df_t[['PT_ID', 'LAT', 'LON']]
@@ -321,9 +321,9 @@ class POST_PROCESS_2D_not_tiled:
 
                     else:
                         # uncomment if there is not lat lon in raw results
-                        print('fetching lat lon info from isee-tiles...')
-                        t = feather.split('_')[-2]
-                        df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\ISEE_GRID_tile_{t}.feather")
+                        print('fetching lat lon info from isee-tiles...', PI)
+                        # t = feather.split('_')[-2]
+                        df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
                         df_t['TILE'] = int(t)
                         df_t = df_t[['PT_ID', 'LAT', 'LON']]
                         # df_temp=df_temp[[self.id_column_name, str(y)]]
@@ -574,7 +574,7 @@ class POST_PROCESS_1D:
                                     f'AGG level of {AGG_SPACE} for plan {space} already exists skipping...')
                                 continue
 
-                            res_name = f'{PI}_{AGG_TIME}_{space}_{min(list_years)}_{max(list_years)}.feather'
+                            res_name = f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
                             agg_year_param = os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var,
                                                 stats, agg_year_param, '', PI_CFG, years_list)
@@ -619,16 +619,17 @@ not_tiled = POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.PO
 
 pi_1D = POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-for pi in tiled.pis:
-    print(pi)
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    # tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-    tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-
-# for pi in not_tiled.pis:
+#
+# for pi in tiled.pis:
 #     print(pi)
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     # tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+#     # tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+
+for pi in not_tiled.pis:
+    print(pi)
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
 
 # for pi in pi_1D.pis:
 #     print(pi)

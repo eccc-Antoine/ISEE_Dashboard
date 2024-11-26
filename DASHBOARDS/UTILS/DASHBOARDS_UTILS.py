@@ -41,7 +41,6 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     val=np.round(val, 3)
     gdf_grille=gdf_grille_origine
 
-    # gdf_grille['VAL'].loc[gdf_grille['SECTION'].isin(sct_map_dct[s])]=val
     gdf_grille['VAL'].loc[gdf_grille['SECTION']==s]=val
 
     return gdf_grille
@@ -172,44 +171,6 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
     gdf_tiles['VAL']=gdf_tiles['VAL']*multiplier
 
     return gdf_tiles
-
-    #         if f'{var}_mean' in list(df_tile):
-    #             if stat == 'mean':
-    #                 val= df_tile[f'{var}_mean'].mean() * multiplier
-    #             elif stat == 'sum':
-    #                 val= df_tile[f'{var}_mean'].sum() * multiplier
-    #             elif stat == 'min':
-    #                 val= df_tile[f'{var}_mean'].min() * multiplier
-    #             elif stat == 'max':
-    #                 val= df_tile[f'{var}_mean'].max() * multiplier
-    #             else:
-    #                 print('problem with stats')
-    #
-    #
-    #         elif f'{var}_sum' in list(df_tile):
-    #             if stat == 'mean':
-    #                 val = df_tile[f'{var}_sum'].mean() * multiplier
-    #             elif stat == 'sum':
-    #                 val= df_tile[f'{var}_sum'].sum() * multiplier
-    #             elif stat == 'min':
-    #                 val= df_tile[f'{var}_sum'].min() * multiplier
-    #             elif stat == 'max':
-    #                 val= df_tile[f'{var}_sum'].max() * multiplier
-    #             else:
-    #                 print('problem with stats')
-    #
-    #         else:
-    #             print('problem with stats')
-    #
-    #         gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val, 3)
-    #
-    #
-    # gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
-    #
-    # gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
-    #
-    # return gdf_tiles
-
 
 
 @st.cache_data(ttl=3600)
@@ -458,50 +419,6 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
         gdf_grille[col]=gdf_grille[col].astype(float)
 
-        pos_values=gdf_grille.loc[gdf_grille[col]>0]
-        pos_values = pos_values.sort_values(by=col)
-        pos_values = pos_values[col]
-        #pos_values = sorted(pos_values)
-        neg_values=gdf_grille.loc[gdf_grille[col]<0]
-        neg_values = neg_values.sort_values(by=col)
-        neg_values = neg_values[col]
-        #neg_values = sorted(neg_values)
-
-        if type=='diff':
-            if direction == 'inverse':
-                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
-                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=pos_values.quantile(0.85))
-
-                # linear = cm.LinearColormap(colors=['green', 'white', 'red'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
-                #                              vmax=gdf_grille[col].quantile(0.75))
-
-            else:
-                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
-                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=pos_values.quantile(0.85))
-
-                # linear = cm.LinearColormap(colors=['red', 'white', 'green'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
-                #                         vmax=gdf_grille[col].quantile(0.75))
-
-        else:
-            if direction == 'inverse':
-
-                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=gdf_grille[col].min(), vmax=0)
-                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=gdf_grille[col].max())
-
-                #linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
-
-            else:
-                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=gdf_grille[col].min(), vmax=0)
-                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=gdf_grille[col].max())
-
-                #linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"], vmin=gdf_grille[col].quantile(0.25), vmax=gdf_grille[col].quantile(0.75), caption=unit)
-
-        def get_color(value):
-            #print(value)
-            return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
-
-        #linear.add_to(folium_map)
-
         val_dict = gdf_grille.set_index(division_col)[col]
 
         centro=gdf_grille.copy(deep=True)
@@ -510,22 +427,25 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
         gdf_grille= gdf_grille.dropna()
 
-        # if division_col != 'SECTION':
-        #     print(gdf_grille['tile'].unique())
-
         centro['centroid']=centro.centroid
         centro['centroid']=centro["centroid"].to_crs(epsg=4326)
-
 
         gjson = gdf_grille.to_json()
         js_data = json.loads(gjson)
         val_dict = gdf_grille.set_index(division_col)[col]
 
-        if division_col == 'SECTION':
+        if unique_PI_CFG.type == '1D':
+            if direction == 'inverse':
+                linear = cm.LinearColormap(colors=['green', 'white', 'red'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
+                                             vmax=gdf_grille[col].quantile(0.75))
+            else:
+                linear = cm.LinearColormap(colors=['red', 'white', 'green'], index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)], vmin=gdf_grille[col].quantile(0.25),
+                                        vmax=gdf_grille[col].quantile(0.75))
+
             folium.GeoJson(
                 gjson,
                 style_function=lambda feature: {
-                    "fillColor": get_color(val_dict[feature["properties"][division_col]]),
+                    "fillColor": linear(val_dict[feature["properties"][division_col]]),
                     "color": "black",
                     "weight": 2,
                     "dashArray": "5, 5",
@@ -537,11 +457,33 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
                 lon = r["centroid"].x
                 folium.Marker(
                     location=[lat, lon],
-                    icon=folium.DivIcon(html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-                    #popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                    # popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
                 ).add_to(folium_map)
 
+            linear.add_to(folium_map)
+
         else:
+            pos_values=gdf_grille.loc[gdf_grille[col]>0]
+            pos_values = pos_values.sort_values(by=col)
+            pos_values = pos_values[col]
+            neg_values=gdf_grille.loc[gdf_grille[col]<0]
+            neg_values = neg_values.sort_values(by=col)
+            neg_values = neg_values[col]
+
+
+            if direction == 'inverse':
+                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=pos_values.quantile(0.85))
+
+            else:
+                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=pos_values.quantile(0.85))
+
+            def get_color(value):
+                return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
+
             tooltip = folium.GeoJsonTooltip(
                 fields=['tile', col],
                 aliases=['tile', f'{var} difference'],
@@ -576,11 +518,11 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
                 popup=popup,
             ).add_to(folium_map)
 
-        neg_colormap.caption = "Negative Values"
-        neg_colormap.add_to(folium_map)
+            neg_colormap.caption = "Negative Values"
+            neg_colormap.add_to(folium_map)
 
-        pos_colormap.caption = "Positive Values"
-        pos_colormap.add_to(folium_map)
+            pos_colormap.caption = "Positive Values"
+            pos_colormap.add_to(folium_map)
 
     return folium_map, empty_map
 
@@ -779,9 +721,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
         empty_map = False
 
-    print(df_pos[col_value].quantile(0.25), df_pos[col_value].quantile(0.75))
-    print(df_neg[col_value].quantile(0.25), df_neg[col_value].quantile(0.75))
-
     trace1 = go.Scattermapbox(
         lat=df_pos[col_y],
         lon=df_pos[col_x],
@@ -853,35 +792,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     fig.update_layout(mapbox_layers=[{"coordinates": coordinates}],  autosize=True,
     margin=dict(l=0, r=0, t=0, b=0),
     height=1000)
-    #
-    # fig.add_annotation(
-    #     x=0.02, y=0.6, xref='paper', yref='paper',
-    #     text="Positive Values",
-    #     showarrow=False,
-    #     font=dict(size=12)
-    # )
-    #
-    # fig.add_annotation(
-    #     x=0.02, y=0.5, xref='paper', yref='paper',
-    #     text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap1]),
-    #     showarrow=False,
-    #     font=dict(size=10)
-    # )
-    #
-    # fig.add_annotation(
-    #     x=0.98, y=0.6, xref='paper', yref='paper',
-    #     text="Negative Values",
-    #     showarrow=False,
-    #     font=dict(size=12)
-    # )
-    #
-    # fig.add_annotation(
-    #     x=0.98, y=0.5, xref='paper', yref='paper',
-    #     text="<br>".join([f"<span style='color:{color};'>█</span>" for _, color in colormap2]),
-    #     showarrow=False,
-    #     font=dict(size=10)
-    # )
-
 
     if empty_map:
         fig='empty'
@@ -915,7 +825,7 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
            yaxis_title=f'Difference in {diff_type}')
     fig2.update_yaxes(range=[full_min_diff, full_max_diff])
     
-    return fig2
+    return fig2, df_PI_plans
 
 @st.cache_data(ttl=3600)
 def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct, full_min, full_max):
@@ -931,7 +841,7 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
            yaxis_title=f'{unit_dct[PI_code]}')
     fig.update_yaxes(range=[full_min, full_max])
 
-    return fig
+    return fig, df_PI_plans
 
 @st.cache_data(ttl=3600)
 def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG, LakeSL_prob_1D):
@@ -1011,16 +921,14 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
         for root, dirs, files in os.walk(src):
             for name in files:
                 liste_files.append(os.path.join(root, name))
-        #print(src, len(liste_files))
+
         for l in liste_files:
             df=pd.read_feather(l)
-            #print(l, df.head())
             max=df[var_s].max()
             maxs.append(max)
             min=df[var_s].min()
             mins.append(min)
 
-    #print(mins, maxs)
 
     full_max=np.max(maxs)
     full_min=np.min(mins)
@@ -1059,11 +967,7 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
 
     df_folder = os.path.join(folder, PI_code, 'YEAR', 'SECTION')
 
-    print('finding min and max diffs.......')
-
     for p in all_plans_unique:
-
-        print(p)
 
         supply1=[k for k, v in unique_PI_CFG.plans_ts_dct.items() if p in v]
         supply2 = [k for k, v in unique_PI_CFG.baseline_ts_dct.items() if p in v]
@@ -1075,15 +979,11 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
 
         supply=supply[0]
 
-        #keys = [k for k, v in my_dict.items() if v == target_value]
-
-        print(PI_code, p, supply)
 
         plans_supply=unique_PI_CFG.plans_ts_dct[supply]+unique_PI_CFG.baseline_ts_dct[supply]
 
         plans_supply_modif= [item for item in plans_supply if item != p]
 
-        print(plans_supply_modif)
 
         src = os.path.join(df_folder, p)
 
@@ -1091,13 +991,12 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
 
         for l in liste:
             path=os.path.join(src, l)
-            print(path)
 
             liste_files2 = []
             for root, dirs, files in os.walk(path):
                 for name in files:
                     liste_files2.append(os.path.join(root, name))
-            print(liste_files2)
+
             for ll in liste_files2:
                 df_plan= pd.read_feather(ll)
 
@@ -1110,15 +1009,11 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
                     df_other = pd.read_feather(ll_other)
 
                     df_diff=df_plan-df_other
-
-
-
                     max_diff = df_diff[var_s].max()
                     maxs_diff.append(max_diff)
                     min_diff = df_diff[var_s].min()
                     mins_diff.append(min_diff)
 
-                    print(min_diff, max_diff)
 
     mins_diff = np.array(mins_diff)
     maxs_diff = np.array(maxs_diff)
@@ -1152,52 +1047,6 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
         var_s = f'{var}_mean'
     else:
         print('problem w. agg stat!!')
-
-    # all_plans=unique_PI_CFG.available_plans+unique_PI_CFG.available_baselines
-    #
-    # all_plans_unique = list(set(all_plans))
-    #
-    # maxs=[]
-    # mins=[]
-    #
-    # maxs_diff=[]
-    # mins_diff=[]
-    #
-    # plans_count=0
-    # for p in all_plans_unique:
-    #     plans_count+=1
-    #     src=os.path.join(df_folder, p)
-    #
-    #     liste_files = []
-    #     for root, dirs, files in os.walk(src):
-    #         for name in files:
-    #             liste_files.append(os.path.join(root, name))
-    #     #print(src, len(liste_files))
-    #     for l in liste_files:
-    #         df=pd.read_feather(l)
-    #         #print(l, df.head())
-    #         max=df[var_s].max()
-    #         maxs.append(max)
-    #         min=df[var_s].min()
-    #         mins.append(min)
-    #
-    #     if plans_count==1:
-    #         df_previous=df
-    #         continue
-    #     else:
-    #         df_diff=df-df_previous
-    #         print(df_diff.head())
-    #
-    #         max_diff=df_diff[var_s].max()
-    #         min = df_diff[var_s].min()
-    #         maxs_diff.append(max_diff)
-    #         mins_diff.append(min_diff)
-    #         df_previous=df
-    #         quit()
-    #
-    # full_max=np.max(maxs)
-    # full_min=np.min(mins)
-
 
     if LakeSL_prob_1D:
         plans_all=plans_selected
@@ -1235,10 +1084,6 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
     df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
     df_PI=df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
 
-    # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
-    #var=[k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-    
-
 
     df_PI['SECT']=Region 
     # when a variable can be aggregated by mean or sum, sum is done in priority
@@ -1268,6 +1113,7 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
 @st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
                                 start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
+
     print('TIMESERIES_PREP')
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -1280,12 +1126,14 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
     for p in plans_all:
 
         if p == Baseline:
+
             alt = unique_PI_CFG.baseline_dct[p]
+
         else:
             alt = unique_PI_CFG.plan_dct[p]
         sect = unique_PI_CFG.sect_dct[Region]
 
-        if  p == Baseline:
+        if  'PreProject' in p:
             sect = [item for item in sect if item != "USL_DS"]
 
         for s in sect:
@@ -1294,11 +1142,13 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
                 feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
             else:
                 feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_future)}_{np.max(unique_PI_CFG.available_years_future)}{CFG_DASHBOARD.file_ext}'
+
             if feather_name not in feather_done:
                 if CFG_DASHBOARD.file_ext == '.feather':
                     df = pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
                 else:
                     df = pd.read_csv(os.path.join(df_folder, alt, s, feather_name), sep=';')
+
                 df['ALT'] = alt
                 df['SECT'] = s
 
@@ -1344,7 +1194,6 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
 def MAIN_FILTERS_streamlit(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
 
     print('FILTERS')
-
 
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     

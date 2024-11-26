@@ -9,7 +9,7 @@ import os
 import importlib
 from pathlib import Path
 import sys
-
+import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import CFG_ISEE_DASH as CFG_DASHBOARD
 from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
@@ -148,9 +148,18 @@ def function_for_tab1(exec):
                         ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
 
-
-                fig = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
+                fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                             PI_code, unit_dct, full_min, full_max)
+
+                csv_data=df_PI_plans.to_csv(index=False, sep=';')
+
+                st.download_button(
+                    label="Download displayed data in CSV format",
+                    data=csv_data,
+                    file_name="dataframe.csv",
+                    mime="text/csv",
+                    key='db_1'
+                )
 
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -179,10 +188,19 @@ def function_for_tab2(exec):
                     st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
                 else:
 
-
-
-                    fig2 = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
+                    fig2, df_PI_plans = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
                                                             PI_code, unit_dct, unique_pi_module_name, diff_type, full_min_diff, full_max_diff)
+
+                    csv_data = df_PI_plans.to_csv(index=False, sep=';')
+
+                    st.download_button(
+                        label="Download displayed data in CSV format",
+                        data=csv_data,
+                        file_name="dataframe.csv",
+                        mime="text/csv",
+                        key='db_2'
+                    )
+
                     st.plotly_chart(fig2, use_container_width=True)
 
 
@@ -266,6 +284,17 @@ def function_for_tab3(exec):
 
                     m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable,
                                                      'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
+
+                map_html = io.BytesIO()
+                m.save(map_html, close_file=False)
+                map_html.seek(0)
+                st.download_button(
+                    label="Download Map as HTML",
+                    data=map_html.getvalue(),
+                    file_name="map.html",
+                    mime="text/html",
+                    key='db_3'
+                )
 
                 UTILS.folium_static(m, 1200, 700)
 
@@ -412,7 +441,46 @@ def function_for_tab4(exec):
                     if empty_map:
                         st.write(':red[There is no differences between those 2 plans with the selected parameters, hence no map can be displayed]')
                     else:
+                        placeholder1 = st.empty()
+                        with placeholder1.container():
+                            st.subheader(
+                               f'Difference (candidate minus reference plan) between the :blue[{stat3}] of :blue[{selected_pi} {Variable}]  from :blue[{start_year} to {end_year}] in :blue[{diff_type2}]')
+
+                        # map_html = io.StringIO()
+                        # folium_map.save(map_html, close_file=False)
+                        # map_html.seek(0)
+                        # st.download_button(
+                        #     label="Download Map as HTML",
+                        #     data=map_html.getvalue(),
+                        #     file_name="map.html",
+                        #     mime="text/html",
+                        # )
+
+                        # with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
+                        #     folium_map.write_html(tmp_file.name)
+                        #     tmp_file.seek(0)
+                        #
+                        #     st.download_button(
+                        #         label="Download map as HTML",
+                        #         data=tmp_file.read(),
+                        #         file_name="map.html",
+                        #         mime="text/html"
+                        #     )
+
+
                         click_data1 = UTILS.folium_static(folium_map, height=700, width=1200)
+
+                        map_html = io.BytesIO()
+                        folium_map.save(map_html, close_file=False)
+                        map_html.seek(0)
+                        st.download_button(
+                            label="Download Map as HTML",
+                            data=map_html.getvalue(),
+                            file_name="map.html",
+                            mime="text/html",
+                            key='db_4'
+                        )
+
 
                 else:
                     if unique_PI_CFG.divided_by_country:
@@ -453,8 +521,27 @@ def function_for_tab4(exec):
 
                     if empty_map:
                         st.write(':red[There is no differences between those 2 plans with the selected parameters, hence no map can be displayed]')
+
                     else:
-                         UTILS.folium_static(data, 1200, 700)
+                        placeholder1 = st.empty()
+                        with placeholder1.container():
+                            st.subheader(
+                                f'Difference (candidate minus reference plan) between the :blue[{stat3}] of :blue[{selected_pi} {Variable}]  from :blue[{start_year} to {end_year}] in :blue[{diff_type2}]')
+
+
+                        click_data1=UTILS.folium_static(data, 1200, 700)
+
+                        map_html = io.BytesIO()
+                        data.save(map_html, close_file=False)
+                        map_html.seek(0)
+                        st.download_button(
+                            label="Download Map as HTML",
+                            data=map_html.getvalue(),
+                            file_name="map.html",
+                            mime="text/html",
+                            key='db_5'
+                        )
+
 def render_column1():
     timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
                                on_change=update_timeseries)
