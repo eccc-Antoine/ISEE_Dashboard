@@ -4,30 +4,30 @@ import glob
 
 import CFG_POST_PROCESS_ISEE as cfg
 
-list_PIs = ['ERIW_MIN_1D', 'CWRM_2D', 'BIRDS_2D', 'IERM_2D', 'SAUV_2D', 'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D']
+list_PIs = ['ERIW_MIN_1D', 'CWRM_2D', 'BIRDS_2D', 'IERM_2D', 'SAUV_2D', 'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'ROADS_2D', 'AYL_2D']
 
 
 dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC'],
-                    'RCP_45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45'],
-                    'STO_330':['GERBL2_2014_STO_330', 'PreProject_STO_330']}
+                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45'],
+                    'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330']}
 
-plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'Bv7_2014BOC', 'PreProjectHistorical': 'PreProject', 'Bv7_2014_ComboC': 'Bv7_2014_ComboC',
-                    'GERBL2_2014BOC_RCP45': 'Bv7_2014BOC', 'PreProject_RCP45': 'PreProject', 'GERBL2_2014_ComboC_RCP45': 'Bv7_2014_ComboC',
-                    'GERBL2_2014_STO_330': 'Bv7_2014BOC', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'Bv7_2014_ComboC'}
+plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistorical': 'PreProject', 'Bv7_2014_ComboC': 'GERBL2_2014_ComboC',
+                    'GERBL2_2014BOC_RCP45': 'GERBL2_2014', 'PreProject_RCP45': 'PreProject', 'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC',
+                    'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC'}
 
 
 
 dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
 
                   'CWRM_2D': {
-                      'VAR4_sum': 'Wet Meadow (ha)',
-                      'VAR7_sum': 'Total Wetland Area (ha)'},
+                      'VAR4_sum': 'Wet Meadow area (ha)',
+                      'VAR7_sum': 'Total Wetland area (ha)'},
 
                   'BIRDS_2D': {'VAR1_sum': 'Abundance (n individuals)'},
 
                   'IERM_2D': {
-                      'VAR3_sum': 'Wet Meadow (ha)',
-                      'VAR6_sum': 'Total Wetland Area (ha)'},
+                      'VAR3_sum': 'Wet Meadow area (ha)',
+                      'VAR6_sum': 'Total Wetland area (ha)'},
 
                   'SAUV_2D': {'VAR1_sum': 'Migration habitat (ha)'},
 
@@ -35,13 +35,24 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
 
                   'IXEX_RPI_2D': {'VAR1_sum': 'Weighted usable area (ha)'},
 
+                  # 'PIKE_2D': {'VAR1_sum': 'Habitat available for spawning and embryo-larval development (ha)'},
+
                   'ONZI_1D': {'VAR1_mean': 'Probability of Lodge viability'},
 
                   'TURTLE_1D': {'VAR1_mean': 'Turtle winter survival probability'},
 
-                  'ZIPA_1D': {'VAR1_mean': 'Wildrice survival probability'}
+                  'ZIPA_1D': {'VAR1_mean': 'Wildrice survival probability'},
 
-                  #'ROADS_2D': {}
+                  'AYL_2D': {'VAR1_sum': 'Average Yield Loss for all crops ($)'},
+
+                  'ROADS_2D': {'VAR1_sum': 'Primary roads (Nb of QMs)',
+                               'VAR2_sum': 'Secondary roads (Nb of QMs)',
+                               'VAR3_sum': 'Tertiary roads (Nb of QMs)',
+                               'VAR5_sum': 'All roads (Nb of QMs)',
+                               'VAR6_sum': 'Primary roads (Length in m)',
+                               'VAR7_sum': 'Secondary roads (Length in m)',
+                               'VAR8_sum': 'Tertiary roads (Length in m)',
+                               'VAR10_sum': 'All roads (Length in m)'},
 
 
                   }
@@ -64,15 +75,26 @@ dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
 
                    'CHNI_2D': {'VAR1_sum': 1},
 
-                   'IXEX_RPI_2D': {'VAR1_sum': 0.01,
-                                   'VAR2_sum': 0.01,
-                                   'VAR3_sum': 0.01},
+                   'IXEX_RPI_2D': {'VAR1_sum': 0.01},
+
+                   # 'PIKE_2D': {'VAR1_sum': 0.01},
 
                    'ONZI_1D': {'VAR1_mean': 1},
 
                    'TURTLE_1D': {'VAR1_mean': 1},
 
-                   'ZIPA_1D': {'VAR1_mean': 1}
+                   'ZIPA_1D': {'VAR1_mean': 1},
+                   'AYL_2D': {'VAR1_sum': 1},
+
+                   'ROADS_2D': {'VAR1_sum': 1,
+                                'VAR2_sum': 1,
+                                'VAR3_sum': 1,
+                                'VAR5_sum': 1,
+                                'VAR6_sum': 1,
+                                'VAR7_sum': 1,
+                                'VAR8_sum': 1,
+                                'VAR10_sum': 1}
+
                    }
 
 output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS')
