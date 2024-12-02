@@ -11,6 +11,18 @@ from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 import ast
 import tempfile
 
+
+# import datashader as ds
+# import datashader.transfer_functions as tf
+# import datashader.geo
+# from holoviews.operation.datashader import datashade
+# import holoviews as hv
+# from holoviews.element.tiles import EsriImagery
+# import streamlit as st
+#
+# # Enable HoloViews Bokeh backend
+# hv.extension('bokeh')
+
 qp = st.query_params
 
 #qp= st.experimental_set_query_params
@@ -116,12 +128,20 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['LAT']=np.where(df_both['LAT_base'] == 0, df_both['LAT_plan'], df_both['LAT_base'])
     df_both['LON']=np.where(df_both['LON_base'] == 0, df_both['LON_plan'], df_both['LON_base'])
 
-    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
+    #fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
+
+    fig = UTILS.plot_map_datashader(Variable, df_both, 'LON', 'LAT', 'diff', unique_pi_module_name)
 
     if fig =='empty':
         st.write('There is no difference between those two plans according to the widget parameters. Please, change parameters on the previous page...')
 
     else:
+
+        # if fig:
+        #     st.bokeh_chart(hv.render(map_overlay, backend='bokeh'))
+        # else:
+        #     st.write("No data to display on the map.")
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
             fig.write_html(tmp_file.name)
             tmp_file.seek(0)

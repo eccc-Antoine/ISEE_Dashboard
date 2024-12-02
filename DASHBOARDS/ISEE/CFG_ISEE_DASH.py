@@ -4,7 +4,7 @@ name='ISEE'
 
 ## those are the PIs that are ready for the moment
 
-pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D', 'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'BIRDS_2D', 'ONZI_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'SAUV_2D', 'ZIPA_1D']
+pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D', 'PIKE_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
 
 ts_list=['hist', 'sto', 'cc']
 

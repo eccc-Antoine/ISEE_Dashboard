@@ -444,7 +444,7 @@ def function_for_tab4(exec):
                         placeholder1 = st.empty()
                         with placeholder1.container():
                             st.subheader(
-                               f'Difference (candidate minus reference plan) between the :blue[{stat3}] of :blue[{selected_pi} {Variable}]  from :blue[{start_year} to {end_year}] in :blue[{diff_type2}]')
+                               f'Difference (candidate minus reference plan) between the :blue[{stat3}] of :blue[{selected_pi} ({Variable}])  from :blue[{start_year} to {end_year}] in :blue[{diff_type2}]')
 
                         # map_html = io.StringIO()
                         # folium_map.save(map_html, close_file=False)

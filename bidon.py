@@ -21,7 +21,7 @@ import os
 
 
 
-df=pd.read_feather(r"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ROADS_2D\Bv7_2014\ROADS_2D_Bv7_2014_1961.feather")
+df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\NFB_2D\YEAR\PT_ID\Bv7_2014_ComboC\USL_DS_CAN\VAR1_NFB_2D_YEAR_Bv7_2014_ComboC_USL_DS_CAN_PT_ID_178_1962_2020")
 
 
 print(list(df))
@@ -30,7 +30,7 @@ print(list(df))
 
 #df.to_csv(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ZIPA_1D\PreProjectHistorical\USL_DS\ZIPA_1D_PreProjectHistorical_USL_US.csv", sep=';', index=None)
 
-print(df['SECTION'].unique())
+#print(df['SECTION'].unique())
 print(df.head())
 #print(df)
 quit()

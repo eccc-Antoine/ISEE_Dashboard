@@ -17,6 +17,91 @@ import numpy as np
 import tempfile
 from streamlit_folium import st_folium
 
+# import sys
+#
+# # Print the Python executable path
+# print("ENV!!!!!!!!!!!!!!!!!! Python executable path:", sys.executable)
+#
+#
+#
+# import datashader as ds
+# import datashader.transfer_functions as tf
+# import datashader.geo
+# from holoviews.operation.datashader import datashade
+# import holoviews as hv
+# from holoviews.element.tiles import EsriImagery
+#
+# # Enable HoloViews Bokeh backend
+# hv.extension('bokeh')
+
+# def plot_map_datashader(variable, df, col_x, col_y, col_value, unique_pi_module_name):
+#     """
+#     Function to create an interactive map using Datashader and HoloViews.
+#     """
+#
+#     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+#     direction = unique_PI_CFG.var_direction[Variable]
+#
+#     # Data preprocessing
+#
+#
+#     x_med = np.round(df[col_x].median(), 3)
+#     y_med = np.round(df[col_y].median(), 3)
+#
+#     # Handle hectares to square meters transformation (if needed)
+#     multiplier = 0.01  # Replace with your logic if needed
+#     if multiplier == 0.01:
+#         df[col_value] = df[col_value] * 10000
+#
+#     df[col_value] = df[col_value].astype(float).round(3)
+#     df = df.dropna(subset=[col_value])
+#     df = df.loc[df[col_value] != 0]
+#
+#     # Split into positive and negative values
+#     df_neg = df[df[col_value] < 0]
+#     df_pos = df[df[col_value] > 0]
+#
+#     # Normalization and color mapping
+#     if len(df_neg[col_value].unique()) == 0 and len(df_pos[col_value].unique()) == 0:
+#         empty_map = True
+#     else:
+#         empty_map = False
+#
+#     # Create canvas and aggregate points
+#     canvas = ds.Canvas(plot_width=1000, plot_height=600,
+#                        x_range=(df[col_x].min(), df[col_x].max()),
+#                        y_range=(df[col_y].min(), df[col_y].max()))
+#
+#     agg_pos = canvas.points(df_pos, col_x, col_y, agg=ds.mean(col_value))
+#     agg_neg = canvas.points(df_neg, col_x, col_y, agg=ds.mean(col_value))
+#
+#     # Define colormaps based on direction
+#     if direction == 'normal':
+#         cmap_pos = ["white", "green"]
+#         cmap_neg = ["red", "white"]
+#     elif direction == 'inverse':
+#         cmap_pos = ["red", "white"]
+#         cmap_neg = ["white", "green"]
+#     else:
+#         raise ValueError("Invalid direction specified!")
+#
+#     # Apply shading
+#     img_pos = tf.shade(agg_pos, cmap=cmap_pos)
+#     img_neg = tf.shade(agg_neg, cmap=cmap_neg)
+#
+#     # Combine layers
+#     combined_img = tf.stack(img_pos, img_neg, how='add')
+#
+#     # Convert to HoloViews for interactivity
+#     tiles = EsriImagery().opts(width=800, height=600)
+#     overlay = tiles * hv.RGB(combined_img)
+#
+#     if empty_map:
+#         return None
+#     else:
+#         return overlay
+
+
 
 #@st.cache_data(ttl=3600)
 def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, s, var_stat, df_PI, Variable, multiplier):
@@ -26,9 +111,9 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
     df=df_PI
     df=df.loc[(df['YEAR']>=start_year) & (df['YEAR']<=end_year)]
 
-    if stat=='Min':
+    if stat=='min':
         val=df[Variable].min()
-    elif stat=='Max':
+    elif stat=='max':
         val=df[Variable].max()
     elif stat=='mean':
         val=df[Variable].mean()
@@ -472,6 +557,9 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
             neg_values = neg_values.sort_values(by=col)
             neg_values = neg_values[col]
 
+            print(neg_values)
+            print(pos_values)
+
 
             if direction == 'inverse':
                 neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
@@ -480,6 +568,13 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
             else:
                 neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
                 pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=pos_values.quantile(0.85))
+
+            if neg_values.empty:
+                neg_colormap = cm.LinearColormap(colors=['white', 'white'], vmin=0, vmax=0)
+
+            if pos_values.empty:
+                pos_colormap = cm.LinearColormap(colors=['white', 'white'], vmin=0, vmax=0)
+
 
             def get_color(value):
                 return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
@@ -810,9 +905,12 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
 
             ### WORKAROUND so if value is missing it still continues....
             if len(df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])])>0:
-                df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0].round(3)
+                #df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0].round(3)
+                df_PI_plans.loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p), 'BASELINE_VALUE'] = df_PI_plans.loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline]), Variable].iloc[0].round(3)
+
             else:
-                df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
+                #df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
+                df_PI_plans.loc[(df_PI_plans['YEAR'] == y) & (df_PI_plans['ALT'] == p), 'BASELINE_VALUE'] = 0.000001
                 
     df_PI_plans['DIFF_PROP']=((df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
     df_PI_plans['DIFF_PROP'] = df_PI_plans['DIFF_PROP'].round(3)
@@ -856,7 +954,7 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[
                     df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
-                plan_value = plan_value * multiplier
+                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
@@ -864,7 +962,7 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(
                     3)
-                plan_value = plan_value * multiplier
+                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
 
@@ -872,19 +970,19 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
         if Stats == 'mean':
             plan_values=[]
             baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
-            baseline_value = baseline_value * multiplier
+            #baseline_value = baseline_value * multiplier
             for c in range(len(plans_selected)):
                 plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
-                plan_value=plan_value*multiplier
+                #plan_value=plan_value*multiplier
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
             plan_values=[]
             baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
-            baseline_value = baseline_value * multiplier
+            #baseline_value = baseline_value * multiplier
             for c in range(len(plans_selected)):
                 plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
-                plan_value = plan_value * multiplier
+                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
     return baseline_value, plan_values
@@ -926,6 +1024,9 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
             df=pd.read_feather(l)
             max=df[var_s].max()
             maxs.append(max)
+            df_max=df.loc[df[var_s]==max]
+            # print(var_s)
+            # print(df_max.iloc[0, :])
             min=df[var_s].min()
             mins.append(min)
 
@@ -936,6 +1037,8 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
     multiplier=unique_PI_CFG.multiplier
     full_max=full_max*multiplier
     full_min = full_min * multiplier
+
+    #print(full_min, full_max)
 
     return full_min, full_max
 
@@ -1024,6 +1127,8 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
     multiplier = unique_PI_CFG.multiplier
     full_max_diff = full_max_diff*multiplier
     full_min_diff = full_min_diff * multiplier
+
+    print(full_min_diff, full_max_diff)
 
     return full_min_diff, full_max_diff
 
