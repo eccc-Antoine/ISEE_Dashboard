@@ -60,6 +60,7 @@ if 'pi_code' in qp and 'data' in qp:
     years=[int(x) for x in years]
     unit_dct=ast.literal_eval(unit_dct)
 
+
     df_folder_base=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code)
     ### pour s assurer quon considere correctement tous les points des tuiles qui chevauchent 2 sections
     def list_all_files(folder_path):
@@ -71,7 +72,7 @@ if 'pi_code' in qp and 'data' in qp:
     liste_files=list_all_files(df_folder_base)
     tile_file=[]
     for f in liste_files:
-        if f'PT_ID_{int(data)}_' in f:
+        if f'PT_ID_{int(data)}_' in f and var in f:
             tile_file.append(f)
 
     if len(tile_file)==1:
@@ -91,7 +92,7 @@ if 'pi_code' in qp and 'data' in qp:
     liste_files_plan = list_all_files(df_folder_plan)
     tile_file = []
     for f in liste_files_plan:
-        if f'PT_ID_{int(data)}_' in f:
+        if f'PT_ID_{int(data)}_' in f and var in f:
             tile_file.append(f)
     if len(tile_file) == 1:
         df_plan = pd.read_feather(tile_file[0])
@@ -128,9 +129,9 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['LAT']=np.where(df_both['LAT_base'] == 0, df_both['LAT_plan'], df_both['LAT_base'])
     df_both['LON']=np.where(df_both['LON_base'] == 0, df_both['LON_plan'], df_both['LON_base'])
 
-    #fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
+    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
 
-    fig = UTILS.plot_map_datashader(Variable, df_both, 'LON', 'LAT', 'diff', unique_pi_module_name)
+    #fig = UTILS.plot_map_datashader(Variable, df_both, 'LON', 'LAT', 'diff', unique_pi_module_name)
 
     if fig =='empty':
         st.write('There is no difference between those two plans according to the widget parameters. Please, change parameters on the previous page...')

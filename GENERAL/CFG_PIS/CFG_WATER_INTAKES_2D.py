@@ -4,13 +4,13 @@ name='Water Intakes'
 
 type='2D_not_tiled'
 
-dct_var={'VAR1': 'Occurrence of impact'}
+dct_var={'VAR1': 'Occurrence of impact', 'VAR2':'Index'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
-var_agg_stat={'VAR1':['sum']}
+var_agg_stat={'VAR1':['sum'],'VAR2':['mean']}
 
 #normal mean higher is better
-var_direction={'Occurrence of impact':'inverse'}
+var_direction={'Occurrence of impact':'inverse', 'Index':'inverse'}
 
 units=' '
 

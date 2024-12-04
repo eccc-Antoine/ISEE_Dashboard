@@ -17,91 +17,6 @@ import numpy as np
 import tempfile
 from streamlit_folium import st_folium
 
-# import sys
-#
-# # Print the Python executable path
-# print("ENV!!!!!!!!!!!!!!!!!! Python executable path:", sys.executable)
-#
-#
-#
-# import datashader as ds
-# import datashader.transfer_functions as tf
-# import datashader.geo
-# from holoviews.operation.datashader import datashade
-# import holoviews as hv
-# from holoviews.element.tiles import EsriImagery
-#
-# # Enable HoloViews Bokeh backend
-# hv.extension('bokeh')
-
-# def plot_map_datashader(variable, df, col_x, col_y, col_value, unique_pi_module_name):
-#     """
-#     Function to create an interactive map using Datashader and HoloViews.
-#     """
-#
-#     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-#     direction = unique_PI_CFG.var_direction[Variable]
-#
-#     # Data preprocessing
-#
-#
-#     x_med = np.round(df[col_x].median(), 3)
-#     y_med = np.round(df[col_y].median(), 3)
-#
-#     # Handle hectares to square meters transformation (if needed)
-#     multiplier = 0.01  # Replace with your logic if needed
-#     if multiplier == 0.01:
-#         df[col_value] = df[col_value] * 10000
-#
-#     df[col_value] = df[col_value].astype(float).round(3)
-#     df = df.dropna(subset=[col_value])
-#     df = df.loc[df[col_value] != 0]
-#
-#     # Split into positive and negative values
-#     df_neg = df[df[col_value] < 0]
-#     df_pos = df[df[col_value] > 0]
-#
-#     # Normalization and color mapping
-#     if len(df_neg[col_value].unique()) == 0 and len(df_pos[col_value].unique()) == 0:
-#         empty_map = True
-#     else:
-#         empty_map = False
-#
-#     # Create canvas and aggregate points
-#     canvas = ds.Canvas(plot_width=1000, plot_height=600,
-#                        x_range=(df[col_x].min(), df[col_x].max()),
-#                        y_range=(df[col_y].min(), df[col_y].max()))
-#
-#     agg_pos = canvas.points(df_pos, col_x, col_y, agg=ds.mean(col_value))
-#     agg_neg = canvas.points(df_neg, col_x, col_y, agg=ds.mean(col_value))
-#
-#     # Define colormaps based on direction
-#     if direction == 'normal':
-#         cmap_pos = ["white", "green"]
-#         cmap_neg = ["red", "white"]
-#     elif direction == 'inverse':
-#         cmap_pos = ["red", "white"]
-#         cmap_neg = ["white", "green"]
-#     else:
-#         raise ValueError("Invalid direction specified!")
-#
-#     # Apply shading
-#     img_pos = tf.shade(agg_pos, cmap=cmap_pos)
-#     img_neg = tf.shade(agg_neg, cmap=cmap_neg)
-#
-#     # Combine layers
-#     combined_img = tf.stack(img_pos, img_neg, how='add')
-#
-#     # Convert to HoloViews for interactivity
-#     tiles = EsriImagery().opts(width=800, height=600)
-#     overlay = tiles * hv.RGB(combined_img)
-#
-#     if empty_map:
-#         return None
-#     else:
-#         return overlay
-
-
 
 #@st.cache_data(ttl=3600)
 def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, s, var_stat, df_PI, Variable, multiplier):
@@ -852,18 +767,25 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
     fig = go.Figure(data=[trace1, trace2])
 
+    # fig.update_layout(
+    #     mapbox_style="white-bg",
+    #     mapbox_layers=[
+    #         {
+    #             "below": 'traces',
+    #             "sourcetype": "raster",
+    #             "sourceattribution": "United States Geological Survey",
+    #             "source": [
+    #                 "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    #             ]
+    #         }
+    #     ],  mapbox=dict(
+    #         style='open-street-map',
+    #         center=dict(lat=y_med, lon=x_med),
+    #         zoom=13
+    #     ))
+
     fig.update_layout(
-        mapbox_style="white-bg",
-        mapbox_layers=[
-            {
-                "below": 'traces',
-                "sourcetype": "raster",
-                "sourceattribution": "United States Geological Survey",
-                "source": [
-                    "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                ]
-            }
-        ],  mapbox=dict(
+        mapbox=dict(
             style='open-street-map',
             center=dict(lat=y_med, lon=x_med),
             zoom=13

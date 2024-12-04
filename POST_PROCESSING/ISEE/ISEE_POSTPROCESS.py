@@ -259,6 +259,7 @@ class POST_PROCESS_2D_not_tiled:
         return df_year
     
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
+        print('AGG_SPACE_YEAR')
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=years_list
@@ -308,6 +309,7 @@ class POST_PROCESS_2D_not_tiled:
                 if not os.path.exists(feather):
                     continue
                 else:
+                    print('processing...')
                     count_y += 1
                     df_temp=pd.read_feather(feather)
                     df_temp=df_temp.loc[df_temp['SECTION']==s]

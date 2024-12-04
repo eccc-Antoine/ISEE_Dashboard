@@ -20,21 +20,24 @@ import os
 # quit()
 
 
+# liste=os.listdir(fr'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\MFI_2D\PreProject_RCP45')
+#
+# for l in liste:
 
-df=pd.read_feather(r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\NFB_2D\YEAR\PT_ID\Bv7_2014_ComboC\USL_DS_CAN\VAR1_NFB_2D_YEAR_Bv7_2014_ComboC_USL_DS_CAN_PT_ID_178_1962_2020")
 
-
-print(list(df))
+df=pd.read_feather(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\SHORE_PROT_STRUC_1D\GERBL2_2014_ComboC_RCP45\LKO\SHORE_PROT_STRUC_1D_GERBL2_2014_ComboC_RCP45_LKO.feather")
+#print(list(df))
 
 #print(df['SECTION'].unique())
 
-#df.to_csv(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\ZIPA_1D\PreProjectHistorical\USL_DS\ZIPA_1D_PreProjectHistorical_USL_US.csv", sep=';', index=None)
+#df.to_csv(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\NFB_2D\YEAR\PT_ID\Bv7_2014_ComboC\USL_US_US\VAR9_NFB_2D_YEAR_Bv7_2014_ComboC_USL_US_US_PT_ID_194_1962_2020.csv", sep=';', index=None)
 
 #print(df['SECTION'].unique())
 print(df.head())
 #print(df)
 quit()
-#
+
+
 # # tiles_2_merge=[238,237,226]
 # #
 # # src1=fr'\\131.235.232.206\prod2\GLAM\Input_ISEE\prod\GRID\grd_v42_20240320\Filtered_fea\LKO'

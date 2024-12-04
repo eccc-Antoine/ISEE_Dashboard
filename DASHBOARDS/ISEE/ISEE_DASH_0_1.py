@@ -123,6 +123,10 @@ def switch_data(tile):
     st.session_state['data'] = tile
 
 exec=False
+
+
+st.session_state.gdf_grille_base = None
+st.session_state.gdf_grille_plan = None
 def function_for_tab1(exec):
 
     if exec:
@@ -359,6 +363,7 @@ def function_for_tab4(exec):
                     years_list = unique_PI_CFG.available_years_future
 
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
+
                     gdf_grille_base = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, baseline_code,
                                                                 years_list, stat3, var3,
                                                                 unique_pi_module_name, start_year, end_year)
@@ -368,7 +373,9 @@ def function_for_tab4(exec):
                                                                 unique_pi_module_name, start_year, end_year)
 
                     division_col = 'tile'
+
                     gdf_both = gdf_grille_base.merge(gdf_grille_plan, on=['tile'], how='outer', suffixes=('_base', '_plan'))
+
 
                     gdf_both['geometry'] = np.where(gdf_both['geometry_base'] == None, gdf_both['geometry_plan'],
                                                     gdf_both['geometry_base'])
@@ -392,7 +399,7 @@ def function_for_tab4(exec):
                     st.write('👈 Set other parameters with widgets on the left to display results accordingly')
 
                     tile_selected = st.text_input(
-                        "Enter a tile number to see its results in full resolution (click on a tile to see its number) 👇", value=None)
+                        'Enter a tile number en press "Enter"  to see its results in full resolution (click on a tile to see its number) 👇', value=None)
 
                     dtypes = [type(element) for element in list(gdf_both['tile'])]
 

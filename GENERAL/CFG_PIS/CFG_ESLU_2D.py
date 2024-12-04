@@ -10,7 +10,7 @@ dct_var={'VAR1':'Weighted sum area of Habitat suitability index', 'VAR2':'Weight
 var_agg_stat={'VAR1':['mean', 'sum'], 'VAR2':['mean', 'sum'], 'VAR3':['mean', 'sum'] }
 
 #normal mean higher is better
-var_direction={'Habitat suitability index':'normal','Potential mortality index': 'inverse','Early stage survival probability':'normal'}
+var_direction={'Habitat suitability index':'normal', 'Potential mortality index': 'inverse', 'Early stage survival probability':'normal'}
 
 units='ha'
 
