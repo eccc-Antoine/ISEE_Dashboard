@@ -168,7 +168,7 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
 
-    gdf_tiles['VAL']=gdf_tiles['VAL']*multiplier
+    gdf_tiles['VAL']=gdf_tiles['VAL']
 
     return gdf_tiles
 

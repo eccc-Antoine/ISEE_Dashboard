@@ -16,7 +16,8 @@ type='2D_not_tiled'
 # 	   'VAR10': 'Total buildings (Nb of QMs)'}
 
 
-dct_var = {
+dct_var = { 	   'VAR7': 'Residential (boolean)',
+ 	   'VAR8': 'Residential (Nb of QMs)',
 	   'VAR9': 'Total buildings (boolean)',
 	   'VAR10': 'Total buildings (Nb of QMs)'}
 
@@ -32,7 +33,8 @@ dct_var = {
 # 	   'VAR9': ['sum'],
 # 	   'VAR10': ['sum']}
 
-var_agg_stat={
+var_agg_stat={'VAR7': ['sum'],
+ 	   'VAR8': ['sum'],
 	   'VAR9': ['sum'],
 	   'VAR10': ['sum']}
 

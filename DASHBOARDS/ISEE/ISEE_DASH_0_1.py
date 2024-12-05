@@ -207,7 +207,6 @@ def function_for_tab2(exec):
 
                     st.plotly_chart(fig2, use_container_width=True)
 
-
 def function_for_tab3(exec):
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
