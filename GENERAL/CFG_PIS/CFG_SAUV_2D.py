@@ -1,6 +1,6 @@
 import os
 
-name='Wildfowl'
+name='Waterfowl'
 
 type='2D_tiled'
 

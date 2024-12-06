@@ -172,6 +172,98 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 
     return gdf_tiles
 
+def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat, var,
+                        unique_pi_module_name, start_year, end_year):
+    print('PREP_FOR_PREP_TILES')
+
+    gdf_tiles = gpd.read_file(tile_shp)
+    gdf_tiles['VAL'] = np.nan
+
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    var_stat = unique_PI_CFG.var_agg_stat[var][0]
+    sect_PI = unique_PI_CFG.available_sections
+    gdfs = []
+
+    for s in sect_PI:
+
+        liste_tiles = CFG_DASHBOARD.dct_tile_sect[s]
+
+        for t in liste_tiles:
+
+            df_folder = os.path.join(folder, PI_code, 'YEAR', 'TILE', scen_code, s, str(t))
+
+            pt_id_file = os.path.join(df_folder,
+                                      f'{PI_code}_YEAR_{scen_code}_{s}_{str(t)}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
+
+            if not os.path.exists(pt_id_file):
+                continue
+
+            df_tile = pd.read_feather(pt_id_file)
+
+            df_tile = df_tile.loc[(df_tile['YEAR'] >= start_year) & (df_tile['YEAR'] <= end_year)]
+
+            multiplier = unique_PI_CFG.multiplier
+
+            if f'{var}_mean' in list(df_tile):
+
+                if stat == 'mean':
+                    val_mean = df_tile[f'{var}_mean'].mean() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_mean, 3)
+                elif stat == 'sum':
+                    val_sum = df_tile[f'{var}_mean'].sum() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_sum, 3)
+                elif stat == 'min':
+                    val_min = df_tile[f'{var}_mean'].min() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+                elif stat == 'max':
+                    val_max = df_tile[f'{var}_mean'].max() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+                else:
+                    print('problem with stats')
+
+            if f'{var}_sum' in list(df_tile):
+
+                if stat == 'mean':
+                    val_mean = df_tile[f'{var}_sum'].mean() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_mean, 3)
+                elif stat == 'sum':
+                    val_sum = df_tile[f'{var}_sum'].sum() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_sum, 3)
+                elif stat == 'min':
+                    val_min = df_tile[f'{var}_sum'].min() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+                elif stat == 'max':
+                    val_max = df_tile[f'{var}_sum'].max() * multiplier
+                    gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+                else:
+                    print('problem with stats')
+
+
+    gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
+
+    # if stat == 'mean':
+    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MEAN']
+    # elif stat == 'sum':
+    #     gdf_tiles['VAL'] = gdf_tiles['VAL_SUM']
+    # elif stat == 'min':
+    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MIN']
+    # elif stat == 'max':
+    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MAX']
+    # else:
+    #     print('problem with stats')
+    #
+    # gdf_tiles=gdf_tiles.drop(columns=["VAL_MEAN", 'VAL_SUM', 'VAL_MIN', 'VAL_MAX'])
+
+    gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
+
+    gdf_tiles['VAL']=gdf_tiles['VAL']
+
+    return gdf_tiles
+
+
+
+
+
 
 @st.cache_data(ttl=3600)
 def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction, LakeSL_prob_1D):
