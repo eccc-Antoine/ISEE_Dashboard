@@ -6,10 +6,10 @@ name='Northern Pike habitat'
 type='2D_tiled'
 
 dct_var = {'VAR1' : 'Area suitable for spawning and embryo-larval development',
-	   'VAR2' : 'Area of suitable for spawning'}
+	   		'VAR2' : 'Area suitable for spawning'}
 
 #normal mean higher is better (normal or inverse)
-var_direction={'Area suitable for spawning and embryo-larval development':'normal', 'Area of suitable for spawning':'normal'}
+var_direction={'Area suitable for spawning and embryo-larval development':'normal', 'Area suitable for spawning':'normal'}
 
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
@@ -17,7 +17,7 @@ var_agg_stat={'VAR1':['sum'], 'VAR2':['sum']}
 
 units='Hectares'
 
-multiplier=0.01
+multiplier=1
 
 available_years_hist=list(range(1962, 2021))
 available_years_future=list(range(2012, 2071))
