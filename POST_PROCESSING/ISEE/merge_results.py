@@ -4,12 +4,11 @@ import glob
 
 import CFG_POST_PROCESS_ISEE as cfg
 
-list_PIs = ['ERIW_MIN_1D', 'CWRM_2D', 'BIRDS_2D', 'IERM_2D', 'SAUV_2D', 'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'ROADS_2D', 'AYL_2D']
 
 
 dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC'],
-                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45'],
-                    'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330']}
+                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45'],
+                    'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330']}
 
 plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistorical': 'PreProject', 'Bv7_2014_ComboC': 'GERBL2_2014_ComboC',
                     'GERBL2_2014BOC_RCP45': 'GERBL2_2014', 'PreProject_RCP45': 'PreProject', 'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC',
@@ -35,11 +34,14 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
 
                   'IXEX_RPI_2D': {'VAR1_sum': 'Weighted usable area (ha)'},
 
-                  # 'PIKE_2D': {'VAR1_sum': 'Habitat available for spawning and embryo-larval development (ha)'},
+                  'PIKE_2D': {'VAR1_sum': 'Habitat available for spawning and embryo-larval development (ha)',
+                              'VAR2_sum': 'Habitat available for spawning (ha)'},
 
-                  'ONZI_1D': {'VAR1_mean': 'Probability of Lodge viability'},
+                  'ONZI_1D': {'VAR1_mean' : 'Probability of lodge viability'},
 
-                  'TURTLE_1D': {'VAR1_mean': 'Turtle winter survival probability'},
+                  'TURTLE_1D': {'VAR1_mean' : 'Blanding turtle winter survival probability',
+                              'VAR2_mean' : 'Snapping turtle winter survival probability',
+                              'VAR3_mean' : 'Painted turtle winter survival probability'},
 
                   'ZIPA_1D': {'VAR1_mean': 'Wildrice survival probability'},
 
@@ -54,7 +56,21 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
                                'VAR8_sum': 'Tertiary roads (Length in m)',
                                'VAR10_sum': 'All roads (Length in m)'},
 
+                  'MFI_2D': {'VAR1_sum': 'Impacts during the navigation season',
+                             'VAR2_sum': 'Number of QMs with impacts'},
 
+                  'NFB_2D': {'VAR1_sum': 'Accessory buildings (boolean)',
+                             'VAR2_sum': 'Accessory building (Nb of QMs)',
+                             'VAR3_sum': 'Strategic assets buildings (boolean)',
+                             'VAR4_sum': 'Strategic assets buildings (Nb of QMs)',
+                             'VAR5_sum': 'Non-residential (boolean)',
+                             'VAR6_sum': 'Non-residential (Nb of QMs)',
+                             'VAR7_sum': 'Residential (boolean)',
+                             'VAR8_sum': 'Residential (Nb of QMs)',
+                             'VAR9_sum': 'Total buildings (boolean)',
+                             'VAR10_sum': 'Total buildings (Nb of QMs)'},
+                  'WASTE_WATER_2D': {'VAR1_sum': 'Occurrence of impact'},
+                  'WATER_INTAKES_2D': {'VAR1_sum': 'Occurrence of impact'}
                   }
 
 dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
@@ -77,26 +93,35 @@ dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
 
                    'IXEX_RPI_2D': {'VAR1_sum': 0.01},
 
-                   # 'PIKE_2D': {'VAR1_sum': 0.01},
+                   'PIKE_2D': {'VAR1_sum': 1,
+                               'VAR2_sum': 1},
 
                    'ONZI_1D': {'VAR1_mean': 1},
 
-                   'TURTLE_1D': {'VAR1_mean': 1},
+                   'TURTLE_1D': {'VAR1_mean': 1,
+                                 'VAR2_mean': 1,
+                                 'VAR3_mean': 1},
 
                    'ZIPA_1D': {'VAR1_mean': 1},
+
                    'AYL_2D': {'VAR1_sum': 1},
 
-                   'ROADS_2D': {'VAR1_sum': 1,
-                                'VAR2_sum': 1,
-                                'VAR3_sum': 1,
-                                'VAR5_sum': 1,
-                                'VAR6_sum': 1,
-                                'VAR7_sum': 1,
-                                'VAR8_sum': 1,
-                                'VAR10_sum': 1}
+                   'ROADS_2D': {f'VAR{i}_sum':1 for i in range(1, 11)},
+
+                   'MFI_2D': {'VAR1_sum': 1,
+                                'VAR2_sum': 1},
+
+                   'NFB_2D': {f'VAR{i}_sum':1 for i in range(1, 11)},
+
+                   'WASTE_WATER_2D': {'VAR1_sum': 1},
+
+                   'WATER_INTAKES_2D': {'VAR1_sum': 1},
 
                    }
 
+#list_PIs = ['ERIW_MIN_1D', 'CWRM_2D', 'BIRDS_2D', 'IERM_2D', 'SAUV_2D', 'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'ROADS_2D', 'AYL_2D']
+list_PIs = dict_variables.keys()
+#list_PIs = ['PIKE_2D']
 output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS')
 os.makedirs(output_folder, exist_ok=True)
 
@@ -119,6 +144,7 @@ for pi in list_PIs:
                 path_plan_pi = os.path.join(cfg.POST_PROCESS_RES, *[pi, 'YEAR', 'SECTION', plan])
 
                 if os.path.isdir(path_plan_pi):
+                    print("             ", supply, plan)
                     list_sections = os.listdir(path_plan_pi)
 
                     for sect in list_sections:

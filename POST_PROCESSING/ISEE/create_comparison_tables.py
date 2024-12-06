@@ -6,6 +6,7 @@ from scipy.stats import ttest_ind, mannwhitneyu, wilcoxon, theilslopes, skew
 import CFG_POST_PROCESS_ISEE as cfg
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.stats.descriptivestats import sign_test
+from scipy.stats import ttest_1samp, shapiro
 
 
 def count_exceedances(data, threshold):
@@ -305,7 +306,7 @@ def calculate_trend(residuals, alpha=0.05):
     return slope, intercept, lower_slope, upper_slope
 
 
-def run_stat_tests(residuals, df_res, alpha=0.05):
+def run_stat_tests_median(residuals, df_res, alpha=0.05):
     stationnary = True
     trend = False
     symmetric = True
@@ -316,20 +317,30 @@ def run_stat_tests(residuals, df_res, alpha=0.05):
     if stationnary:
         # Calculate skewness
         residual_skew = skew(residuals)
-        print(residual_skew)
+
+
         if abs(residual_skew) < 0.5:
-            test = 'Wilcoxon'
             # test de wilcoxon ...
-            w_stat, p_value = wilcoxon(residuals, alternative='two-sided')
+            if any(residuals!=0):
+                w_stat, p_value = wilcoxon(residuals, alternative='two-sided')
+                test = 'Wilcoxon'
+
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
 
         else:
             symmetric = False
-            test = 'Sign test'
 
-            stat, p_value = sign_test(residuals, mu0=0)
+            if any(residuals!=0):
+                stat, p_value = sign_test(residuals, mu0=0)
+                test = 'Sign test'
+
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
 
         print(f"STATIONNARY = {stationnary} SYMMETRY = {symmetric} TEST = {test} P-value = {p_value}")
-
 
     else:
         slope, intercept, lower_slope, upper_slope = calculate_trend(residuals)
@@ -341,15 +352,25 @@ def run_stat_tests(residuals, df_res, alpha=0.05):
         detrended_residuals = np.diff(residuals)
         residual_skew = skew(detrended_residuals)
         if abs(residual_skew) < 0.5:
-            test = 'Wilcoxon'
 
             symmetric = True
-            w_stat, p_value = wilcoxon(detrended_residuals, alternative='two-sided')
+            if any(detrended_residuals!=0):
+                w_stat, p_value = wilcoxon(detrended_residuals, alternative='two-sided')
+                test = 'Wilcoxon'
+
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
 
         else:
-            test = 'Sign test'
             symmetric = False
-            stat, p_value = sign_test(detrended_residuals, mu0=0)
+            if any(detrended_residuals!=0):
+                stat, p_value = sign_test(detrended_residuals, mu0=0)
+                test = 'Sign test'
+
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
 
         print(f"STATIONNARY = {stationnary} SYMMETRY = {symmetric} TEST = {test} P-value = {p_value}")
             # would need to detrend the residuals and compare medians.
@@ -365,6 +386,86 @@ def run_stat_tests(residuals, df_res, alpha=0.05):
     df_res['SIGNIF_DIFF'] = signif_diff
 
     return df_res
+
+
+def run_stat_tests_mean(residuals, df_res, alpha=0.05):
+    stationnary = True
+    trend = False
+    normal = True
+    signif_diff = False
+    test = ''
+    slope = np.nan
+    stationnary = check_stationarity(residuals)
+
+    if stationnary:
+        # Check for normality
+        shapiro_stat, shapiro_p = shapiro(residuals)
+        normal = shapiro_p > alpha
+
+        if normal:
+            # Perform one-sample t-test
+            if any(residuals != 0):
+                t_stat, p_value = ttest_1samp(residuals, popmean=0)
+                test = 'T-test'
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
+        else:
+            normal = False
+            # Use a non-parametric alternative like Wilcoxon if not normal
+            if any(residuals != 0):
+                w_stat, p_value = wilcoxon(residuals, alternative='two-sided')
+                test = 'Wilcoxon'
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
+
+        print(f"STATIONNARY = {stationnary} NORMAL = {normal} TEST = {test} P-value = {p_value}")
+
+    else:
+        slope, intercept, lower_slope, upper_slope = calculate_trend(residuals)
+        if lower_slope <= 0 <= upper_slope:
+            slope = np.nan
+        else:
+            trend = True
+
+        detrended_residuals = np.diff(residuals)
+        shapiro_stat, shapiro_p = shapiro(detrended_residuals)
+        normal = shapiro_p > alpha
+
+        if normal:
+            # Perform one-sample t-test on detrended residuals
+            if any(detrended_residuals != 0):
+                t_stat, p_value = ttest_1samp(detrended_residuals, popmean=0)
+                test = 'T-test'
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
+        else:
+            normal = False
+            # Use Wilcoxon test if detrended residuals are not normal
+            if any(detrended_residuals != 0):
+                w_stat, p_value = wilcoxon(detrended_residuals, alternative='two-sided')
+                test = 'Wilcoxon'
+            else:
+                p_value = 1.0
+                test = 'all_zeros_no_test'
+
+        print(f"STATIONNARY = {stationnary} NORMAL = {normal} TEST = {test} P-value = {p_value}")
+
+    if p_value <= alpha:
+        signif_diff = True
+
+    df_res['STATIONNARY'] = stationnary
+    df_res['NORMAL'] = normal
+    df_res['TREND'] = trend
+    df_res['SLOPE'] = slope
+    df_res['TEST'] = test
+    df_res['P-value'] = p_value
+    df_res['SIGNIF_DIFF'] = signif_diff
+
+    return df_res
+
 
 def estimate_critical_periods(df, var, year_col, low_thresh, high_thresh, n_yrs):
 
@@ -402,7 +503,7 @@ dict_thresholds = {
     'BIRDS_2D': {'Abundance (n individuals)' :
                      {'LKO': {'p5': 699.564, 'p10': 782.401, 'p20': 991.217}}},
 
-    'ONZI_1D': {'Probability of Lodge viability':
+    'ONZI_1D': {'Probability of lodge viability':
                     {'LKO': {'low': 0.109, 'high': 0.799},
                      'USL_US': {'low': 0.109, 'high': 0.799},
                      'USL_DS': {'low': 0.109, 'high': 0.799},
@@ -410,20 +511,32 @@ dict_thresholds = {
                      'SLR_DS': {'low': 0.109, 'high': 0.799}}
                 },
 
-    'TURTLE_1D': {'Turtle winter survival probability':
-                    {'LKO': {'thresh': 1},
-                     'USL_US': {'thresh': 1},
-                     'USL_DS': {'thresh': 1},
-                     'SLR_US': {'thresh': 1},
-                     'SLR_DS': {'thresh': 1}}
+    'TURTLE_1D': {'Blanding turtle winter survival probability':
+                      {'LKO': {'thresh': 0.95},
+                       'USL_US': {'thresh': 0.95},
+                       'USL_DS': {'thresh': 0.95},
+                       'SLR_US': {'thresh': 0.95},
+                       'SLR_DS': {'thresh': 0.95}},
+                  'Snapping turtle winter survival probability':
+                      {'LKO': {'thresh': 0.95},
+                       'USL_US': {'thresh': 0.95},
+                       'USL_DS': {'thresh': 0.95},
+                       'SLR_US': {'thresh': 0.95},
+                       'SLR_DS': {'thresh': 0.95}},
+                'Painted turtle winter survival probability':
+                      {'LKO': {'thresh': 0.95},
+                       'USL_US': {'thresh': 0.95},
+                       'USL_DS': {'thresh': 0.95},
+                       'SLR_US': {'thresh': 0.95},
+                       'SLR_DS': {'thresh': 0.95}}
                 },
 
     'ZIPA_1D': {'Wildrice survival probability': {
-        'LKO': {'thresh': 1},
-        'USL_US': {'thresh': 1},
-        'USL_DS': {'thresh': 0.965},
-        'SLR_US': {'thresh': 0.337},
-        'SLR_DS': {'thresh': 0.06}
+        'LKO': {'thresh': 0.756},
+        'USL_US': {'thresh': 0.756},
+        'USL_DS': {'thresh': 0.756},
+        'SLR_US': {'thresh': 0.756},
+        'SLR_DS': {'thresh': 0.756}
     }},
 
     'ERIW_MIN_1D': {'Exposed Riverbed Index': {
@@ -455,18 +568,22 @@ dict_thresholds = {
         #     'USL_DS': 'low_supply_mean'}
     },
 
-    # 'PIKE_2D': {'Habitat available for spawning and embryo-larval development (ha)':
-    #                 {'LKO': {'low': 628.98, 'high': 1668.05},
-    #                  'USL_US': {'low': 243.64, 'high': 592.12},
-    #                  'USL_DS': {'low': 43.5, 'high': 102.03},
-    #                  'SLR_US': {'low': 159.19, 'high': 381.06},
-    #                  'SLR_DS': {'low': 0.01, 'high': 2924.89},
-    #                  }}
+    'PIKE_2D': {'Habitat available for spawning and embryo-larval development (ha)':
+                    {'LKO': {'low': 628.98, 'high': 1668.05},
+                     'USL_US': {'low': 243.64, 'high': 592.12},
+                     'USL_DS': {'low': 43.5, 'high': 102.03},
+                     'SLR_US': {'low': 159.19, 'high': 381.06},
+                     'SLR_DS': {'low': 0.01, 'high': 2924.89}},
+
+                'Habitat available for spawning (ha)':
+                    {'LKO': {'low': 632.53, 'high': 1676.53},
+                     'USL_US': {'low': 245.38, 'high': 595.05},
+                     'USL_DS': {'low': 60.0, 'high': 116.92},
+                     'SLR_US': {'low': 321.42, 'high': 437.03},
+                     'SLR_DS': {'low': 2682.55, 'high': 5025.28}
+                     }},
 
 }
-
-# SLR_DS 22488.043432168757
-# SLR_US 3012.9883364243196
 
 dict_pi_scores = {
     'CHNI_2D': {'N breeding pairs':
@@ -488,12 +605,24 @@ dict_pi_scores = {
                      {'LKO': {'p5': 3, 'p10': 2, 'p20': 1}}
                  },
 
-    'TURTLE_1D': {'Turtle winter survival probability':
-                    {'LKO': {'thresh': 1},
-                     'USL_US': {'thresh': 1},
-                     'USL_DS': {'thresh': 1},
-                     'SLR_US': {'thresh': 1},
-                     'SLR_DS': {'thresh': 1}}
+    'TURTLE_1D': {'Blanding turtle winter survival probability':
+                      {'LKO': {'thresh': 1},
+                       'USL_US': {'thresh': 1},
+                       'USL_DS': {'thresh': 1},
+                       'SLR_US': {'thresh': 1},
+                       'SLR_DS': {'thresh': 1}},
+                  'Snapping turtle winter survival probability':
+                      {'LKO': {'thresh': 1},
+                       'USL_US': {'thresh': 1},
+                       'USL_DS': {'thresh': 1},
+                       'SLR_US': {'thresh': 1},
+                       'SLR_DS': {'thresh': 1}},
+                'Painted turtle winter survival probability':
+                      {'LKO': {'thresh': 1},
+                       'USL_US': {'thresh': 1},
+                       'USL_DS': {'thresh': 1},
+                       'SLR_US': {'thresh': 1},
+                       'SLR_DS': {'thresh': 1}}
                 },
 
     'ZIPA_1D': {'Wildrice survival probability':{
@@ -511,6 +640,30 @@ dict_pi_scores = {
         'SLR_US': {'thresh': 1},
         'SLR_DS': {'thresh': 1}
     }},
+
+    'PIKE_2D': {'Habitat available for spawning and embryo-larval development (ha)':
+                    {'LKO': {'low': 1, 'high': 1},
+                     'USL_US': {'low': 1, 'high': 1},
+                     'USL_DS': {'low': 1, 'high': 1},
+                     'SLR_US': {'low': 1, 'high': 1},
+                     'SLR_DS': {'low': 1, 'high': 1}},
+
+                'Habitat available for spawning (ha)':
+                    {'LKO': {'low': 1, 'high': 1},
+                     'USL_US': {'low': 1, 'high': 1},
+                     'USL_DS': {'low': 1, 'high': 1},
+                     'SLR_US': {'low': 1, 'high': 1},
+                     'SLR_DS': {'low': 1, 'high': 1}
+                     }},
+
+    'ONZI_1D': {'Probability of lodge viability':
+                    {'LKO': {'low': 1, 'high': 1},
+                     'USL_US': {'low': 1, 'high': 1},
+                     'USL_DS': {'low': 1, 'high': 1},
+                     'SLR_US': {'low': 1, 'high': 1},
+                     'SLR_DS': {'low': 1, 'high': 1}}
+                },
+
 
     'CWRM_2D': {'Total Wetland area (ha)': {
         'LKO': {'thresh': 1},
@@ -533,9 +686,11 @@ dict_pi_var = {
 
     'BIRDS_2D': ['Abundance (n individuals)'],
 
-    'ONZI_1D': ['Probability of Lodge viability'],
+    'ONZI_1D': ['Probability of lodge viability'],
 
-    'TURTLE_1D': ['Turtle winter survival probability'],
+    'TURTLE_1D': ['Blanding turtle winter survival probability',
+                  'Snapping turtle winter survival probability',
+                  'Painted turtle winter survival probability'],
 
     'ZIPA_1D': ['Wildrice survival probability'],
 
@@ -545,7 +700,8 @@ dict_pi_var = {
 
     'IERM_2D': ['Total Wetland area (ha)', 'Wet Meadow area (ha)'],
 
-    # 'PIKE_2D': ['Habitat available for spawning and embryo-larval development'],
+     'PIKE_2D': ['Habitat available for spawning and embryo-larval development (ha)',
+                 'Habitat available for spawning (ha)'],
 
     'AYL_2D':  ['Average Yield Loss for all crops ($)'],
 
@@ -556,21 +712,42 @@ dict_pi_var = {
                  'Primary roads (Length in m)',
                  'Secondary roads (Length in m)',
                  'Tertiary roads (Length in m)',
-                 'All roads (Length in m)']
+                 'All roads (Length in m)'],
+
+    'MFI_2D': ['Impacts during the navigation season',
+               'Number of QMs with impacts'],
+
+    'NFB_2D': ['Accessory buildings (boolean)',
+               'Accessory building (Nb of QMs)',
+               'Strategic assets buildings (boolean)',
+               'Strategic assets buildings (Nb of QMs)',
+               'Non-residential (boolean)',
+               'Non-residential (Nb of QMs)',
+               'Residential (boolean)',
+               'Residential (Nb of QMs)',
+               'Total buildings (boolean)',
+               'Total buildings (Nb of QMs)'],
+
+    'WASTE_WATER_2D': ['Occurrence of impact'],
+
+    'WATER_INTAKES_2D': ['Occurrence of impact']
     }
 
-
-
-dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of Lodge viability':5}}
+dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of lodge viability':5},
+                               'PIKE_2D': {'Habitat available for spawning and embryo-larval development (ha)': 7,
+                                           'Habitat available for spawning (ha)': 7}}
 
 #list_mean_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'AYL_2D', 'ROADS_2D']
 list_mean_comparison = []
-list_median_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'ROADS_2D']
-list_pi_test = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'ROADS_2D']
+#list_median_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D']
+list_pi_test = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'CWRM_2D', 'IERM_2D', 'ZIPA_1D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'AYL_2D']
 
 wm_low_supply_yrs = {'Historical': [1961, 1962, 1963, 1964, 1965, 1966, 1967, 2001, 2002],
                    'STO330': [2028, 2029, 2040, 2041, 2042, 2043, 2044, 2045, 2046, 2047, 2048, 2049, 2050],
                    'RCP45':[2011, 2012, 2013, 2014, 2015, 2036, 2037, 2038, 2041, 2042, 2052, 2053]}
+
+list_plan_lower_better = ['ROADS_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'AYL_2D', 'MFI_2D']
+list_plan_higher_better = [pi for pi in dict_pi_var.keys() if pi not in list_plan_lower_better]
 
 gap = 1
 n_iter = 0
@@ -611,9 +788,11 @@ for pi, list_var in dict_pi_var.items():
                     median_ref = 0
 
                     df_res_ref = df_res_sect[df_res_sect['PLAN_NAME'] == ref_plan]
+                    df_res_ref = df_res_ref.copy()
                     df_res_ref[var] = df_res_ref[var].fillna(0)
 
                     value_ref = np.nan
+                    n_periods_ref = np.nan
                     p_value_med, low_ci_med, high_ci_med = np.nan, np.nan, np.nan
                     p_value_mean, low_ci_mean, high_ci_mean = np.nan, np.nan, np.nan
                     block_size = np.nan
@@ -627,16 +806,27 @@ for pi, list_var in dict_pi_var.items():
 
 
                         if len(df_res_plan) == len (df_res_ref):
+                            print(len(df_res_plan))
+                            print(len(df_res_ref))
 
                             ## COMPARAISON DE MOYENNES ET MÉDIANES
-                            if (pi in ['IERM_2D', 'CWRM_2D']) & (var == 'Wet meadow area (ha)'):
+                            print(pi, var)
+                            if (pi in ['IERM_2D', 'CWRM_2D']) & (var == 'Wet Meadow area (ha)'):
+                                print("LOW SUPPLY")
                                 low_supply_yrs = wm_low_supply_yrs[supply]
-                                df_res_plan = df_res_plan[df_res_plan['YEAR'].isin(low_supply_yrs)]
+                                df_res_plan_low = df_res_plan[df_res_plan['YEAR'].isin(low_supply_yrs)]
+                                #df_res_ref = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
+                                mean_plan = df_res_plan[var].mean()
+                                median_plan = df_res_plan[var].median()
+                                df_res_ref_low = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
 
-                            mean_plan = df_res_plan[var].mean()
-                            median_plan = df_res_plan[var].median()
+                                residuals = df_res_plan_low[var].to_numpy() - df_res_ref_low[var].to_numpy()
+                                print(residuals)
+                            else:
+                                mean_plan = df_res_plan[var].mean()
+                                median_plan = df_res_plan[var].median()
 
-                            residuals = df_res_plan[var].to_numpy() - df_res_ref[var].to_numpy()
+                                residuals = df_res_plan[var].to_numpy() - df_res_ref[var].to_numpy()
 
                             if plan == ref_plan:
                                 pct_change_mean = 0
@@ -703,32 +893,48 @@ for pi, list_var in dict_pi_var.items():
                                                             'SECT_NAME': [sect],
                                                             'SUPPLY_SCEN': [supply],
                                                             'PLAN_NAME': [plan],
-                                                            'MEAN_AGG': [mean_plan],
-                                                            'DIFF MEAN (ABS.)': [diff_mean],
-                                                            'DIFF MEAN (%)': [pct_change_mean],
-                                                            'MEDIAN_AGG':[median_plan],
-                                                            'DIFF MEDIAN (%)': [pct_change_median],
-                                                            'DIFF MEDIAN (ABS.)': [diff_median]
+                                                            'MEAN': [mean_plan],
+                                                            'MEAN (RESIDUALS)': [diff_mean],
+                                                            'DIFF MEAN 2014BOC (%)': [pct_change_mean],
+                                                            #'MEDIAN':[median_plan],
+                                                            #'DIFF MEDIAN 2014BOC (%)': [pct_change_median],
+                                                            #'MEDIAN (RESIDUALS)': [diff_median]
                                                             })
                             if pi in list_pi_test:
                                 if plan != ref_plan:
-                                    df_res_agg_plan = run_stat_tests(residuals, df_res_agg_plan, alpha=alpha)
+                                    df_res_agg_plan = run_stat_tests_mean(residuals, df_res_agg_plan, alpha=alpha)
+                                    #if pi not in dict_thresholds.keys():
+                                    if pi in list_plan_lower_better:
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '+'
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '-'
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
-                        # df_res_agg_plan.loc[df_res_agg_plan['meanTest_P-Value']<=alpha, 'MeanTest_Significant'] = '*'
-                        # df_res_agg_plan.loc[df_res_agg_plan['medianTest_P-Value']<=alpha, 'MedianTest_Significant'] = '*'
+                                    else:
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '-'
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '+'
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
+
 
 
                             if pi in dict_pi_scores:
                                 if var in dict_pi_scores[pi]:
                                     score_weights = list(dict_pi_scores[pi][var][sect].values())
-                                    thresholds = list(dict_thresholds[pi][var][sect].values())
+                                    print(dict_thresholds[pi][var][sect])
+                                    if 'low' in  dict_thresholds[pi][var][sect]:
+                                        thresholds = [dict_thresholds[pi][var][sect]['low']]
+
+                                    else:
+                                        thresholds = list(dict_thresholds[pi][var][sect].values())
+
                                     #thresholds = list(dict_percentile.values())
                                     if len(df_res_plan) == len(df_res_ref):
 
                                         if plan == ref_plan:
 
                                             value_ref = calculate_threshold_score(df_res_ref, var, score_weights, thresholds)
-                                            df_res_agg_plan['VALUE_AGG'] = value_ref
+                                            df_res_agg_plan['EXCEED_COUNT'] = value_ref
                                             # df_res_agg_ref = pd.DataFrame({'PI_NAME': [pi],
                                             #                                 'VARIABLE': [var],
                                             #                                'SECT_NAME': [sect],
@@ -743,11 +949,20 @@ for pi, list_var in dict_pi_var.items():
                                             value_plan = calculate_threshold_score(df_res_plan, var, score_weights, thresholds)
 
                                             diff_exceedances = value_plan - value_ref
-                                            df_res_agg_plan['VALUE_AGG'] = diff_exceedances
+                                            if abs(diff_exceedances) > 20:
+                                                print("BIG DIFFERENCE...", pi, diff_exceedances, plan, supply, sect, thresholds)
+                                                print(" ")
+                                            df_res_agg_plan['EXCEED_COUNT'] = diff_exceedances
                                             df_res_agg_plan['CRITICAL_DIFF'] = ''
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] == gap, 'CRITICAL_DIFF'] = '='
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] > gap, 'CRITICAL_DIFF'] = '-'
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] < -gap, 'CRITICAL_DIFF'] = '+'
+                                            if pi == 'TURTLE_1D':
+                                                gap = 0
+                                            else:
+                                                gap = 1
+                                            df_res_agg_plan.loc[(df_res_agg_plan['EXCEED_COUNT'] <= gap) | (df_res_agg_plan['EXCEED_COUNT'] >= -gap), 'CRITICAL_DIFF'] = '='
+                                            df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] > gap, 'CRITICAL_DIFF'] = '-'
+                                            df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] < -gap, 'CRITICAL_DIFF'] = '+'
+
+
 
                             if pi in dict_pi_frequency_high_lows:
                                 if var in dict_pi_frequency_high_lows[pi]:
@@ -757,15 +972,15 @@ for pi, list_var in dict_pi_var.items():
                                         n_yrs = dict_pi_frequency_high_lows[pi][var]
                                         #value_ref = np.nan
                                         if plan == ref_plan:
-                                            value_ref = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
-                                            df_res_agg_plan['VALUE_AGG'] = value_ref
+                                            n_periods_ref = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
+                                            df_res_agg_plan['N_FAILURE_PERIODS'] = n_periods_ref
                                         else:
-                                            value_plan = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
-                                            diff_exceedances = value_plan - value_ref
-                                            df_res_agg_plan['VALUE_AGG'] = diff_exceedances
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] == 0, 'CRITICAL_DIFF'] = '='
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] > 0, 'CRITICAL_DIFF'] = '-'
-                                            df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] < 0, 'CRITICAL_DIFF'] = '+'
+                                            n_periods_plan = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
+                                            diff_periods = n_periods_plan - n_periods_ref
+                                            df_res_agg_plan['N_FAILURE_PERIODS'] = diff_periods
+                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] == 0, 'CRITICAL_PERIODS'] = '='
+                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] > 0, 'CRITICAL_PERIODS'] = '-'
+                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] < 0, 'CRITICAL_PERIODS'] = '+'
 
                             # list_cols = ['PI_NAME', 'VARIABLE', 'SECT_NAME', 'SUPPLY_SCEN', 'PLAN_NAME', 'BOOTSTRAP_BLOCK_SIZE',
                             #              'MEAN_AGG', 'DIFF MEAN (ABS.)', 'DIFF MEAN (%)', 'meanTest_CI_2.5', 'meanTest_CI_97.5',
@@ -810,10 +1025,8 @@ for pi, list_var in dict_pi_var.items():
 df_res_all = pd.concat(list_results)
 
 print(df_res_all)
-output_results = os.path.join(folder_results, f'test_table_critical_thresholds_20241121_{n_iter}iter.csv')
+output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20241127.csv')
 df_res_all.to_csv(output_results, sep=';', index=False)
-
-                    #print(residuals)
 
 
 
