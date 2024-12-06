@@ -11,6 +11,18 @@ from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 import ast
 import tempfile
 
+
+# import datashader as ds
+# import datashader.transfer_functions as tf
+# import datashader.geo
+# from holoviews.operation.datashader import datashade
+# import holoviews as hv
+# from holoviews.element.tiles import EsriImagery
+# import streamlit as st
+#
+# # Enable HoloViews Bokeh backend
+# hv.extension('bokeh')
+
 qp = st.query_params
 
 #qp= st.experimental_set_query_params
@@ -48,6 +60,7 @@ if 'pi_code' in qp and 'data' in qp:
     years=[int(x) for x in years]
     unit_dct=ast.literal_eval(unit_dct)
 
+
     df_folder_base=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code)
     ### pour s assurer quon considere correctement tous les points des tuiles qui chevauchent 2 sections
     def list_all_files(folder_path):
@@ -59,7 +72,7 @@ if 'pi_code' in qp and 'data' in qp:
     liste_files=list_all_files(df_folder_base)
     tile_file=[]
     for f in liste_files:
-        if f'PT_ID_{int(data)}_' in f:
+        if f'PT_ID_{int(data)}_' in f and var in f:
             tile_file.append(f)
 
     if len(tile_file)==1:
@@ -79,7 +92,7 @@ if 'pi_code' in qp and 'data' in qp:
     liste_files_plan = list_all_files(df_folder_plan)
     tile_file = []
     for f in liste_files_plan:
-        if f'PT_ID_{int(data)}_' in f:
+        if f'PT_ID_{int(data)}_' in f and var in f:
             tile_file.append(f)
     if len(tile_file) == 1:
         df_plan = pd.read_feather(tile_file[0])
@@ -118,10 +131,18 @@ if 'pi_code' in qp and 'data' in qp:
 
     fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
 
+    #fig = UTILS.plot_map_datashader(Variable, df_both, 'LON', 'LAT', 'diff', unique_pi_module_name)
+
     if fig =='empty':
         st.write('There is no difference between those two plans according to the widget parameters. Please, change parameters on the previous page...')
 
     else:
+
+        # if fig:
+        #     st.bokeh_chart(hv.render(map_overlay, backend='bokeh'))
+        # else:
+        #     st.write("No data to display on the map.")
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
             fig.write_html(tmp_file.name)
             tmp_file.seek(0)

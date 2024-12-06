@@ -69,6 +69,14 @@ class POST_PROCESS_2D_tiled:
 
         for t in tiles:
             count_y=0
+
+            res_name = os.path.join(path_res,
+                                    f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(years_list)}_{max(years_list)}')
+
+            if os.path.exists(res_name):
+                print(fr'AGG level of PT_ID for plan {p} and section {s} and tile {t} already exists {PI}.... skipping!')
+                continue
+
             for y in years_list:
 
                 feather=os.path.join(self.ISEE_RES, PI,p, s, str(y), f'{PI}_{p}_{s}_{t}_{y}.feather')
@@ -251,6 +259,7 @@ class POST_PROCESS_2D_not_tiled:
         return df_year
     
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
+        print('AGG_SPACE_YEAR')
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=years_list
@@ -286,11 +295,21 @@ class POST_PROCESS_2D_not_tiled:
         tiles = cfg.dct_tile_sect[s]
         for t in tiles:
             count_y = 0
+
+
+            res_name = os.path.join(path_res,
+                                    f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(years_list)}_{max(years_list)}')
+
+            if os.path.exists(res_name):
+                print(fr'AGG level of PT_ID for plan {p} and section {s} and tile {t} already exists {PI}.... skipping!')
+                continue
+
             for y in years_list:
                 feather = os.path.join(self.ISEE_RES, PI, p, f'{PI}_{p}_{y}.feather')
                 if not os.path.exists(feather):
                     continue
                 else:
+                    print('processing...')
                     count_y += 1
                     df_temp=pd.read_feather(feather)
                     df_temp=df_temp.loc[df_temp['SECTION']==s]
@@ -606,16 +625,16 @@ not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
 #
-for pi in tiled.pis:
-    print(pi)
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-
-# for pi in not_tiled.pis:
+# for pi in tiled.pis:
 #     print(pi)
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+
+for pi in not_tiled.pis:
+    print(pi)
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
 
 # for pi in pi_1D.pis:
 #     print(pi)
