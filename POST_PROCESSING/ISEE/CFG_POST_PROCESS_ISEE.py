@@ -7,9 +7,9 @@ name='ISEE'
 pis_2D_tiled=[]
 
 #pis_2D_not_tiled=['WATER_INTAKES_2D', 'WASTE_WATER_2D']
-#pis_2D_not_tiled=['WATER_INTAKES_2D']
+pis_2D_not_tiled=['WATER_INTAKES_2D']
 
-pis_2D_not_tiled=['MFI_2D']
+#pis_2D_not_tiled=['MFI_2D']
 #pis_2D_not_tiled=['ROADS_2D']
 
 pis_1D=['SHORE_PROT_STRUC_1D']

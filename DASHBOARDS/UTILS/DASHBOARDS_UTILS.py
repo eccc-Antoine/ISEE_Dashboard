@@ -709,53 +709,7 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     df_neg=df.loc[df[col_value]<0]
     df_pos = df.loc[df[col_value] > 0]
 
-    if len(df_neg[col_value].unique())==0 and len(df_pos[col_value].unique())==0:
-
-        colormap1 = 'greens'
-        colormap2 = 'greens'
-        norm1 = df_pos[col_value]
-        norm2 = df_neg[col_value]
-        empty_map=True
-
-    elif len(df_neg[col_value].unique())<5 or len(df_pos[col_value].unique())<5:
-        if direction == 'normal':
-            colormap1 = 'greens'
-            colormap2 = 'reds_r'
-
-        elif direction == 'inverse':
-            colormap2 = 'greens_r'
-            colormap1 = 'reds'
-
-        else:
-            print('There is a problem with variable direction!!')
-            quit()
-
-        norm1 = df_pos[col_value]
-        norm2 = df_neg[col_value]
-
-        empty_map=False
-
-    elif df_pos[col_value].quantile(0.25)==df_pos[col_value].quantile(0.75) or df_neg[col_value].quantile(0.25)==df_neg[col_value].quantile(0.75):
-        if direction == 'normal':
-            colormap1 = 'greens'
-            colormap2 = 'reds_r'
-
-        elif direction == 'inverse':
-            colormap2 = 'greens_r'
-            colormap1 = 'reds'
-
-        else:
-            print('There is a problem with variable direction!!')
-            quit()
-
-        norm1 = df_pos[col_value]
-        norm2 = df_neg[col_value]
-
-        empty_map=False
-
-    else:
-        if direction == 'normal':
-            colormap1 = [
+    complex_green=[
                 [0, "white"],
                 [0.1, "#e6f5e6"],  # very light green
                 [0.2, "#cceccf"],  # light green
@@ -769,22 +723,7 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
                 [1, "green"]  # green
             ]
 
-            colormap2 = [
-            [0, "#800000"],    # dark red
-            [0.1, "#990000"],  # slightly lighter dark red
-            [0.2, "#b30000"],  # lighter dark red
-            [0.3, "#cc0000"],  # medium red
-            [0.4, "#e60000"],  # medium-light red
-            [0.5, "#ff1a1a"],  # light red
-            [0.6, "#ff3333"],  # very light red
-            [0.7, "#ff6666"],  # even lighter red
-            [0.8, "#ff9999"],  # very light red
-            [0.9, "#ffcccc"],  # almost white with a hint of red
-            [1, "white"]       # white
-        ]
-
-        elif direction == 'inverse':
-            colormap2 = [
+    complex_green_inv=[
                 [0, "green"],  # green
                 [0.1, "#1ae61a"],  # green with a hint of dark
                 [0.2, "#33e633"],  # green
@@ -798,7 +737,21 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
                 [1, "white"]  # white
             ]
 
-            colormap1 = [
+    complex_red=[
+            [0, "#800000"],    # dark red
+            [0.1, "#990000"],  # slightly lighter dark red
+            [0.2, "#b30000"],  # lighter dark red
+            [0.3, "#cc0000"],  # medium red
+            [0.4, "#e60000"],  # medium-light red
+            [0.5, "#ff1a1a"],  # light red
+            [0.6, "#ff3333"],  # very light red
+            [0.7, "#ff6666"],  # even lighter red
+            [0.8, "#ff9999"],  # very light red
+            [0.9, "#ffcccc"],  # almost white with a hint of red
+            [1, "white"]       # white
+        ]
+
+    complex_red_inv=[
                 [0, "white"],  # white
                 [0.1, "#ffcccc"],  # almost white with a hint of red
                 [0.2, "#ff9999"],  # very light red
@@ -813,6 +766,106 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
             ]
 
 
+
+
+    if len(df_neg[col_value].unique())==0 and len(df_pos[col_value].unique())==0:
+        print('simple colorscale1')
+        colormap1 = 'greens'
+        colormap2 = 'greens'
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+        empty_map=True
+
+    elif len(df_neg[col_value].unique())<5 and len(df_pos[col_value].unique())>5:
+        print('simple colorscale2')
+
+        if direction == 'normal':
+            colormap1 = complex_green
+            colormap2 = 'reds_r'
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = complex_red_inv
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map=False
+
+    elif len(df_neg[col_value].unique())>5 and len(df_pos[col_value].unique())<5:
+        print('simple colorscale3')
+
+        if direction == 'normal':
+            colormap1 = 'greens'
+            colormap2 = complex_red_inv
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = complex_red
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map=False
+
+    elif df_pos[col_value].quantile(0.25)!=df_pos[col_value].quantile(0.75) and df_neg[col_value].quantile(0.25)==df_neg[col_value].quantile(0.75):
+        print('simple colorscale4')
+
+        if direction == 'normal':
+            colormap1 = complex_green
+            colormap2 = 'reds_r'
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = complex_red_inv
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map=False
+
+    elif df_pos[col_value].quantile(0.25)==df_pos[col_value].quantile(0.75) and df_neg[col_value].quantile(0.25)!=df_neg[col_value].quantile(0.75):
+        print('simple colorscale5')
+
+        if direction == 'normal':
+            colormap1 = 'greens'
+            colormap2 = complex_red_inv
+
+        elif direction == 'inverse':
+            colormap2 = 'greens_r'
+            colormap1 = complex_red
+
+        else:
+            print('There is a problem with variable direction!!')
+            quit()
+
+        norm1 = df_pos[col_value]
+        norm2 = df_neg[col_value]
+
+        empty_map = False
+
+    else:
+        print('complex colorscale')
+
+        if direction == 'normal':
+            colormap1 = complex_green
+            colormap2 = complex_red
+
+        elif direction == 'inverse':
+            colormap2 = complex_green_inv
+            colormap1 = complex_red_inv
 
         else:
             print('There is a problem with variable direction!!')
@@ -885,12 +938,15 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
 
     fig.update_traces(
-        marker=dict(sizemode='area', sizeref=2, sizemin=2)
+        marker=dict(sizemode='area', sizeref=size, sizemin=size)
         # Adjust sizeref and sizemin for smaller markers
     )
 
-    coords_lat=df[col_y]
+    fig.update_traces(zmin=norm1.min(), zmax=norm1.max(), selector=dict(name="trace1"))
+    fig.update_traces(zmin=norm2.min(), zmax=norm2.max(), selector=dict(name="trace2"))
 
+
+    coords_lat=df[col_y]
     coords_lon=df[col_x]
 
     coordinates = [[coords_lon.min(), coords_lat.min()],
