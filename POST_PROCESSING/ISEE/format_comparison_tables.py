@@ -132,7 +132,7 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
 # Example usage
 template_path = r"P:\GLAM\Dashboard\ISEE_Dash_portable\results_template.xlsx"
 outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
-csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20241127.csv')
+csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20241209.csv')
 
 # Define mapping rules (example: map section, plan, supply_scenario to Excel cells)
 mapping_rules_no_country = {
@@ -170,17 +170,17 @@ mapping_rules_no_country = {
 
     ("Historical", "LKO", "PreProject"): ("E", 5),
     ("Historical", "USL_US", "PreProject"): ("F", 5),
-    ("Historical", "USL_DS", "PreProject"): ("G", 5),
+    #("Historical", "USL_DS", "PreProject"): ("G", 5),
     ("Historical", "SLR_US", "PreProject"): ("H", 5),
     ("Historical", "SLR_DS", "PreProject"): ("I", 5),
     ("STO330", "LKO", "PreProject"): ("J", 5),
     ("STO330", "USL_US", "PreProject"): ("K", 5),
-    ("STO330", "USL_DS", "PreProject"): ("L", 5),
+    #("STO330", "USL_DS", "PreProject"): ("L", 5),
     ("STO330", "SLR_US", "PreProject"): ("M", 5),
     ("STO330", "SLR_DS", "PreProject"): ("N", 5),
     ("RCP45", "LKO", "PreProject"): ("O", 5),
     ("RCP45", "USL_US", "PreProject"): ("P", 5),
-    ("RCP45", "USL_DS", "PreProject"): ("Q", 5),
+    #("RCP45", "USL_DS", "PreProject"): ("Q", 5),
     ("RCP45", "SLR_US", "PreProject"): ("R", 5),
     ("RCP45", "SLR_DS", "PreProject"): ("S", 5),
 
@@ -222,17 +222,17 @@ mapping_rules_2 = {
 
     ("Historical", "LKO", "PreProject"): ("E", 5),
     ("Historical", "USL_US", "PreProject"): ("F", 5),
-    ("Historical", "USL_DS", "PreProject"): ("G", 5),
+    #("Historical", "USL_DS", "PreProject"): ("G", 5),
     ("Historical", "SLR_US", "PreProject"): ("H", 5),
     ("Historical", "SLR_DS", "PreProject"): ("I", 5),
     ("STO330", "LKO", "PreProject"): ("E", 10),
     ("STO330", "USL_US", "PreProject"): ("F", 10),
-    ("STO330", "USL_DS", "PreProject"): ("G", 10),
+    #("STO330", "USL_DS", "PreProject"): ("G", 10),
     ("STO330", "SLR_US", "PreProject"): ("H", 10),
     ("STO330", "SLR_DS", "PreProject"): ("I", 10),
     ("RCP45", "LKO", "PreProject"): ("E", 15),
     ("RCP45", "USL_US", "PreProject"): ("F", 15),
-    ("RCP45", "USL_DS", "PreProject"): ("G", 15),
+    #("RCP45", "USL_DS", "PreProject"): ("G", 15),
     ("RCP45", "SLR_US", "PreProject"): ("H", 15),
     ("RCP45", "SLR_DS", "PreProject"): ("I", 15),
 }
@@ -297,8 +297,8 @@ mapping_country =  {
     ("Historical", "LKO_US", "PreProject"): ("F", 5),  # Maps to cell B5
     ("Historical", "USL_US_CAN", "PreProject"): ("G", 5),  # Maps to cell B5
     ("Historical", "USL_US_US", "PreProject"): ("H", 5),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
+    #("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
+   # ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
     ("Historical", "SLR_US_CAN", "PreProject"): ("K", 5),  # Maps to cell B5
     ("Historical", "SLR_DS_CAN", "PreProject"): ("L", 5),  # Maps to cell B5
 
@@ -306,8 +306,8 @@ mapping_country =  {
     ("STO330", "LKO_US", "PreProject"): ("F", 10),  # Maps to cell B5
     ("STO330", "USL_US_CAN", "PreProject"): ("G", 10),  # Maps to cell B5
     ("STO330", "USL_US_US", "PreProject"): ("H", 10),  # Maps to cell B5
-    ("STO330", "USL_DS_CAN", "PreProject"): ("I", 10),  # Maps to cell B5
-    ("STO330", "USL_DS_US", "PreProject"): ("J", 10),  # Maps to cell B5
+    #("STO330", "USL_DS_CAN", "PreProject"): ("I", 10),  # Maps to cell B5
+    #("STO330", "USL_DS_US", "PreProject"): ("J", 10),  # Maps to cell B5
     ("STO330", "SLR_US_CAN", "PreProject"): ("K", 10),  # Maps to cell B5
     ("STO330", "SLR_DS_CAN", "PreProject"): ("L", 10),  # Maps to cell B5
 
@@ -315,8 +315,8 @@ mapping_country =  {
     ("RCP45", "LKO_US", "PreProject"): ("F", 15),  # Maps to cell B5
     ("RCP45", "USL_US_CAN", "PreProject"): ("G", 15),  # Maps to cell B5
     ("RCP45", "USL_US_US", "PreProject"): ("H", 15),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
+    #("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
+    #("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
     ("RCP45", "SLR_US_CAN", "PreProject"): ("K", 15),  # Maps to cell B5
     ("RCP45", "SLR_DS_CAN", "PreProject"): ("L", 15),  # Maps to cell B5
 
@@ -374,10 +374,21 @@ dict_pi_var = {
                 'Total buildings (boolean)': ['MEAN', 'MEAN_DIRECTION'],
                 'Total buildings (Nb of QMs)': ['MEAN', 'MEAN_DIRECTION']},
 
-    'WASTE_WATER_2D': {'Occurrence of impact': ['MEAN', 'MEAN_DIRECTION']},
+    'WASTE_WATER_2D': {'number of wastewater facilities exceeding the average discharge threshold': ['SUM', 'MEAN_DIRECTION'],
+                       'weighted (duration, discharge) number of wastewater facilities impacted': ['SUM', 'MEAN_DIRECTION']},
 
-    'WATER_INTAKES_2D': {'Occurrence of impact': ['MEAN', 'MEAN_DIRECTION']}
+    'WATER_INTAKES_2D': {'number of water intake facilities exceeding the nominal capacity threshold': ['SUM', 'MEAN_DIRECTION'],
+                         'weighted (duration, capacity) number of intake facilities impacted': ['SUM', 'MEAN_DIRECTION']},
+    'SHORE_PROT_STRUC': {'Wave overtopping (*10e-2)': ['VALUE', 'MEAN_DIRECTION'], 'Wave overflow (*10e-4)':['VALUE', 'MEAN_DIRECTION']}
     }
+
+# 'WASTE_WATER_2D': ['number of wastewater facilities exceeding the average discharge threshold',
+#                    'weighted (duration, discharge) number of wastewater facilities impacted']
+# ,
+#
+# 'WATER_INTAKES_2D': ['number of water intake facilities exceeding the nominal capacity threshold',
+#                      'weighted (duration, capacity) number of intake facilities impacted']
+# }
 
 
 
@@ -388,7 +399,7 @@ list_pi_can_us = ['NFB_2D']
 df_results = pd.read_csv(csv_path, sep=';', header=0)
 
 
-output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20241203.xlsx')
+output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20241209.xlsx')
 
 if os.path.exists(output_path):
     os.remove(output_path)
@@ -404,6 +415,10 @@ for pi, dict_var in dict_pi_var.items():
         signif_col = list_cols[1]
         if value_col_ref == 'MEAN':
             value_col_plan = 'MEAN (RESIDUALS)'
+        elif value_col_ref == 'SUM':
+            value_col_plan = 'DIFF SUM (2014BOC)'
+        elif value_col_ref == 'VALUE':
+            value_col_plan = 'DIFF VALUE'
         else:
             value_col_plan = value_col_ref
         df_pi = df_results[(df_results['PI_NAME'] == pi) & (df_results['VARIABLE'] == var)]
