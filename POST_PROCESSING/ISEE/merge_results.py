@@ -15,7 +15,6 @@ plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistoric
                     'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC'}
 
 
-
 dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
 
                   'CWRM_2D': {
@@ -77,7 +76,6 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
                   'WATER_INTAKES_2D': {
                       'VAR1_sum': 'number of water intake facilities exceeding the nominal capacity threshold',
                       'VAR2_mean': 'weighted (duration, capacity) number of intake facilities impacted'}
-
                   }
 
 dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
