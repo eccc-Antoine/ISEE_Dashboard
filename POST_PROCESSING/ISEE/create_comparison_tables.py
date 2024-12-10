@@ -728,9 +728,10 @@ dict_pi_var = {
                'Total buildings (boolean)',
                'Total buildings (Nb of QMs)'],
 
-    'WASTE_WATER_2D': ['Occurrence of impact'],
+    'WASTE_WATER_2D': ['number of wastewater facilities exceeding the average discharge threshold', 'weighted (duration, discharge) number of wastewater facilities impacted']
+        ,
 
-    'WATER_INTAKES_2D': ['Occurrence of impact']
+    'WATER_INTAKES_2D': ['number of water intake facilities exceeding the nominal capacity threshold', 'weighted (duration, capacity) number of intake facilities impacted']
     }
 
 dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of lodge viability':5},
@@ -741,6 +742,8 @@ dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of lodge viability':5},
 list_mean_comparison = []
 #list_median_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D']
 list_pi_test = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'CWRM_2D', 'IERM_2D', 'ZIPA_1D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'AYL_2D']
+
+list_pi_sum = ['WASTE_WATER_2D', 'WATER_INTAKES_2D']
 
 wm_low_supply_yrs = {'Historical': [1961, 1962, 1963, 1964, 1965, 1966, 1967, 2001, 2002],
                    'STO330': [2028, 2029, 2040, 2041, 2042, 2043, 2044, 2045, 2046, 2047, 2048, 2049, 2050],
@@ -753,6 +756,8 @@ gap = 1
 n_iter = 0
 alpha = 0.05
 
+file_struct_protection = r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\PI_CSV_RESULTS\SHOR_PROT_STRUC_RESULTS_ALL_SCENARIO.csv"
+df_struct_prot = pd.read_csv(file_struct_protection, sep=';', header=0)
 
 folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
 
@@ -786,6 +791,7 @@ for pi, list_var in dict_pi_var.items():
 
                     mean_ref = 0
                     median_ref = 0
+                    sum_ref = 0
 
                     df_res_ref = df_res_sect[df_res_sect['PLAN_NAME'] == ref_plan]
                     df_res_ref = df_res_ref.copy()
@@ -796,7 +802,8 @@ for pi, list_var in dict_pi_var.items():
                     p_value_med, low_ci_med, high_ci_med = np.nan, np.nan, np.nan
                     p_value_mean, low_ci_mean, high_ci_mean = np.nan, np.nan, np.nan
                     block_size = np.nan
-                    diff_mean, diff_median = np.nan, np.nan
+                    diff_mean, diff_median, diff_sum = np.nan, np.nan, np.nan
+
                     for plan in [ref_plan]+plans_to_compare:
 
                         df_res_plan = df_res_sect[df_res_sect['PLAN_NAME'] == plan]
@@ -818,6 +825,8 @@ for pi, list_var in dict_pi_var.items():
                                 #df_res_ref = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
                                 mean_plan = df_res_plan[var].mean()
                                 median_plan = df_res_plan[var].median()
+                                sum_plan = df_res_plan[var].sum()
+
                                 df_res_ref_low = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
 
                                 residuals = df_res_plan_low[var].to_numpy() - df_res_ref_low[var].to_numpy()
@@ -825,6 +834,7 @@ for pi, list_var in dict_pi_var.items():
                             else:
                                 mean_plan = df_res_plan[var].mean()
                                 median_plan = df_res_plan[var].median()
+                                sum_plan = df_res_plan[var].sum()
 
                                 residuals = df_res_plan[var].to_numpy() - df_res_ref[var].to_numpy()
 
@@ -833,6 +843,7 @@ for pi, list_var in dict_pi_var.items():
                                 pct_change_median = 0
                                 mean_ref = mean_plan
                                 median_ref = median_plan
+                                sum_ref = sum_plan
                             else:
                                 if median_ref == 0:
                                     pct_change_median = np.nan
@@ -844,50 +855,10 @@ for pi, list_var in dict_pi_var.items():
                                 else:
                                     pct_change_mean = ((mean_plan / mean_ref) - 1) * 100
 
+                                diff_sum = sum_plan - sum_ref
                                 diff_mean = np.mean(residuals)
                                 diff_median = np.median(residuals)
 
-                        # if pi in list_mean_comparison:
-                        #     try:
-                        #         block_size = calculate_block_size(df_res_ref, var)
-                        #     except Exception as e:
-                        #         print(e)
-                        #         block_size = 1
-                        #
-                        #     if len(df_res_plan) == len(df_res_ref):
-                        #         p_value_mean, (low_ci_mean, high_ci_mean) = bootstrap_mean_test(df_res_ref, df_res_plan, var, n_iter=n_iter, block_size=block_size)
-                        #         print(p_value_mean)
-                        #
-
-
-                        #     try:
-                        #         block_size = calculate_block_size(df_res_ref, var)
-                        #     except Exception as e:
-                        #         print(e)
-                        #         block_size = 1
-                        #     if len(df_res_plan) == len(df_res_ref):
-                        #         p_value_med, (low_ci_med, high_ci_med) = bootstrap_median_test_wilcoxon(df_res_ref, df_res_plan, var, n_iter=n_iter, block_size=block_size)
-                        #         print(p_value_med)
-
-                    # df_res_agg_plan = pd.DataFrame({'PI_NAME': [pi],
-                    #                                 'VARIABLE': [var],
-                    #                                 'SECT_NAME': [sect],
-                    #                                 'SUPPLY_SCEN': [supply],
-                    #                                 'PLAN_NAME': [plan],
-                    #                                 'BOOTSTRAP_BLOCK_SIZE': [block_size],
-                    #                                 'MEAN_AGG': [mean_plan],
-                    #                                 'DIFF MEAN (ABS.)': [diff_mean],
-                    #                                 'DIFF MEAN (%)': [pct_change_mean],
-                    #                                 'meanTest_CI_2.5': [low_ci_mean + diff_mean],
-                    #                                 'meanTest_CI_97.5': [high_ci_mean + diff_mean],
-                    #                                 'meanTest_P-Value': [p_value_mean],
-                    #                                 'MEDIAN_AGG':[median_plan],
-                    #                                 'DIFF MEDIAN (%)': [pct_change_median],
-                    #                                 'DIFF MEDIAN (ABS.)': [diff_median],
-                    #                                 'medianTest_CI_2.5': [low_ci_med + diff_median],
-                    #                                 'medianTest_CI_97.5': [high_ci_med + diff_median],
-                    #                                 'medianTest_P-Value': [p_value_med]
-                    #                                 })
                             df_res_agg_plan = pd.DataFrame({'PI_NAME': [pi],
                                                             'VARIABLE': [var],
                                                             'SECT_NAME': [sect],
@@ -896,6 +867,8 @@ for pi, list_var in dict_pi_var.items():
                                                             'MEAN': [mean_plan],
                                                             'MEAN (RESIDUALS)': [diff_mean],
                                                             'DIFF MEAN 2014BOC (%)': [pct_change_mean],
+                                                            'SUM': [sum_plan],
+                                                            'DIFF SUM (2014BOC)': [diff_sum]
                                                             #'MEDIAN':[median_plan],
                                                             #'DIFF MEDIAN 2014BOC (%)': [pct_change_median],
                                                             #'MEDIAN (RESIDUALS)': [diff_median]
@@ -1021,11 +994,11 @@ for pi, list_var in dict_pi_var.items():
                     #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] < gap, 'CRITICAL_DIFF'] = '+'
                     #
                     #     list_results.append(df_res_agg_plan)
-
+list_results.append(df_struct_prot)
 df_res_all = pd.concat(list_results)
 
 print(df_res_all)
-output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20241127.csv')
+output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20241209.csv')
 df_res_all.to_csv(output_results, sep=';', index=False)
 
 
