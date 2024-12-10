@@ -69,8 +69,15 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
                              'VAR8_sum': 'Residential (Nb of QMs)',
                              'VAR9_sum': 'Total buildings (boolean)',
                              'VAR10_sum': 'Total buildings (Nb of QMs)'},
-                  'WASTE_WATER_2D': {'VAR1_sum': 'Occurrence of impact'},
-                  'WATER_INTAKES_2D': {'VAR1_sum': 'Occurrence of impact'}
+
+                  'WASTE_WATER_2D': {
+                      'VAR1_sum': 'number of wastewater facilities exceeding the average discharge threshold',
+                      'VAR2_mean': 'weighted (duration, discharge) number of wastewater facilities impacted'},
+
+                  'WATER_INTAKES_2D': {
+                      'VAR1_sum': 'number of water intake facilities exceeding the nominal capacity threshold',
+                      'VAR2_mean': 'weighted (duration, capacity) number of intake facilities impacted'}
+
                   }
 
 dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
@@ -113,9 +120,11 @@ dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
 
                    'NFB_2D': {f'VAR{i}_sum':1 for i in range(1, 11)},
 
-                   'WASTE_WATER_2D': {'VAR1_sum': 1},
+                   'WASTE_WATER_2D': {'VAR1_sum': 1,
+                                      'VAR2_mean': 1},
 
-                   'WATER_INTAKES_2D': {'VAR1_sum': 1},
+                   'WATER_INTAKES_2D': {'VAR1_sum': 1,
+                                      'VAR2_mean': 1},
 
                    }
 
