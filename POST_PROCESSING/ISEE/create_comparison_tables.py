@@ -869,25 +869,34 @@ for pi, list_var in dict_pi_var.items():
                                                             'DIFF MEAN 2014BOC (%)': [pct_change_mean],
                                                             'SUM': [sum_plan],
                                                             'DIFF SUM (2014BOC)': [diff_sum]
-                                                            #'MEDIAN':[median_plan],
-                                                            #'DIFF MEDIAN 2014BOC (%)': [pct_change_median],
-                                                            #'MEDIAN (RESIDUALS)': [diff_median]
                                                             })
                             if pi in list_pi_test:
                                 if plan != ref_plan:
                                     df_res_agg_plan = run_stat_tests_mean(residuals, df_res_agg_plan, alpha=alpha)
                                     #if pi not in dict_thresholds.keys():
                                     if pi in list_plan_lower_better:
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '+'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '-'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
+                                        if pi in list_pi_sum:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] == 0), 'MEAN_DIRECTION'] = '='
+
+                                        else:
+
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
                                     else:
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '-'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '+'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
+                                        if pi in list_pi_sum:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] == 0), 'MEAN_DIRECTION'] = '='
+                                        else:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
 
 
@@ -908,15 +917,7 @@ for pi, list_var in dict_pi_var.items():
 
                                             value_ref = calculate_threshold_score(df_res_ref, var, score_weights, thresholds)
                                             df_res_agg_plan['EXCEED_COUNT'] = value_ref
-                                            # df_res_agg_ref = pd.DataFrame({'PI_NAME': [pi],
-                                            #                                 'VARIABLE': [var],
-                                            #                                'SECT_NAME': [sect],
-                                            #                                'SUPPLY_SCEN': [supply],
-                                            #                                'PLAN_NAME': [ref_plan],
-                                            #                                'VALUE_AGG': [value_ref],
-                                            #                                'MEAN_AGG': [mean_ref],
-                                            #                                'DIFF (%)': [np.nan]
-                                            #                                })
+
                                         else:
 
                                             value_plan = calculate_threshold_score(df_res_plan, var, score_weights, thresholds)
@@ -955,45 +956,9 @@ for pi, list_var in dict_pi_var.items():
                                             df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] > 0, 'CRITICAL_PERIODS'] = '-'
                                             df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] < 0, 'CRITICAL_PERIODS'] = '+'
 
-                            # list_cols = ['PI_NAME', 'VARIABLE', 'SECT_NAME', 'SUPPLY_SCEN', 'PLAN_NAME', 'BOOTSTRAP_BLOCK_SIZE',
-                            #              'MEAN_AGG', 'DIFF MEAN (ABS.)', 'DIFF MEAN (%)', 'meanTest_CI_2.5', 'meanTest_CI_97.5',
-                            #              'meanTest_P-Value', 'MeanTest_Significant', 'MEDIAN_AGG', 'DIFF MEDIAN (%)', 'DIFF MEDIAN (ABS.)',
-                            #              'medianTest_CI_2.5', 'medianTest_CI_97.5', 'medianTest_P-Value', 'MedianTest_Significant', 'VALUE_AGG', 'CRITICAL_DIFF']
-                            #
-                            # list_cols_df = [col for col in list_cols if col in df_res_agg_plan.columns]
-
                             list_results.append(df_res_agg_plan)
 
-                    #
-                    # for plan in plans_to_compare:
-                    #     df_res_plan = df_res_sect[df_res_sect['PLAN_NAME'] == plan]
-                    #     df_res_plan = df_res_plan.copy()
-                    #     mean_plan = df_res_plan[var].mean()
-                    #     pct_change = ((mean_plan / mean_ref) - 1) * 100
-                    #
-                    #     print(pi, sect, supply, plan)
-                    #     p_value = bootstrap_mean_test(df_res_ref, df_res_plan, var, n_iter=n_iter, block_size=block_size)
-                    #     df_res_agg_plan = pd.DataFrame({'PI_NAME': [pi],
-                    #                                     'VARIABLE': [var],
-                    #                                     'SECT_NAME': [sect],
-                    #                                     'SUPPLY_SCEN': [supply],
-                    #                                     'PLAN_NAME': [plan],
-                    #                                     'MEAN_AGG': [mean_plan],
-                    #                                     'DIFF (%)': [pct_change]
-                    #                                     })
-                    #     df_res_agg_plan['P-value'] = [p_value]
-                    #
-                    #     if p_value > alpha:
-                    #         df_res_agg_plan['STAT_DIFF'] = 'None'
-                    #     else:
-                    #         df_res_agg_plan['STAT_DIFF'] = '**'
-                    #
-                    #     df_res_agg_plan['CRITICAL_DIFF'] = ''
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] == gap, 'CRITICAL_DIFF'] = '='
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] > gap, 'CRITICAL_DIFF'] = '-'
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] < gap, 'CRITICAL_DIFF'] = '+'
-                    #
-                    #     list_results.append(df_res_agg_plan)
+
 list_results.append(df_struct_prot)
 df_res_all = pd.concat(list_results)
 
