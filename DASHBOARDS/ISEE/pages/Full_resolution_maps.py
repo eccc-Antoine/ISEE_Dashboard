@@ -11,6 +11,8 @@ from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
 import ast
 import tempfile
 
+mapbox_token='pk.eyJ1IjoidG9ueW1hcmFuZGExOTg1IiwiYSI6ImNsM3cwYm8zeDAzNHAzY3FxcWV3ZXJkbWEifQ.5rgErxAFf7_k0Kn0mz3RdA'
+style_url='mapbox://styles/tonymaranda1985/clmhwft2i03rs01ph9z2kbbos'
 
 # import datashader as ds
 # import datashader.transfer_functions as tf
@@ -129,29 +131,37 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['LAT']=np.where(df_both['LAT_base'] == 0, df_both['LAT_plan'], df_both['LAT_base'])
     df_both['LON']=np.where(df_both['LON_base'] == 0, df_both['LON_plan'], df_both['LON_base'])
 
-    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff')
-
-    #fig = UTILS.plot_map_datashader(Variable, df_both, 'LON', 'LAT', 'diff', unique_pi_module_name)
+    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff', mapbox_token, style_url)
 
     if fig =='empty':
         st.write('There is no difference between those two plans according to the widget parameters. Please, change parameters on the previous page...')
 
     else:
+        col_map1, col_map2=st.columns(2)
 
-        # if fig:
-        #     st.bokeh_chart(hv.render(map_overlay, backend='bokeh'))
-        # else:
-        #     st.write("No data to display on the map.")
+        with col_map1:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
+                fig.write_html(tmp_file.name)
+                tmp_file.seek(0)
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
-            fig.write_html(tmp_file.name)
-            tmp_file.seek(0)
+                st.download_button(
+                    label="Download map as HTML",
+                    data=tmp_file.read(),
+                    file_name="map.html",
+                    mime="text/html"
+                )
+
+        with col_map2:
+
+            gdf=UTILS.df_2_gdf(df_both, 'LON', 'LAT', 4326)
+            shapefile_data = UTILS.save_gdf_to_zip(gdf,
+                                                   f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ze_plan_code}_minus_{baseline_code}.shp')
 
             st.download_button(
-                label="Download map as HTML",
-                data=tmp_file.read(),
-                file_name="map.html",
-                mime="text/html"
+                label="Download map as shapefile",
+                data=shapefile_data,
+                file_name="difference_plan_minus_baseline.zip",
+                mime="application/zip",
             )
 
         st.plotly_chart(fig, use_container_width=True)

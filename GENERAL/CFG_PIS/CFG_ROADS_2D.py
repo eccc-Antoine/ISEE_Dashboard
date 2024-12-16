@@ -9,11 +9,11 @@ dct_var = {'VAR1': 'Primary roads (Nb of QMs)',
            #'VAR3': 'Tertiary roads (Nb of QMs)',
            #'VAR4': 'Unclassified roads (Nb of QMs)',
            'VAR5': 'All roads (Nb of QMs)',
-           'VAR6': 'Primary roads (Lengh in m)',
-           #'VAR7': 'Secondary roads (Lenght in m)',
-           #'VAR8': 'Tertiary roads (Lenght in m)',
-           #'VAR9': 'Unclassified roads (Lenght in m)',
-           'VAR10': 'All roads (Lenght in m)'}
+           'VAR6': 'Primary roads (Length in m)',
+           #'VAR7': 'Secondary roads (Length in m)',
+           #'VAR8': 'Tertiary roads (Length in m)',
+           #'VAR9': 'Unclassified roads (Length in m)',
+           'VAR10': 'All roads (Length in m)'}
 
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat = {'VAR1': ['sum'],
@@ -34,10 +34,10 @@ var_direction = {'Primary roads (Nb of QMs)': 'inverse',
            #'Unclassified roads (Nb of QMs)': 'inverse',
            'All roads (Nb of QMs)': 'inverse',
            'Primary roads (Lengh in m)': 'inverse',
-           #'Secondary roads (Lenght in m)': 'inverse',
-           #'Tertiary roads (Lenght in m)': 'inverse',
-           #'Unclassified roads (Lenght in m)': 'inverse',
-           'All roads (Lenght in m)': 'inverse'}
+           #'Secondary roads (Length in m)': 'inverse',
+           #'Tertiary roads (Length in m)': 'inverse',
+           #'Unclassified roads (Length in m)': 'inverse',
+           'All roads (Length in m)': 'inverse'}
 
 units = ''
 
