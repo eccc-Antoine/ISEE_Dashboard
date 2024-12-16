@@ -14,8 +14,6 @@ file_ext='.feather'
 
 root_data = ''
 
-##edit those paths according to your local repositories:
-
 shapefile_folder = ''
 post_process_folder = ''
 
