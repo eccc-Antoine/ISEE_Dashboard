@@ -25,7 +25,7 @@ import os
 # for l in liste:
 
 
-df=pd.read_feather(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\SHORE_PROT_STRUC_1D\GERBL2_2014_ComboC_RCP45\LKO\SHORE_PROT_STRUC_1D_GERBL2_2014_ComboC_RCP45_LKO.feather")
+df=pd.read_feather(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\WATER_INTAKES_2D\GERBL2_2014_ComboD\WATER_INTAKES_2D_GERBL2_2014_ComboD_1962.feather")
 #print(list(df))
 
 #print(df['SECTION'].unique())
@@ -34,6 +34,7 @@ df=pd.read_feather(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\SHOR
 
 #print(df['SECTION'].unique())
 print(df.head())
+print(list(df))
 #print(df)
 quit()
 

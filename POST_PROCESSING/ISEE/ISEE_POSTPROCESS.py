@@ -210,7 +210,10 @@ class POST_PROCESS_2D_tiled:
                                 years_list = PI_CFG.available_years_future
 
                             for s in PI_CFG.available_sections:
-
+                                path_sect=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                if os.path.exists (path_sect):
+                                    print(fr'post_processed results for {PI}, {p}, {s} already exists... skipping... but carefull check if all the iles and variables where processed, if not delete de folder and run again')
+                                    continue
 
                                 for var in list(PI_CFG.dct_var.keys()):
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
@@ -309,7 +312,7 @@ class POST_PROCESS_2D_not_tiled:
                 if not os.path.exists(feather):
                     continue
                 else:
-                    print('processing...')
+                    print(fr'processing... plan {p} and section {s} and tile {t} for year {y}')
                     count_y += 1
                     df_temp=pd.read_feather(feather)
                     df_temp=df_temp.loc[df_temp['SECTION']==s]
@@ -452,6 +455,10 @@ class POST_PROCESS_2D_not_tiled:
                                 years_list = PI_CFG.available_years_future
 
                             for s in PI_CFG.available_sections:
+                                path_sect=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
+                                if os.path.exists (path_sect):
+                                    print(fr'post_processed results for {PI}, {p}, {s} already exists... skipping... but carefull check if all the iles and variables where processed, if not delete de folder and run again')
+                                    continue
                                 for var in list(PI_CFG.dct_var.keys()):
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                     if not os.path.exists(path_res):
@@ -624,17 +631,19 @@ not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST
  
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-#
+
 # for pi in tiled.pis:
 #     print(pi)
-#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
 #     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
-#     tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+#     #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+
 
 for pi in not_tiled.pis:
     print(pi)
     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+    #not_tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
+
 
 # for pi in pi_1D.pis:
 #     print(pi)
