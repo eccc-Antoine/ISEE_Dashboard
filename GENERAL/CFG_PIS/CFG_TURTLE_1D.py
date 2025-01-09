@@ -47,7 +47,6 @@ baseline_dct={'PreProjectHistorical':'PreProjectHistorical' , 'Bv7_2014':'Bv7_20
 
 baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014', 'Bv7_2014_GLRRM'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_STO_330_GLRRM' ], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014BOC_RCP45_GLRRM',]}
 
-
 available_stats = ['sum', 'mean']
 
 id_column_name = 'PT_ID'

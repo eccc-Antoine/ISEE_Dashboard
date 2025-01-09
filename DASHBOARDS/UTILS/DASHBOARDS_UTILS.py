@@ -17,6 +17,42 @@ import numpy as np
 import tempfile
 from streamlit_folium import st_folium
 
+import streamlit as st
+import geopandas as gpd
+import io
+import zipfile
+from shapely.geometry import Point
+import fiona
+
+
+def df_2_gdf(df, xcol, ycol, crs):
+    geometry = [Point(xy) for xy in zip(df[xcol], df[ycol])]
+    return gpd.GeoDataFrame(df, geometry=geometry, crs=crs)
+
+def save_gdf_to_zip(gdf, shapefile_name):
+    # Create a temporary directory to store shapefile components
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        # Define the shapefile path (without extension)
+        shapefile_path = os.path.join(tmpdirname, shapefile_name)
+
+        # Save the GeoDataFrame to the shapefile components (.shp, .shx, .dbf, etc.)
+        gdf.to_file(shapefile_path)
+
+        # Create a zip file in memory
+        zip_buffer = io.BytesIO()
+
+        # Write all files from the temporary folder into the zip
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            print(os.listdir(tmpdirname))
+            for file_name in os.listdir(tmpdirname):
+                file_path = os.path.join(tmpdirname, file_name)
+                zip_file.write(file_path, arcname=file_name)
+
+        # Move the pointer to the beginning of the buffer
+        zip_buffer.seek(0)
+
+        return zip_buffer.getvalue()
+
 
 #@st.cache_data(ttl=3600)
 def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, s, var_stat, df_PI, Variable, multiplier):
@@ -25,7 +61,6 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
 
     df=df_PI
     df=df.loc[(df['YEAR']>=start_year) & (df['YEAR']<=end_year)]
-
     if stat=='min':
         val=df[Variable].min()
     elif stat=='max':
@@ -85,8 +120,6 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
 
         multiplier=unique_PI_CFG.multiplier
         gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, s, var_stat, df_PI, Variable, multiplier)
-        
-        #gdf_grille_unique.to_file(fr'{CFG_DASHBOARD.debug_folder}\{PI_code}_{scen_code}_{s}.shp')
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
@@ -108,7 +141,6 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     var_stat = unique_PI_CFG.var_agg_stat[var][0]
     sect_PI = unique_PI_CFG.available_sections
-    gdfs = []
 
     for s in sect_PI:
 
@@ -241,28 +273,11 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
 
-    # if stat == 'mean':
-    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MEAN']
-    # elif stat == 'sum':
-    #     gdf_tiles['VAL'] = gdf_tiles['VAL_SUM']
-    # elif stat == 'min':
-    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MIN']
-    # elif stat == 'max':
-    #     gdf_tiles['VAL'] = gdf_tiles['VAL_MAX']
-    # else:
-    #     print('problem with stats')
-    #
-    # gdf_tiles=gdf_tiles.drop(columns=["VAL_MEAN", 'VAL_SUM', 'VAL_MIN', 'VAL_MAX'])
-
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
 
     gdf_tiles['VAL']=gdf_tiles['VAL']
 
     return gdf_tiles
-
-
-
-
 
 
 @st.cache_data(ttl=3600)
@@ -564,10 +579,6 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
             neg_values = neg_values.sort_values(by=col)
             neg_values = neg_values[col]
 
-            print(neg_values)
-            print(pos_values)
-
-
             if direction == 'inverse':
                 neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
                 pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=pos_values.quantile(0.85))
@@ -581,7 +592,6 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
 
             if pos_values.empty:
                 pos_colormap = cm.LinearColormap(colors=['white', 'white'], vmin=0, vmax=0)
-
 
             def get_color(value):
                 return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
@@ -677,7 +687,7 @@ def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable
     return df
 
 @st.cache_data(ttl=3600)
-def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value):
+def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value, mapbox_token, style_url):
 
     print('PLOT_MAP_PLOTLY')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -764,9 +774,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
                 [0.9, "#990000"],  # slightly lighter dark red
                 [1, "#800000"]  # dark red
             ]
-
-
-
 
     if len(df_neg[col_value].unique())==0 and len(df_pos[col_value].unique())==0:
         print('simple colorscale1')
@@ -912,30 +919,13 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
     fig = go.Figure(data=[trace1, trace2])
 
-    # fig.update_layout(
-    #     mapbox_style="white-bg",
-    #     mapbox_layers=[
-    #         {
-    #             "below": 'traces',
-    #             "sourcetype": "raster",
-    #             "sourceattribution": "United States Geological Survey",
-    #             "source": [
-    #                 "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-    #             ]
-    #         }
-    #     ],  mapbox=dict(
-    #         style='open-street-map',
-    #         center=dict(lat=y_med, lon=x_med),
-    #         zoom=13
-    #     ))
-
     fig.update_layout(
         mapbox=dict(
-            style='open-street-map',
+            accesstoken=mapbox_token,
+            style=style_url,
             center=dict(lat=y_med, lon=x_med),
             zoom=13
         ))
-
 
     fig.update_traces(
         marker=dict(sizemode='area', sizeref=size, sizemin=size)
@@ -1000,10 +990,22 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
 
     print('PLOT_TS')
 
+    print(list_plans, Baseline)
+
+    print(df_PI.head())
+
     df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
+
+    df_value_to_move = df_PI_plans[df_PI_plans['ALT'] == Baseline]
+    others = df_PI_plans[df_PI_plans['ALT'] != Baseline]
+    df_PI_plans = pd.concat([others, df_value_to_move])
+    df_PI_plans=df_PI_plans.reset_index(drop=True)
+
     fig = px.line(df_PI_plans, x="YEAR", y=Variable, color='ALT', labels={'ALT':'Plans'})
     fig['data'][-1]['line']['color']="#00ff00"
     fig['data'][-1]['line']['width']=3
+    fig['data'][-1]['line']['dash'] = 'dash'
+
     fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
            xaxis_title='Years',
            yaxis_title=f'{unit_dct[PI_code]}')
@@ -1024,7 +1026,6 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[
                     df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
-                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
@@ -1032,7 +1033,6 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(
                     3)
-                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
 
@@ -1040,19 +1040,15 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
         if Stats == 'mean':
             plan_values=[]
             baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
-            #baseline_value = baseline_value * multiplier
             for c in range(len(plans_selected)):
                 plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
-                #plan_value=plan_value*multiplier
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
             plan_values=[]
             baseline_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
-            #baseline_value = baseline_value * multiplier
             for c in range(len(plans_selected)):
                 plan_value=df_PI[Variable].loc[df_PI['ALT']==unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
-                #plan_value = plan_value * multiplier
                 plan_values.append(plan_value)
 
     return baseline_value, plan_values
@@ -1095,8 +1091,6 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
             max=df[var_s].max()
             maxs.append(max)
             df_max=df.loc[df[var_s]==max]
-            # print(var_s)
-            # print(df_max.iloc[0, :])
             min=df[var_s].min()
             mins.append(min)
 
@@ -1107,8 +1101,6 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
     multiplier=unique_PI_CFG.multiplier
     full_max=full_max*multiplier
     full_min = full_min * multiplier
-
-    #print(full_min, full_max)
 
     return full_min, full_max
 
@@ -1198,10 +1190,7 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
     full_max_diff = full_max_diff*multiplier
     full_min_diff = full_min_diff * multiplier
 
-    print(full_min_diff, full_max_diff)
-
     return full_min_diff, full_max_diff
-
 
 @st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):

@@ -51,7 +51,6 @@ var_agg_stat={'VAR7': ['sum'],
 # 	   'Total buildings (boolean)': 'inverse',
 # 	   'Total buildings (Nb of QMs)': 'inverse'}
 
-
 var_direction={ 	   'Residential (boolean)': 'inverse',
  	   'Residential (Nb of QMs)': 'inverse',
 	   'Total buildings (boolean)': 'inverse',
@@ -69,8 +68,6 @@ divided_by_country=False
 available_sections=['SLR_DS_CAN', 'SLR_US_CAN', 'USL_DS_US', 'USL_DS_CAN', 'USL_US_US',
  'USL_US_CAN', 'LKO_US', 'LKO_CAN']
 
-# available_sections=['LKO']
-
 sect_dct={'Lake Ontario Canada':['LKO_CAN'],
     'Lake Ontario United States':['LKO_US'],
     'Upper St.Lawrence upstream Canada ':['USL_US_CAN'],
@@ -82,22 +79,18 @@ sect_dct={'Lake Ontario Canada':['LKO_CAN'],
 
 
 available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330']
-#available_plans=['Bv7_2014_ComboC']
 
 plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45']}
-#plans_ts_dct={'hist':['Bv7_2014_ComboC']}
 
 plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC']
 
 plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45':'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330':'GERBL2_2014_ComboC_STO_330'}
 
 available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330', 'PreProject_RCP45', 'PreProject_STO_330']
-#available_baselines=['OBS']
 
 baseline_dct={'OBS':'OBS', 'PreProjectHistorical':'PreProjectHistorical' , 'Bv7_2014':'Bv7_2014', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_RCP45':'PreProject_RCP45', 'PreProject_STO_330':'PreProject_STO_330'}
 
 baseline_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45']}
-#baseline_ts_dct={'hist':['OBS']}
 
 available_stats = ['sum', 'mean']
 
