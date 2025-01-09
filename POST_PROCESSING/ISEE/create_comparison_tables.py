@@ -387,7 +387,6 @@ def run_stat_tests_median(residuals, df_res, alpha=0.05):
 
     return df_res
 
-
 def run_stat_tests_mean(residuals, df_res, alpha=0.05):
     stationnary = True
     trend = False
@@ -466,7 +465,6 @@ def run_stat_tests_mean(residuals, df_res, alpha=0.05):
 
     return df_res
 
-
 def estimate_critical_periods(df, var, year_col, low_thresh, high_thresh, n_yrs):
 
     count_critical_periods = 0
@@ -483,8 +481,6 @@ def estimate_critical_periods(df, var, year_col, low_thresh, high_thresh, n_yrs)
                     count_critical_periods+=1
 
     return count_critical_periods
-
-
 
 dict_thresholds = {
 
@@ -706,23 +702,23 @@ dict_pi_var = {
     'AYL_2D':  ['Average Yield Loss for all crops ($)'],
 
     'ROADS_2D': ['Primary roads (Nb of QMs)',
-                 'Secondary roads (Nb of QMs)',
-                 'Tertiary roads (Nb of QMs)',
+                 #'Secondary roads (Nb of QMs)',
+                 #'Tertiary roads (Nb of QMs)',
                  'All roads (Nb of QMs)',
                  'Primary roads (Length in m)',
-                 'Secondary roads (Length in m)',
-                 'Tertiary roads (Length in m)',
+                 #'Secondary roads (Length in m)',
+                 #'Tertiary roads (Length in m)',
                  'All roads (Length in m)'],
 
     'MFI_2D': ['Impacts during the navigation season',
                'Number of QMs with impacts'],
 
-    'NFB_2D': ['Accessory buildings (boolean)',
-               'Accessory building (Nb of QMs)',
-               'Strategic assets buildings (boolean)',
-               'Strategic assets buildings (Nb of QMs)',
-               'Non-residential (boolean)',
-               'Non-residential (Nb of QMs)',
+    'NFB_2D': [#'Accessory buildings (boolean)',
+               #'Accessory building (Nb of QMs)',
+               #'Strategic assets buildings (boolean)',
+               #'Strategic assets buildings (Nb of QMs)',
+               #'Non-residential (boolean)',
+               #'Non-residential (Nb of QMs)',
                'Residential (boolean)',
                'Residential (Nb of QMs)',
                'Total buildings (boolean)',
@@ -764,7 +760,7 @@ folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
 #list_supplies = ['Historical']
 
 ref_plan = 'GERBL2_2014'
-list_plans = ['PreProject', 'GERBL2_2014_ComboC']
+list_plans = ['PreProject', 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD']
 list_pis = list(dict_pi_var.keys())
 #list_pis = ['CHNI_2D']
 
@@ -876,29 +872,27 @@ for pi, list_var in dict_pi_var.items():
                                     #if pi not in dict_thresholds.keys():
                                     if pi in list_plan_lower_better:
                                         if pi in list_pi_sum:
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] < 0), 'MEAN_DIRECTION'] = '+'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] > 0), 'MEAN_DIRECTION'] = '-'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
 
                                         else:
 
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '+'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '-'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
                                             df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
                                     else:
                                         if pi in list_pi_sum:
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] < 0), 'MEAN_DIRECTION'] = '+'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] > 0), 'MEAN_DIRECTION'] = '-'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
                                         else:
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '-'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '+'
-                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
                                             df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
-
-
 
                             if pi in dict_pi_scores:
                                 if var in dict_pi_scores[pi]:

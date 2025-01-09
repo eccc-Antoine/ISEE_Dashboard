@@ -6,13 +6,15 @@ import CFG_POST_PROCESS_ISEE as cfg
 
 
 
-dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC'],
-                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45'],
-                    'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330']}
+dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'],
+                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
+                    #'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330']}
 
-plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistorical': 'PreProject', 'Bv7_2014_ComboC': 'GERBL2_2014_ComboC',
-                    'GERBL2_2014BOC_RCP45': 'GERBL2_2014', 'PreProject_RCP45': 'PreProject', 'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC',
-                    'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC'}
+plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistorical': 'PreProject',
+                    'Bv7_2014_ComboC': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD': 'GERBL2_2014_ComboD',
+                    'GERBL2_2014BOC_RCP45': 'GERBL2_2014', 'PreProject_RCP45': 'PreProject',
+                    'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_RCP45': 'GERBL2_2014_ComboD'}#,
+                    #'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC'}
 
 
 dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
@@ -47,23 +49,23 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
                   'AYL_2D': {'VAR1_sum': 'Average Yield Loss for all crops ($)'},
 
                   'ROADS_2D': {'VAR1_sum': 'Primary roads (Nb of QMs)',
-                               'VAR2_sum': 'Secondary roads (Nb of QMs)',
-                               'VAR3_sum': 'Tertiary roads (Nb of QMs)',
+                               #'VAR2_sum': 'Secondary roads (Nb of QMs)',
+                               #'VAR3_sum': 'Tertiary roads (Nb of QMs)',
                                'VAR5_sum': 'All roads (Nb of QMs)',
                                'VAR6_sum': 'Primary roads (Length in m)',
-                               'VAR7_sum': 'Secondary roads (Length in m)',
-                               'VAR8_sum': 'Tertiary roads (Length in m)',
+                               #'VAR7_sum': 'Secondary roads (Length in m)',
+                               #'VAR8_sum': 'Tertiary roads (Length in m)',
                                'VAR10_sum': 'All roads (Length in m)'},
 
                   'MFI_2D': {'VAR1_sum': 'Impacts during the navigation season',
                              'VAR2_sum': 'Number of QMs with impacts'},
 
-                  'NFB_2D': {'VAR1_sum': 'Accessory buildings (boolean)',
-                             'VAR2_sum': 'Accessory building (Nb of QMs)',
-                             'VAR3_sum': 'Strategic assets buildings (boolean)',
-                             'VAR4_sum': 'Strategic assets buildings (Nb of QMs)',
-                             'VAR5_sum': 'Non-residential (boolean)',
-                             'VAR6_sum': 'Non-residential (Nb of QMs)',
+                  'NFB_2D': {#'VAR1_sum': 'Accessory buildings (boolean)',
+                             #'VAR2_sum': 'Accessory building (Nb of QMs)',
+                             #'VAR3_sum': 'Strategic assets buildings (boolean)',
+                            # 'VAR4_sum': 'Strategic assets buildings (Nb of QMs)',
+                             #'VAR5_sum': 'Non-residential (boolean)',
+                             #'VAR6_sum': 'Non-residential (Nb of QMs)',
                              'VAR7_sum': 'Residential (boolean)',
                              'VAR8_sum': 'Residential (Nb of QMs)',
                              'VAR9_sum': 'Total buildings (boolean)',

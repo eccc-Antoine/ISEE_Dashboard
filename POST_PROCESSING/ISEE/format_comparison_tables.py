@@ -104,9 +104,10 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
             # Get the cell based on mapping rules
             # Get the cell based on mapping rules
             list_index = []
+            print(supply_scenario, section, plan)
             if (supply_scenario, section, plan) in mapping_rules:
                 col_letter, relative_row = mapping_rules[(supply_scenario, section, plan)]
-                col_index = ord(col_letter.upper()) - ord('A')
+                col_index = ord(col_letter.upper()) - ord('A') + 1
                 row_index = next_available_row + relative_row - 1
                 print(row_index, col_index)
                 list_index.append((row_index, col_index))
@@ -133,195 +134,313 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
 template_path = r"P:\GLAM\Dashboard\ISEE_Dash_portable\results_template.xlsx"
 outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
 csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20241209.csv')
-
 # Define mapping rules (example: map section, plan, supply_scenario to Excel cells)
-mapping_rules_no_country = {
-    ("Historical", "LKO", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
-    ("Historical", "USL_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
-    ("Historical", "USL_DS", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
-    ("Historical", "SLR_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
-    ("Historical", "SLR_DS", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
-    ("STO330", "LKO", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
-    ("STO330", "USL_US", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
-    ("STO330", "USL_DS", "GERBL2_2014"): ("L", 3),  # Maps to cell B5
-    ("STO330", "SLR_US", "GERBL2_2014"): ("M", 3),  # Maps to cell B5
-    ("STO330", "SLR_DS", "GERBL2_2014"): ("N", 3),  # Maps to cell B5
-    ("RCP45", "LKO", "GERBL2_2014"): ("O", 3),  # Maps to cell B5
-    ("RCP45", "USL_US", "GERBL2_2014"): ("P", 3),  # Maps to cell B5
-    ("RCP45", "USL_DS", "GERBL2_2014"): ("Q", 3),  # Maps to cell B5
-    ("RCP45", "SLR_US", "GERBL2_2014"): ("R", 3),  # Maps to cell B5
-    ("RCP45", "SLR_DS", "GERBL2_2014"): ("S", 3),  # Maps to cell B5
 
-    ("Historical", "LKO", "GERBL2_2014_ComboC"): ("E", 4),
-    ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("F", 4),
-    ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("G", 4),
-    ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("H", 4),
-    ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 4),
-    ("STO330", "LKO", "GERBL2_2014_ComboC"): ("J", 4),
-    ("STO330", "USL_US", "GERBL2_2014_ComboC"): ("K", 4),
-    ("STO330", "USL_DS", "GERBL2_2014_ComboC"): ("L", 4),
-    ("STO330", "SLR_US", "GERBL2_2014_ComboC"): ("M", 4),
-    ("STO330", "SLR_DS", "GERBL2_2014_ComboC"): ("N", 4),
-    ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("O", 4),
-    ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("P", 4),
-    ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("Q", 4),
-    ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("R", 4),
-    ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("S", 4),
-
-    ("Historical", "LKO", "PreProject"): ("E", 5),
-    ("Historical", "USL_US", "PreProject"): ("F", 5),
-    #("Historical", "USL_DS", "PreProject"): ("G", 5),
-    ("Historical", "SLR_US", "PreProject"): ("H", 5),
-    ("Historical", "SLR_DS", "PreProject"): ("I", 5),
-    ("STO330", "LKO", "PreProject"): ("J", 5),
-    ("STO330", "USL_US", "PreProject"): ("K", 5),
-    #("STO330", "USL_DS", "PreProject"): ("L", 5),
-    ("STO330", "SLR_US", "PreProject"): ("M", 5),
-    ("STO330", "SLR_DS", "PreProject"): ("N", 5),
-    ("RCP45", "LKO", "PreProject"): ("O", 5),
-    ("RCP45", "USL_US", "PreProject"): ("P", 5),
-    #("RCP45", "USL_DS", "PreProject"): ("Q", 5),
-    ("RCP45", "SLR_US", "PreProject"): ("R", 5),
-    ("RCP45", "SLR_DS", "PreProject"): ("S", 5),
-
-}
-
+# mapping_rules_no_country = {
+#     ("Historical", "LKO", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+#     ("Historical", "USL_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+#     ("Historical", "SLR_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+#     ("Historical", "SLR_DS", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
+#     ("STO330", "LKO", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
+#     ("STO330", "USL_US", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
+#     ("STO330", "USL_DS", "GERBL2_2014"): ("L", 3),  # Maps to cell B5
+#     ("STO330", "SLR_US", "GERBL2_2014"): ("M", 3),  # Maps to cell B5
+#     ("STO330", "SLR_DS", "GERBL2_2014"): ("N", 3),  # Maps to cell B5
+#     ("RCP45", "LKO", "GERBL2_2014"): ("O", 3),  # Maps to cell B5
+#     ("RCP45", "USL_US", "GERBL2_2014"): ("P", 3),  # Maps to cell B5
+#     ("RCP45", "USL_DS", "GERBL2_2014"): ("Q", 3),  # Maps to cell B5
+#     ("RCP45", "SLR_US", "GERBL2_2014"): ("R", 3),  # Maps to cell B5
+#     ("RCP45", "SLR_DS", "GERBL2_2014"): ("S", 3),  # Maps to cell B5
+#
+#     ("Historical", "LKO", "GERBL2_2014_ComboC"): ("E", 4),
+#     ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("F", 4),
+#     ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("G", 4),
+#     ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("H", 4),
+#     ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 4),
+#     ("STO330", "LKO", "GERBL2_2014_ComboC"): ("J", 4),
+#     ("STO330", "USL_US", "GERBL2_2014_ComboC"): ("K", 4),
+#     ("STO330", "USL_DS", "GERBL2_2014_ComboC"): ("L", 4),
+#     ("STO330", "SLR_US", "GERBL2_2014_ComboC"): ("M", 4),
+#     ("STO330", "SLR_DS", "GERBL2_2014_ComboC"): ("N", 4),
+#     ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("O", 4),
+#     ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("P", 4),
+#     ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("Q", 4),
+#     ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("R", 4),
+#     ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("S", 4),
+#
+#     ("Historical", "LKO", "PreProject"): ("E", 5),
+#     ("Historical", "USL_US", "PreProject"): ("F", 5),
+#     #("Historical", "USL_DS", "PreProject"): ("G", 5),
+#     ("Historical", "SLR_US", "PreProject"): ("H", 5),
+#     ("Historical", "SLR_DS", "PreProject"): ("I", 5),
+#     ("STO330", "LKO", "PreProject"): ("J", 5),
+#     ("STO330", "USL_US", "PreProject"): ("K", 5),
+#     #("STO330", "USL_DS", "PreProject"): ("L", 5),
+#     ("STO330", "SLR_US", "PreProject"): ("M", 5),
+#     ("STO330", "SLR_DS", "PreProject"): ("N", 5),
+#     ("RCP45", "LKO", "PreProject"): ("O", 5),
+#     ("RCP45", "USL_US", "PreProject"): ("P", 5),
+#     #("RCP45", "USL_DS", "PreProject"): ("Q", 5),
+#     ("RCP45", "SLR_US", "PreProject"): ("R", 5),
+#     ("RCP45", "SLR_DS", "PreProject"): ("S", 5),
+#
+# }
+#
+# mapping_rules_2 = {
+#     ("Historical", "LKO", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+#     ("Historical", "USL_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+#     ("Historical", "SLR_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+#     ("Historical", "SLR_DS", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
+#     ("STO330", "LKO", "GERBL2_2014"): ("E", 8),  # Maps to cell B5
+#     ("STO330", "USL_US", "GERBL2_2014"): ("F", 8),  # Maps to cell B5
+#     ("STO330", "USL_DS", "GERBL2_2014"): ("G", 8),  # Maps to cell B5
+#     ("STO330", "SLR_US", "GERBL2_2014"): ("H", 8),  # Maps to cell B5
+#     ("STO330", "SLR_DS", "GERBL2_2014"): ("I", 8),  # Maps to cell B5
+#     ("RCP45", "LKO", "GERBL2_2014"): ("E", 13),  # Maps to cell B5
+#     ("RCP45", "USL_US", "GERBL2_2014"): ("F", 13),  # Maps to cell B5
+#     ("RCP45", "USL_DS", "GERBL2_2014"): ("G", 13),  # Maps to cell B5
+#     ("RCP45", "SLR_US", "GERBL2_2014"): ("H", 13),  # Maps to cell B5
+#     ("RCP45", "SLR_DS", "GERBL2_2014"): ("I", 13),  # Maps to cell B5
+#
+#     ("Historical", "LKO", "GERBL2_2014_ComboC"): ("E", 4),
+#     ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("F", 4),
+#     ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("G", 4),
+#     ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("H", 4),
+#     ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 4),
+#     ("STO330", "LKO", "GERBL2_2014_ComboC"): ("E", 9),
+#     ("STO330", "USL_US", "GERBL2_2014_ComboC"): ("F", 9),
+#     ("STO330", "USL_DS", "GERBL2_2014_ComboC"): ("G", 9),
+#     ("STO330", "SLR_US", "GERBL2_2014_ComboC"): ("H", 9),
+#     ("STO330", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 9),
+#     ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("E", 14),
+#     ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("F", 14),
+#     ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("G", 14),
+#     ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("H", 14),
+#     ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 14),
+#
+#     ("Historical", "LKO", "PreProject"): ("E", 5),
+#     ("Historical", "USL_US", "PreProject"): ("F", 5),
+#     #("Historical", "USL_DS", "PreProject"): ("G", 5),
+#     ("Historical", "SLR_US", "PreProject"): ("H", 5),
+#     ("Historical", "SLR_DS", "PreProject"): ("I", 5),
+#     ("STO330", "LKO", "PreProject"): ("E", 10),
+#     ("STO330", "USL_US", "PreProject"): ("F", 10),
+#     #("STO330", "USL_DS", "PreProject"): ("G", 10),
+#     ("STO330", "SLR_US", "PreProject"): ("H", 10),
+#     ("STO330", "SLR_DS", "PreProject"): ("I", 10),
+#     ("RCP45", "LKO", "PreProject"): ("E", 15),
+#     ("RCP45", "USL_US", "PreProject"): ("F", 15),
+#     #("RCP45", "USL_DS", "PreProject"): ("G", 15),
+#     ("RCP45", "SLR_US", "PreProject"): ("H", 15),
+#     ("RCP45", "SLR_DS", "PreProject"): ("I", 15),
+# }
 
 mapping_rules_2 = {
-    ("Historical", "LKO", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
-    ("Historical", "USL_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
-    ("Historical", "USL_DS", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
-    ("Historical", "SLR_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
-    ("Historical", "SLR_DS", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
-    ("STO330", "LKO", "GERBL2_2014"): ("E", 8),  # Maps to cell B5
-    ("STO330", "USL_US", "GERBL2_2014"): ("F", 8),  # Maps to cell B5
-    ("STO330", "USL_DS", "GERBL2_2014"): ("G", 8),  # Maps to cell B5
-    ("STO330", "SLR_US", "GERBL2_2014"): ("H", 8),  # Maps to cell B5
-    ("STO330", "SLR_DS", "GERBL2_2014"): ("I", 8),  # Maps to cell B5
-    ("RCP45", "LKO", "GERBL2_2014"): ("E", 13),  # Maps to cell B5
-    ("RCP45", "USL_US", "GERBL2_2014"): ("F", 13),  # Maps to cell B5
-    ("RCP45", "USL_DS", "GERBL2_2014"): ("G", 13),  # Maps to cell B5
-    ("RCP45", "SLR_US", "GERBL2_2014"): ("H", 13),  # Maps to cell B5
-    ("RCP45", "SLR_DS", "GERBL2_2014"): ("I", 13),  # Maps to cell B5
+    ("Historical", "LKO", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
+    ("Historical", "USL_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+    ("Historical", "USL_DS", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+    ("Historical", "SLR_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+    ("Historical", "SLR_DS", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+    ("RCP45", "LKO", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
+    ("RCP45", "USL_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
+    ("RCP45", "USL_DS", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
+    ("RCP45", "SLR_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
+    ("RCP45", "SLR_DS", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
 
-    ("Historical", "LKO", "GERBL2_2014_ComboC"): ("E", 4),
-    ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("F", 4),
-    ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("G", 4),
-    ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("H", 4),
-    ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 4),
-    ("STO330", "LKO", "GERBL2_2014_ComboC"): ("E", 9),
-    ("STO330", "USL_US", "GERBL2_2014_ComboC"): ("F", 9),
-    ("STO330", "USL_DS", "GERBL2_2014_ComboC"): ("G", 9),
-    ("STO330", "SLR_US", "GERBL2_2014_ComboC"): ("H", 9),
-    ("STO330", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 9),
-    ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("E", 14),
-    ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("F", 14),
-    ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("G", 14),
-    ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("H", 14),
-    ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("I", 14),
+    ("Historical", "LKO", "GERBL2_2014_ComboC"): ("D", 4),
+    ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("E", 4),
+    ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("F", 4),
+    ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("G", 4),
+    ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 4),
+    ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("D", 10),
+    ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("E", 10),
+    ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("F", 10),
+    ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("G", 10),
+    ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 10),
 
-    ("Historical", "LKO", "PreProject"): ("E", 5),
-    ("Historical", "USL_US", "PreProject"): ("F", 5),
-    #("Historical", "USL_DS", "PreProject"): ("G", 5),
-    ("Historical", "SLR_US", "PreProject"): ("H", 5),
-    ("Historical", "SLR_DS", "PreProject"): ("I", 5),
-    ("STO330", "LKO", "PreProject"): ("E", 10),
-    ("STO330", "USL_US", "PreProject"): ("F", 10),
-    #("STO330", "USL_DS", "PreProject"): ("G", 10),
-    ("STO330", "SLR_US", "PreProject"): ("H", 10),
-    ("STO330", "SLR_DS", "PreProject"): ("I", 10),
-    ("RCP45", "LKO", "PreProject"): ("E", 15),
-    ("RCP45", "USL_US", "PreProject"): ("F", 15),
-    #("RCP45", "USL_DS", "PreProject"): ("G", 15),
-    ("RCP45", "SLR_US", "PreProject"): ("H", 15),
-    ("RCP45", "SLR_DS", "PreProject"): ("I", 15),
+    ("Historical", "LKO", "GERBL2_2014_ComboD"): ("D", 5),
+    ("Historical", "USL_US", "GERBL2_2014_ComboD"): ("E", 5),
+    ("Historical", "USL_DS", "GERBL2_2014_ComboD"): ("F", 5),
+    ("Historical", "SLR_US", "GERBL2_2014_ComboD"): ("G", 5),
+    ("Historical", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 5),
+    ("RCP45", "LKO", "GERBL2_2014_ComboD"): ("D", 11),
+    ("RCP45", "USL_US", "GERBL2_2014_ComboD"): ("E", 11),
+    ("RCP45", "USL_DS", "GERBL2_2014_ComboD"): ("F", 11),
+    ("RCP45", "SLR_US", "GERBL2_2014_ComboD"): ("G", 11),
+    ("RCP45", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 11),
+
+    ("Historical", "LKO", "PreProject"): ("D", 6),
+    ("Historical", "USL_US", "PreProject"): ("E", 6),
+    ("Historical", "SLR_US", "PreProject"): ("G", 6),
+    ("Historical", "SLR_DS", "PreProject"): ("H", 6),
+    ("RCP45", "LKO", "PreProject"): ("D", 12),
+    ("RCP45", "USL_US", "PreProject"): ("E", 12),
+    ("RCP45", "SLR_US", "PreProject"): ("G", 12),
+    ("RCP45", "SLR_DS", "PreProject"): ("H", 12),
 }
 
+#
+# mapping_country =  {
+#     ("Historical", "LKO_CAN", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+#     ("Historical", "LKO_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS_CAN", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS_US", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "GERBL2_2014"): ("L", 3),  # Maps to cell B5
+#
+#     ("STO330", "LKO_CAN", "GERBL2_2014"): ("E", 8),  # Maps to cell B5
+#     ("STO330", "LKO_US", "GERBL2_2014"): ("F", 8),  # Maps to cell B5
+#     ("STO330", "USL_US_CAN", "GERBL2_2014"): ("G", 8),  # Maps to cell B5
+#     ("STO330", "USL_US_US", "GERBL2_2014"): ("H", 8),  # Maps to cell B5
+#     ("STO330", "USL_DS_CAN", "GERBL2_2014"): ("I", 8),  # Maps to cell B5
+#     ("STO330", "USL_DS_US", "GERBL2_2014"): ("J", 8),  # Maps to cell B5
+#     ("STO330", "SLR_US_CAN", "GERBL2_2014"): ("K", 8),  # Maps to cell B5
+#     ("STO330", "SLR_DS_CAN", "GERBL2_2014"): ("L", 8),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "GERBL2_2014"): ("E", 13),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "GERBL2_2014"): ("F", 13),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "GERBL2_2014"): ("G", 13),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "GERBL2_2014"): ("H", 13),  # Maps to cell B5
+#     ("RCP45", "USL_DS_CAN", "GERBL2_2014"): ("I", 13),  # Maps to cell B5
+#     ("RCP45", "USL_DS_US", "GERBL2_2014"): ("J", 13),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "GERBL2_2014"): ("K", 13),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "GERBL2_2014"): ("L", 13),  # Maps to cell B5
+#
+#     ("Historical", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 4),  # Maps to cell B5
+#     ("Historical", "LKO_US", "GERBL2_2014_ComboC"): ("F", 4),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 4),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 4),  # Maps to cell B5
+#     ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 4),  # Maps to cell B5
+#     ("Historical", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 4),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 4),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 4),  # Maps to cell B5
+#
+#     ("STO330", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 9),  # Maps to cell B5
+#     ("STO330", "LKO_US", "GERBL2_2014_ComboC"): ("F", 9),  # Maps to cell B5
+#     ("STO330", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 9),  # Maps to cell B5
+#     ("STO330", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 9),  # Maps to cell B5
+#     ("STO330", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 9),  # Maps to cell B5
+#     ("STO330", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 9),  # Maps to cell B5
+#     ("STO330", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 9),  # Maps to cell B5
+#     ("STO330", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 9),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 14),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "GERBL2_2014_ComboC"): ("F", 14),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 14),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 14),  # Maps to cell B5
+#     ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 14),  # Maps to cell B5
+#     ("RCP45", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 14),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 14),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 14),  # Maps to cell B5
+#
+#     ("Historical", "LKO_CAN", "PreProject"): ("E", 5),  # Maps to cell B5
+#     ("Historical", "LKO_US", "PreProject"): ("F", 5),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "PreProject"): ("G", 5),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "PreProject"): ("H", 5),  # Maps to cell B5
+#     #("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
+#    # ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "PreProject"): ("K", 5),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "PreProject"): ("L", 5),  # Maps to cell B5
+#
+#     ("STO330", "LKO_CAN", "PreProject"): ("E", 10),  # Maps to cell B5
+#     ("STO330", "LKO_US", "PreProject"): ("F", 10),  # Maps to cell B5
+#     ("STO330", "USL_US_CAN", "PreProject"): ("G", 10),  # Maps to cell B5
+#     ("STO330", "USL_US_US", "PreProject"): ("H", 10),  # Maps to cell B5
+#     #("STO330", "USL_DS_CAN", "PreProject"): ("I", 10),  # Maps to cell B5
+#     #("STO330", "USL_DS_US", "PreProject"): ("J", 10),  # Maps to cell B5
+#     ("STO330", "SLR_US_CAN", "PreProject"): ("K", 10),  # Maps to cell B5
+#     ("STO330", "SLR_DS_CAN", "PreProject"): ("L", 10),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "PreProject"): ("E", 15),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "PreProject"): ("F", 15),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "PreProject"): ("G", 15),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "PreProject"): ("H", 15),  # Maps to cell B5
+#     #("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
+#     #("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "PreProject"): ("K", 15),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "PreProject"): ("L", 15),  # Maps to cell B5
+#
+# }
 
 mapping_country =  {
-    ("Historical", "LKO_CAN", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
-    ("Historical", "LKO_US", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
-    ("Historical", "USL_US_US", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "GERBL2_2014"): ("L", 3),  # Maps to cell B5
+    ("Historical", "LKO_CAN", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
+    ("Historical", "LKO_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+    ("Historical", "USL_US_CAN", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+    ("Historical", "USL_US_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+    ("Historical", "USL_DS_CAN", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+    ("Historical", "USL_DS_US", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
+    ("Historical", "SLR_US_CAN", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
+    ("Historical", "SLR_DS_CAN", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
 
-    ("STO330", "LKO_CAN", "GERBL2_2014"): ("E", 8),  # Maps to cell B5
-    ("STO330", "LKO_US", "GERBL2_2014"): ("F", 8),  # Maps to cell B5
-    ("STO330", "USL_US_CAN", "GERBL2_2014"): ("G", 8),  # Maps to cell B5
-    ("STO330", "USL_US_US", "GERBL2_2014"): ("H", 8),  # Maps to cell B5
-    ("STO330", "USL_DS_CAN", "GERBL2_2014"): ("I", 8),  # Maps to cell B5
-    ("STO330", "USL_DS_US", "GERBL2_2014"): ("J", 8),  # Maps to cell B5
-    ("STO330", "SLR_US_CAN", "GERBL2_2014"): ("K", 8),  # Maps to cell B5
-    ("STO330", "SLR_DS_CAN", "GERBL2_2014"): ("L", 8),  # Maps to cell B5
+    ("RCP45", "LKO_CAN", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
+    ("RCP45", "LKO_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
+    ("RCP45", "USL_US_CAN", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
+    ("RCP45", "USL_US_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
+    ("RCP45", "USL_DS_CAN", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
+    ("RCP45", "USL_DS_US", "GERBL2_2014"): ("I", 9),  # Maps to cell B5
+    ("RCP45", "SLR_US_CAN", "GERBL2_2014"): ("J", 9),  # Maps to cell B5
+    ("RCP45", "SLR_DS_CAN", "GERBL2_2014"): ("K", 9),  # Maps to cell B5
 
-    ("RCP45", "LKO_CAN", "GERBL2_2014"): ("E", 13),  # Maps to cell B5
-    ("RCP45", "LKO_US", "GERBL2_2014"): ("F", 13),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "GERBL2_2014"): ("G", 13),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "GERBL2_2014"): ("H", 13),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "GERBL2_2014"): ("I", 13),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "GERBL2_2014"): ("J", 13),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "GERBL2_2014"): ("K", 13),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "GERBL2_2014"): ("L", 13),  # Maps to cell B5
+    ("Historical", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 4),  # Maps to cell B5
+    ("Historical", "LKO_US", "GERBL2_2014_ComboC"): ("E", 4),  # Maps to cell B5
+    ("Historical", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 4),  # Maps to cell B5
+    ("Historical", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 4),  # Maps to cell B5
+    ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 4),  # Maps to cell B5
+    ("Historical", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 4),  # Maps to cell B5
+    ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 4),  # Maps to cell B5
+    ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 4),  # Maps to cell B5
 
-    ("Historical", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 4),  # Maps to cell B5
-    ("Historical", "LKO_US", "GERBL2_2014_ComboC"): ("F", 4),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 4),  # Maps to cell B5
-    ("Historical", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 4),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 4),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 4),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 4),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 4),  # Maps to cell B5
+    ("RCP45", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 10),  # Maps to cell B5
+    ("RCP45", "LKO_US", "GERBL2_2014_ComboC"): ("E", 10),  # Maps to cell B5
+    ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 10),  # Maps to cell B5
+    ("RCP45", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 10),  # Maps to cell B5
+    ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 10),  # Maps to cell B5
+    ("RCP45", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 10),  # Maps to cell B5
+    ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 10),  # Maps to cell B5
+    ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 10),  # Maps to cell B5
 
-    ("STO330", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 9),  # Maps to cell B5
-    ("STO330", "LKO_US", "GERBL2_2014_ComboC"): ("F", 9),  # Maps to cell B5
-    ("STO330", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 9),  # Maps to cell B5
-    ("STO330", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 9),  # Maps to cell B5
-    ("STO330", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 9),  # Maps to cell B5
-    ("STO330", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 9),  # Maps to cell B5
-    ("STO330", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 9),  # Maps to cell B5
-    ("STO330", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 9),  # Maps to cell B5
+    ("Historical", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 5),  # Maps to cell B5
+    ("Historical", "LKO_US", "GERBL2_2014_ComboD"): ("E", 5),  # Maps to cell B5
+    ("Historical", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 5),  # Maps to cell B5
+    ("Historical", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 5),  # Maps to cell B5
+    ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 5),  # Maps to cell B5
+    ("Historical", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 5),  # Maps to cell B5
+    ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 5),  # Maps to cell B5
+    ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 5),  # Maps to cell B5
 
-    ("RCP45", "LKO_CAN", "GERBL2_2014_ComboC"): ("E", 14),  # Maps to cell B5
-    ("RCP45", "LKO_US", "GERBL2_2014_ComboC"): ("F", 14),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboC"): ("G", 14),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "GERBL2_2014_ComboC"): ("H", 14),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("I", 14),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "GERBL2_2014_ComboC"): ("J", 14),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("K", 14),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("L", 14),  # Maps to cell B5
+    ("RCP45", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 11),  # Maps to cell B5
+    ("RCP45", "LKO_US", "GERBL2_2014_ComboD"): ("E", 11),  # Maps to cell B5
+    ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 11),  # Maps to cell B5
+    ("RCP45", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 11),  # Maps to cell B5
+    ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 11),  # Maps to cell B5
+    ("RCP45", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 11),  # Maps to cell B5
+    ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 11),  # Maps to cell B5
+    ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 11),  # Maps to cell B5
 
-    ("Historical", "LKO_CAN", "PreProject"): ("E", 5),  # Maps to cell B5
-    ("Historical", "LKO_US", "PreProject"): ("F", 5),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "PreProject"): ("G", 5),  # Maps to cell B5
-    ("Historical", "USL_US_US", "PreProject"): ("H", 5),  # Maps to cell B5
+
+    ("Historical", "LKO_CAN", "PreProject"): ("D", 6),  # Maps to cell B5
+    ("Historical", "LKO_US", "PreProject"): ("E", 6),  # Maps to cell B5
+    ("Historical", "USL_US_CAN", "PreProject"): ("F", 6),  # Maps to cell B5
+    ("Historical", "USL_US_US", "PreProject"): ("G", 6),  # Maps to cell B5
     #("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
    # ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "PreProject"): ("K", 5),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "PreProject"): ("L", 5),  # Maps to cell B5
+    ("Historical", "SLR_US_CAN", "PreProject"): ("J", 6),  # Maps to cell B5
+    ("Historical", "SLR_DS_CAN", "PreProject"): ("K", 6),  # Maps to cell B5
 
-    ("STO330", "LKO_CAN", "PreProject"): ("E", 10),  # Maps to cell B5
-    ("STO330", "LKO_US", "PreProject"): ("F", 10),  # Maps to cell B5
-    ("STO330", "USL_US_CAN", "PreProject"): ("G", 10),  # Maps to cell B5
-    ("STO330", "USL_US_US", "PreProject"): ("H", 10),  # Maps to cell B5
-    #("STO330", "USL_DS_CAN", "PreProject"): ("I", 10),  # Maps to cell B5
-    #("STO330", "USL_DS_US", "PreProject"): ("J", 10),  # Maps to cell B5
-    ("STO330", "SLR_US_CAN", "PreProject"): ("K", 10),  # Maps to cell B5
-    ("STO330", "SLR_DS_CAN", "PreProject"): ("L", 10),  # Maps to cell B5
-
-    ("RCP45", "LKO_CAN", "PreProject"): ("E", 15),  # Maps to cell B5
-    ("RCP45", "LKO_US", "PreProject"): ("F", 15),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "PreProject"): ("G", 15),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "PreProject"): ("H", 15),  # Maps to cell B5
+    ("RCP45", "LKO_CAN", "PreProject"): ("D", 12),  # Maps to cell B5
+    ("RCP45", "LKO_US", "PreProject"): ("E", 12),  # Maps to cell B5
+    ("RCP45", "USL_US_CAN", "PreProject"): ("F", 12),  # Maps to cell B5
+    ("RCP45", "USL_US_US", "PreProject"): ("G", 12),  # Maps to cell B5
     #("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
     #("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "PreProject"): ("K", 15),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "PreProject"): ("L", 15),  # Maps to cell B5
+    ("RCP45", "SLR_US_CAN", "PreProject"): ("J", 12),  # Maps to cell B5
+    ("RCP45", "SLR_DS_CAN", "PreProject"): ("K", 12),  # Maps to cell B5
 
 }
-
 
 dict_pi_var = {
     'CHNI_2D': {'N breeding pairs':['EXCEED_COUNT', 'CRITICAL_DIFF']},
@@ -399,7 +518,7 @@ list_pi_can_us = ['NFB_2D']
 df_results = pd.read_csv(csv_path, sep=';', header=0)
 
 
-output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20241209.xlsx')
+output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20250108.xlsx')
 
 if os.path.exists(output_path):
     os.remove(output_path)
@@ -423,9 +542,9 @@ for pi, dict_var in dict_pi_var.items():
             value_col_plan = value_col_ref
         df_pi = df_results[(df_results['PI_NAME'] == pi) & (df_results['VARIABLE'] == var)]
         if pi in list_pi_can_us:
-            sheet = 'CAN-US'
+            sheet = 'CAN-US_sansSTO_avecD'
             map_rules = mapping_country
         else:
-            sheet = 'Simple2'
+            sheet = 'sansSTO_avecD'
             map_rules = mapping_rules_2
         map_values_to_template(template_path, sheet, df_pi, output_path, map_rules, value_col_ref, value_col_plan, signif_col)
