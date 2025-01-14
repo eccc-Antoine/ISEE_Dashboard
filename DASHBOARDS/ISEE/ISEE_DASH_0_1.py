@@ -77,7 +77,8 @@ for pi in pis_code:
 
 pis = [pi_dct[pi] for pi in pis_code]
 
-ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
+#ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
+ts_dct={'hist':'historical','cc':'climate change'}
 
 #default_PI=pis_code[0]
 default_PI=next(iter(pi_dct.values()), None)
@@ -576,7 +577,10 @@ def function_for_tab4(exec):
 
 
 def render_column1():
-    timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
+    # timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
+    #                            on_change=update_timeseries)
+
+    timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
                                on_change=update_timeseries)
 
     ts_code = st.session_state['ts_code']
@@ -616,7 +620,10 @@ def render_column1():
     return folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
 def render_column1_simple():
-    timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
+    # timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
+    #                            on_change=update_timeseries)
+
+    timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
                                on_change=update_timeseries)
 
     ts_code = st.session_state['ts_code']
