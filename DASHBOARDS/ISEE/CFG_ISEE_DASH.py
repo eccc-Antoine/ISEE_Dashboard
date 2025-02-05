@@ -4,11 +4,18 @@ name='ISEE'
 
 version=1.0
 
-pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'PIKE_2D', 'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
+#pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'PIKE_2D', 'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
 
-#ts_list=['hist', 'sto', 'cc']
+pi_list=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D',
+         'ROADS_2D', 'SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D',
+         'TURTLE_1D', 'ZIPA_1D',
+         'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
+         'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D']
 
-ts_list=['hist', 'cc']
+
+ts_list=['hist', 'sto', 'cc']
+
+#ts_list=['hist', 'cc']
 
 title=f'{name} DASHBOARD {version}'
 

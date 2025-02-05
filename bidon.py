@@ -8,6 +8,7 @@ import geopandas as gpd
 
 import pandas as pd
 import os
+import shutil
 
 # gdf=gpd.read_file("H:\Projets\GLAM\Dashboard\ISEE_Dash_portable\debug\section_tiles_countries.geojson")
 #
@@ -54,34 +55,51 @@ quit()
 # # quit()
 # #
 # #
-src=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\IERM_2D'
+
+
+# src=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\IERM_2D'
+# liste_files=[]
+# for root, dirs, files in os.walk(src):
+#     for name in files:
+#         liste_files.append(os.path.join(root, name))
+#
+# print(len(liste_files))
+# print(liste_files[0])
+# for l in liste_files:
+#     dst=l.replace('_1962_', '_1963_')
+#     if not os.path.exists(dst):
+#         os.rename(l, dst)
+#     else:
+#         os.remove(l)
+#     #
+#     #
+#     # df=pd.read_feather(l)
+#     # print(df.head())
+#     # print(df.tail())
+#     # #geometry = gpd.points_from_xy(df['LON'], df['LAT'])
+#     # gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['LON'], df['LAT']), crs=32618)
+#     # gdf=gdf.to_crs(4326)
+#     # gdf['LON']=gdf.geometry.x
+#     # gdf['LAT'] = gdf.geometry.y
+#     # df=gdf.drop(columns=['geometry'])
+#     # print(df.head())
+#     # df.to_feather(l)
+# quit()
+
+src=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 liste_files=[]
 for root, dirs, files in os.walk(src):
-    for name in files:
+    for name in dirs:
         liste_files.append(os.path.join(root, name))
 
-print(len(liste_files))
-print(liste_files[0])
 for l in liste_files:
-    dst=l.replace('_1962_', '_1963_')
-    if not os.path.exists(dst):
-        os.rename(l, dst)
-    else:
-        os.remove(l)
-    #
-    #
-    # df=pd.read_feather(l)
-    # print(df.head())
-    # print(df.tail())
-    # #geometry = gpd.points_from_xy(df['LON'], df['LAT'])
-    # gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['LON'], df['LAT']), crs=32618)
-    # gdf=gdf.to_crs(4326)
-    # gdf['LON']=gdf.geometry.x
-    # gdf['LAT'] = gdf.geometry.y
-    # df=gdf.drop(columns=['geometry'])
-    # print(df.head())
-    # df.to_feather(l)
+    if '_STO_' in l:
+        print(l)
+        if os.path.exists(l):
+            shutil.rmtree(l)
+
 quit()
+
 
 
 

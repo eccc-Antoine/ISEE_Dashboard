@@ -77,8 +77,8 @@ for pi in pis_code:
 
 pis = [pi_dct[pi] for pi in pis_code]
 
-#ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
-ts_dct={'hist':'historical','cc':'climate change'}
+ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
+#ts_dct={'hist':'historical','cc':'climate change'}
 
 #default_PI=pis_code[0]
 default_PI=next(iter(pi_dct.values()), None)

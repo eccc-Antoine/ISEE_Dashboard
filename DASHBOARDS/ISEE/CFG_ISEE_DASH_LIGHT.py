@@ -2,35 +2,47 @@ import os
 
 name='ISEE'
 
-#pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D', 'PIKE_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
+version=1.0
 
+#pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'PIKE_2D', 'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
 
-#pis_2D_tiled=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
+pi_list=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D',
+         'ROADS_2D', 'SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D',
+         'TURTLE_1D', 'ZIPA_1D',
+         'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
+         'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D']
 
-pis_2D_tiled=['CWRM_2D', 'BIRDS_2D']
+ts_list=['hist', 'sto', 'cc']
 
-#pis_2D_tiled=['PIKE_2D']
+#ts_list=['hist', 'cc']
 
-#pis_2D_not_tiled=['WATER_INTAKES_2D', 'WASTE_WATER_2D']
+title=f'{name} DASHBOARD {version} LIGHT'
 
+file_ext='.feather'
 
-#pis_2D_not_tiled=['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D']
+#post_process_folder=fr'\ISEE_POST_PROCESS_DATA_3'
 
-pis_2D_not_tiled=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D', 'ROADS_2D']
+root_data = ''
 
-#pis_2D_not_tiled=['ROADS_2D']
+shapefile_folder = ''
+post_process_folder = ''
 
-#pis_1D=['SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D']
+shapefile_folder_name=fr'\shapefiles'
+post_process_folder_name=fr'\ISEE_POST_PROCESS_DATA_3'
 
-pis_1D=['ONZI_OCCUPANCY_1D']
+sct_poly = ''
+sct_poly_country = ''
+tiles_shp = ''
 
-ISEE_RES=fr'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'
+sct_poly_name = r"SECTIONS_simple_longnames.geojson"
+sct_poly_country_name = r"SECTIONS_simple_longnames_countries.geojson"
+tiles_shp_name = r"TILES_SHP.geojson"
 
-POST_PROCESS_RES=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
+debug_folder=r"debug"
 
-tiles_folder='P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
+maximum_plan_to_compare=10
 
-sep=';'
+crs=2618
 
 dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 481, 480, 479, 478, 477, 476, 475, 474, 473, 472, 471, 470, 469, 468, 467, 466, 465, 464, 463, 462, 461, 460, 459, 458, 457, 456, 455, 454, 453, 452, 451, 450, 449, 448, 447, 446, 445, 444, 443, 442, 441, 440, 439, 438, 437, 436, 435, 434, 433, 432, 431, 430, 429, 428, 427, 426, 425, 424, 423, 422, 421, 420, 419, 418, 417, 416, 415, 414, 413, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403, 402, 401, 400, 399, 398, 397, 396, 395, 394, 393, 392, 391, 390, 389, 388, 387, 386, 385, 384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 370, 369, 368, 367, 366, 365, 364, 363, 362, 361, 360, 359, 358, 357, 356, 355, 354, 353, 352, 351, 350, 349, 348, 347, 346, 345, 344, 343, 342, 341, 340, 339, 338, 337, 336, 335, 334, 332, 331, 330, 329, 328, 327, 326, 325, 324, 323, 322, 321, 320, 319, 318, 317, 316, 315, 314, 313, 312, 311, 310, 309, 308, 307, 306, 305, 304, 303, 302, 301, 300, 299, 298, 297, 296, 295, 294, 293, 292, 291, 290, 289, 288, 287, 286, 285, 284, 283, 282, 281, 280, 279, 278, 277, 276, 275, 274, 273, 272, 271, 270, 269, 268, 267, 266, 265, 264, 263, 262, 261, 260, 259, 258, 257, 256, 255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240, 239, 238, 237, 236, 235, 234, 233, 232, 231, 230, 229, 228, 226, 225, 224, 223, 222, 221, 220, 219, 216, 215, 214, 213, 212, 211, 210, 209, 208, 204, 203, 202, 201],
                  'SLR_DS': [121, 120, 119, 118, 117, 116, 115, 114, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 84, 83, 82, 81, 79, 78, 74],
@@ -46,3 +58,6 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_DS_US': [184, 182, 181, 180, 179, 178, 177, 176, 175, 174, 172, 170, 169],
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
+
+
+dict_stations_sections = {'LKO':'ONT_MLV_M', 'LKO_CAN':'ONT_MLV_M', 'LKO_US':'ONT_MLV_M', 'USL_US':'OGDE_MLV_M', 'USL_US_CAN':'OGDE_MLV_M','USL_US_US':'OGDE_MLV_M', 'USL_DS':'LSTD_MLV_M', 'USL_DS_CAN':'LSTD_MLV_M', 'USL_DS_US':'LSTD_MLV_M', 'SLR_US':'PTCL_MLV_M', 'SLR_DS':'LSPR_MLV_M', }
