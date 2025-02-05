@@ -74,11 +74,13 @@ def upload_directory(local_dir, remote_dir):
 
 sftp, transport=connect_sftp()
 
-pi_list=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D',
-         'ROADS_2D', 'SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D',
-         'TURTLE_1D', 'ZIPA_1D',
-         'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
-         'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D']
+# pi_list=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D',
+#          'ROADS_2D', 'SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D',
+#          'TURTLE_1D', 'ZIPA_1D',
+#          'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
+#          'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D']
+
+pi_list=['PIKE_2D']
 
 local_folder=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 remote_folder='/ISEE_POST_PROCESS_DATA_3'

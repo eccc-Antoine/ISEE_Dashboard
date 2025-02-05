@@ -1,7 +1,10 @@
+folium
+geopandas
 streamlit
 numpy
 pandas
 plotly
 pyproj
 pathlib
-
+datashader
+holoviews
