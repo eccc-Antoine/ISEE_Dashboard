@@ -17,7 +17,7 @@ ts_list=['hist', 'sto', 'cc']
 
 #ts_list=['hist', 'cc']
 
-title=f'{name} DASHBOARD {version} LIGHT (PRELIMINARY RESULTS STILL UNDER REVIEW)'
+title=f'{name} DASHBOARD {version} LIGHT (Preliminary results, still under review)'
 
 file_ext='.feather'
 

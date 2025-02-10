@@ -256,6 +256,8 @@ def render_column1():
 
 button_col1, button_col2 = st.columns(2)
 
+switch_tab('Timeseries')
+
 with button_col1:
     if st.button('Timeseries'):
         switch_tab('Timeseries')
