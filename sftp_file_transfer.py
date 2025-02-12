@@ -80,7 +80,7 @@ sftp, transport=connect_sftp()
 #          'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
 #          'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D']
 
-pi_list=['NFB_2D']
+pi_list=['NFB_2D', 'MFI_2D']
 
 local_folder=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 remote_folder='/ISEE_POST_PROCESS_DATA_3'

@@ -16,7 +16,7 @@ pis_2D_tiled=['CWRM_2D', 'BIRDS_2D']
 
 #pis_2D_not_tiled=['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D']
 
-pis_2D_not_tiled=['NFB_2D']
+pis_2D_not_tiled=['MFI_2D']
 
 #pis_2D_not_tiled=['ROADS_2D']
 
