@@ -7,14 +7,14 @@ import CFG_POST_PROCESS_ISEE as cfg
 
 
 dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'],
-                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
-                    #'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330']}
+                    'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45'],
+                    'STO330':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330']}
 
 plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistorical': 'PreProject',
                     'Bv7_2014_ComboC': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD': 'GERBL2_2014_ComboD',
                     'GERBL2_2014BOC_RCP45': 'GERBL2_2014', 'PreProject_RCP45': 'PreProject',
-                    'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_RCP45': 'GERBL2_2014_ComboD'}#,
-                    #'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC'}
+                    'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_RCP45': 'GERBL2_2014_ComboD',
+                    'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_STO_330': 'GERBL2_2014_ComboD',}
 
 
 dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
@@ -38,7 +38,9 @@ dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
                   'PIKE_2D': {'VAR1_sum': 'Habitat available for spawning and embryo-larval development (ha)',
                               'VAR2_sum': 'Habitat available for spawning (ha)'},
 
-                  'ONZI_1D': {'VAR1_mean' : 'Probability of lodge viability'},
+                  #'ONZI_1D': {'VAR1_mean' : 'Probability of lodge viability'},
+                  'ONZI_OCCUPANCY_1D': {'VAR1_mean': 'Probability of muskrat lodge viability',
+                                        'VAR6_mean': 'Percentage of the occupancy area in a cattail wetland'},
 
                   'TURTLE_1D': {'VAR1_mean' : 'Blanding turtle winter survival probability',
                               'VAR2_mean' : 'Snapping turtle winter survival probability',
@@ -103,7 +105,9 @@ dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
                    'PIKE_2D': {'VAR1_sum': 1,
                                'VAR2_sum': 1},
 
-                   'ONZI_1D': {'VAR1_mean': 1},
+                   #'ONZI_1D': {'VAR1_mean': 1},
+                   'ONZI_OCCUPANCY_1D': {'VAR1_mean': 1,
+                                         'VAR6_mean': 1},
 
                    'TURTLE_1D': {'VAR1_mean': 1,
                                  'VAR2_mean': 1,
@@ -131,8 +135,9 @@ dict_multiplier = {'ERIW_MIN_1D':{'VAR1_mean':1},
 #list_PIs = ['ERIW_MIN_1D', 'CWRM_2D', 'BIRDS_2D', 'IERM_2D', 'SAUV_2D', 'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D', 'ROADS_2D', 'AYL_2D']
 list_PIs = dict_variables.keys()
 #list_PIs = ['PIKE_2D']
-output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS')
+output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS_20250212')
 os.makedirs(output_folder, exist_ok=True)
+
 
 
 for pi in list_PIs:

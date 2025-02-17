@@ -69,6 +69,7 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
     for _, row in unique_pis.iterrows():
         pi = row['PI_NAME']
         variable = row['VARIABLE']
+        print(pi, variable)
 
 
         # Filter data for the current PI/Variable
@@ -132,8 +133,8 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
 
 # Example usage
 template_path = r"P:\GLAM\Dashboard\ISEE_Dash_portable\results_template.xlsx"
-outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
-csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20241209.csv')
+outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20250212')
+csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20250212.csv')
 # Define mapping rules (example: map section, plan, supply_scenario to Excel cells)
 
 # mapping_rules_no_country = {
@@ -237,49 +238,98 @@ csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20241209.csv')
 #     ("RCP45", "SLR_DS", "PreProject"): ("I", 15),
 # }
 
-mapping_rules_2 = {
-    ("Historical", "LKO", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
-    ("Historical", "USL_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
-    ("Historical", "USL_DS", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
-    ("Historical", "SLR_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
-    ("Historical", "SLR_DS", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
-    ("RCP45", "LKO", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
-    ("RCP45", "USL_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
-    ("RCP45", "USL_DS", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
-    ("RCP45", "SLR_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
-    ("RCP45", "SLR_DS", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
+# mapping_rules_2 = {
+#     ("Historical", "LKO", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
+#     ("Historical", "USL_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+#     ("Historical", "SLR_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+#     ("Historical", "SLR_DS", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+#     ("RCP45", "LKO", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
+#     ("RCP45", "USL_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
+#     ("RCP45", "USL_DS", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
+#     ("RCP45", "SLR_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
+#     ("RCP45", "SLR_DS", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
+#
+#     ("Historical", "LKO", "GERBL2_2014_ComboC"): ("D", 4),
+#     ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("E", 4),
+#     ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("F", 4),
+#     ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("G", 4),
+#     ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 4),
+#     ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("D", 10),
+#     ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("E", 10),
+#     ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("F", 10),
+#     ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("G", 10),
+#     ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 10),
+#
+#     ("Historical", "LKO", "GERBL2_2014_ComboD"): ("D", 5),
+#     ("Historical", "USL_US", "GERBL2_2014_ComboD"): ("E", 5),
+#     ("Historical", "USL_DS", "GERBL2_2014_ComboD"): ("F", 5),
+#     ("Historical", "SLR_US", "GERBL2_2014_ComboD"): ("G", 5),
+#     ("Historical", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 5),
+#     ("RCP45", "LKO", "GERBL2_2014_ComboD"): ("D", 11),
+#     ("RCP45", "USL_US", "GERBL2_2014_ComboD"): ("E", 11),
+#     ("RCP45", "USL_DS", "GERBL2_2014_ComboD"): ("F", 11),
+#     ("RCP45", "SLR_US", "GERBL2_2014_ComboD"): ("G", 11),
+#     ("RCP45", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 11),
+#
+#     ("Historical", "LKO", "PreProject"): ("D", 6),
+#     ("Historical", "USL_US", "PreProject"): ("E", 6),
+#     ("Historical", "SLR_US", "PreProject"): ("G", 6),
+#     ("Historical", "SLR_DS", "PreProject"): ("H", 6),
+#     ("RCP45", "LKO", "PreProject"): ("D", 12),
+#     ("RCP45", "USL_US", "PreProject"): ("E", 12),
+#     ("RCP45", "SLR_US", "PreProject"): ("G", 12),
+#     ("RCP45", "SLR_DS", "PreProject"): ("H", 12),
+# }
 
-    ("Historical", "LKO", "GERBL2_2014_ComboC"): ("D", 4),
-    ("Historical", "USL_US", "GERBL2_2014_ComboC"): ("E", 4),
-    ("Historical", "USL_DS", "GERBL2_2014_ComboC"): ("F", 4),
-    ("Historical", "SLR_US", "GERBL2_2014_ComboC"): ("G", 4),
-    ("Historical", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 4),
-    ("RCP45", "LKO", "GERBL2_2014_ComboC"): ("D", 10),
-    ("RCP45", "USL_US", "GERBL2_2014_ComboC"): ("E", 10),
-    ("RCP45", "USL_DS", "GERBL2_2014_ComboC"): ("F", 10),
-    ("RCP45", "SLR_US", "GERBL2_2014_ComboC"): ("G", 10),
-    ("RCP45", "SLR_DS", "GERBL2_2014_ComboC"): ("H", 10),
+list_section = ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
+list_plan = ["GERBL2_2014", "GERBL2_2014_ComboC", "GERBL2_2014_ComboD", "PreProject"]
+list_supply = ['Historical', 'STO330', 'RCP45']
 
-    ("Historical", "LKO", "GERBL2_2014_ComboD"): ("D", 5),
-    ("Historical", "USL_US", "GERBL2_2014_ComboD"): ("E", 5),
-    ("Historical", "USL_DS", "GERBL2_2014_ComboD"): ("F", 5),
-    ("Historical", "SLR_US", "GERBL2_2014_ComboD"): ("G", 5),
-    ("Historical", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 5),
-    ("RCP45", "LKO", "GERBL2_2014_ComboD"): ("D", 11),
-    ("RCP45", "USL_US", "GERBL2_2014_ComboD"): ("E", 11),
-    ("RCP45", "USL_DS", "GERBL2_2014_ComboD"): ("F", 11),
-    ("RCP45", "SLR_US", "GERBL2_2014_ComboD"): ("G", 11),
-    ("RCP45", "SLR_DS", "GERBL2_2014_ComboD"): ("H", 11),
 
-    ("Historical", "LKO", "PreProject"): ("D", 6),
-    ("Historical", "USL_US", "PreProject"): ("E", 6),
-    ("Historical", "SLR_US", "PreProject"): ("G", 6),
-    ("Historical", "SLR_DS", "PreProject"): ("H", 6),
-    ("RCP45", "LKO", "PreProject"): ("D", 12),
-    ("RCP45", "USL_US", "PreProject"): ("E", 12),
-    ("RCP45", "SLR_US", "PreProject"): ("G", 12),
-    ("RCP45", "SLR_DS", "PreProject"): ("H", 12),
-}
+
+cols = 'DEFGH'
+start_line = 3
+mapping_rules_3 = {}
+for i in range(len(list_supply)):
+    for j in range (len(list_plan)):
+        for k in range(len(list_section)):
+            line = start_line + (start_line * i*2) + j
+
+            supply = list_supply[i]
+            plan = list_plan[j]
+            col = cols[k]
+            sect = list_section[k]
+
+            k = 0
+
+            key = (supply, sect, plan)
+            value = (col, line)
+            mapping_rules_3[key] = value
+
+list_section = ['LKO_CAN', 'LKO_US', 'USL_US_CAN', 'USL_US_US', 'USL_DS_CAN', 'USL_DS_US' , 'SLR_US_CAN', 'SLR_DS_CAN']
+list_plan = ["GERBL2_2014", "GERBL2_2014_ComboC", "GERBL2_2014_ComboD", "PreProject"]
+list_supply = ['Historical', 'STO330', 'RCP45']
+
+mapping_country = {}
+
+cols = 'DEFGHIJK'
+start_line = 3
+for i in range(len(list_supply)):
+    for j in range (len(list_plan)):
+        for k in range(len(list_section)):
+            line = start_line + (start_line * i*2) + j
+
+            supply = list_supply[i]
+            plan = list_plan[j]
+            col = cols[k]
+            sect = list_section[k]
+
+            key = (supply, sect, plan)
+            value = (col, line)
+            mapping_country[key] = value
+
+            print(key, value)
 
 #
 # mapping_country =  {
@@ -365,82 +415,82 @@ mapping_rules_2 = {
 #     ("RCP45", "SLR_DS_CAN", "PreProject"): ("L", 15),  # Maps to cell B5
 #
 # }
-
-mapping_country =  {
-    ("Historical", "LKO_CAN", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
-    ("Historical", "LKO_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
-    ("Historical", "USL_US_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
-
-    ("RCP45", "LKO_CAN", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
-    ("RCP45", "LKO_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "GERBL2_2014"): ("I", 9),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "GERBL2_2014"): ("J", 9),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "GERBL2_2014"): ("K", 9),  # Maps to cell B5
-
-    ("Historical", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 4),  # Maps to cell B5
-    ("Historical", "LKO_US", "GERBL2_2014_ComboC"): ("E", 4),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 4),  # Maps to cell B5
-    ("Historical", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 4),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 4),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 4),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 4),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 4),  # Maps to cell B5
-
-    ("RCP45", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 10),  # Maps to cell B5
-    ("RCP45", "LKO_US", "GERBL2_2014_ComboC"): ("E", 10),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 10),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 10),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 10),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 10),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 10),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 10),  # Maps to cell B5
-
-    ("Historical", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 5),  # Maps to cell B5
-    ("Historical", "LKO_US", "GERBL2_2014_ComboD"): ("E", 5),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 5),  # Maps to cell B5
-    ("Historical", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 5),  # Maps to cell B5
-    ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 5),  # Maps to cell B5
-    ("Historical", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 5),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 5),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 5),  # Maps to cell B5
-
-    ("RCP45", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 11),  # Maps to cell B5
-    ("RCP45", "LKO_US", "GERBL2_2014_ComboD"): ("E", 11),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 11),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 11),  # Maps to cell B5
-    ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 11),  # Maps to cell B5
-    ("RCP45", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 11),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 11),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 11),  # Maps to cell B5
-
-
-    ("Historical", "LKO_CAN", "PreProject"): ("D", 6),  # Maps to cell B5
-    ("Historical", "LKO_US", "PreProject"): ("E", 6),  # Maps to cell B5
-    ("Historical", "USL_US_CAN", "PreProject"): ("F", 6),  # Maps to cell B5
-    ("Historical", "USL_US_US", "PreProject"): ("G", 6),  # Maps to cell B5
-    #("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
-   # ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
-    ("Historical", "SLR_US_CAN", "PreProject"): ("J", 6),  # Maps to cell B5
-    ("Historical", "SLR_DS_CAN", "PreProject"): ("K", 6),  # Maps to cell B5
-
-    ("RCP45", "LKO_CAN", "PreProject"): ("D", 12),  # Maps to cell B5
-    ("RCP45", "LKO_US", "PreProject"): ("E", 12),  # Maps to cell B5
-    ("RCP45", "USL_US_CAN", "PreProject"): ("F", 12),  # Maps to cell B5
-    ("RCP45", "USL_US_US", "PreProject"): ("G", 12),  # Maps to cell B5
-    #("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
-    #("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
-    ("RCP45", "SLR_US_CAN", "PreProject"): ("J", 12),  # Maps to cell B5
-    ("RCP45", "SLR_DS_CAN", "PreProject"): ("K", 12),  # Maps to cell B5
-
-}
+#
+# mapping_country =  {
+#     ("Historical", "LKO_CAN", "GERBL2_2014"): ("D", 3),  # Maps to cell B5
+#     ("Historical", "LKO_US", "GERBL2_2014"): ("E", 3),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "GERBL2_2014"): ("F", 3),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "GERBL2_2014"): ("G", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS_CAN", "GERBL2_2014"): ("H", 3),  # Maps to cell B5
+#     ("Historical", "USL_DS_US", "GERBL2_2014"): ("I", 3),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "GERBL2_2014"): ("J", 3),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "GERBL2_2014"): ("K", 3),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "GERBL2_2014"): ("D", 9),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "GERBL2_2014"): ("E", 9),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "GERBL2_2014"): ("F", 9),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "GERBL2_2014"): ("G", 9),  # Maps to cell B5
+#     ("RCP45", "USL_DS_CAN", "GERBL2_2014"): ("H", 9),  # Maps to cell B5
+#     ("RCP45", "USL_DS_US", "GERBL2_2014"): ("I", 9),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "GERBL2_2014"): ("J", 9),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "GERBL2_2014"): ("K", 9),  # Maps to cell B5
+#
+#     ("Historical", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 4),  # Maps to cell B5
+#     ("Historical", "LKO_US", "GERBL2_2014_ComboC"): ("E", 4),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 4),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 4),  # Maps to cell B5
+#     ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 4),  # Maps to cell B5
+#     ("Historical", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 4),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 4),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 4),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "GERBL2_2014_ComboC"): ("D", 10),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "GERBL2_2014_ComboC"): ("E", 10),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboC"): ("F", 10),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "GERBL2_2014_ComboC"): ("G", 10),  # Maps to cell B5
+#     ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboC"): ("H", 10),  # Maps to cell B5
+#     ("RCP45", "USL_DS_US", "GERBL2_2014_ComboC"): ("I", 10),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboC"): ("J", 10),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboC"): ("K", 10),  # Maps to cell B5
+#
+#     ("Historical", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 5),  # Maps to cell B5
+#     ("Historical", "LKO_US", "GERBL2_2014_ComboD"): ("E", 5),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 5),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 5),  # Maps to cell B5
+#     ("Historical", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 5),  # Maps to cell B5
+#     ("Historical", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 5),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 5),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 5),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "GERBL2_2014_ComboD"): ("D", 11),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "GERBL2_2014_ComboD"): ("E", 11),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "GERBL2_2014_ComboD"): ("F", 11),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "GERBL2_2014_ComboD"): ("G", 11),  # Maps to cell B5
+#     ("RCP45", "USL_DS_CAN", "GERBL2_2014_ComboD"): ("H", 11),  # Maps to cell B5
+#     ("RCP45", "USL_DS_US", "GERBL2_2014_ComboD"): ("I", 11),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "GERBL2_2014_ComboD"): ("J", 11),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "GERBL2_2014_ComboD"): ("K", 11),  # Maps to cell B5
+#
+#
+#     ("Historical", "LKO_CAN", "PreProject"): ("D", 6),  # Maps to cell B5
+#     ("Historical", "LKO_US", "PreProject"): ("E", 6),  # Maps to cell B5
+#     ("Historical", "USL_US_CAN", "PreProject"): ("F", 6),  # Maps to cell B5
+#     ("Historical", "USL_US_US", "PreProject"): ("G", 6),  # Maps to cell B5
+#     #("Historical", "USL_DS_CAN", "PreProject"): ("I", 5),  # Maps to cell B5
+#    # ("Historical", "USL_DS_US", "PreProject"): ("J", 5),  # Maps to cell B5
+#     ("Historical", "SLR_US_CAN", "PreProject"): ("J", 6),  # Maps to cell B5
+#     ("Historical", "SLR_DS_CAN", "PreProject"): ("K", 6),  # Maps to cell B5
+#
+#     ("RCP45", "LKO_CAN", "PreProject"): ("D", 12),  # Maps to cell B5
+#     ("RCP45", "LKO_US", "PreProject"): ("E", 12),  # Maps to cell B5
+#     ("RCP45", "USL_US_CAN", "PreProject"): ("F", 12),  # Maps to cell B5
+#     ("RCP45", "USL_US_US", "PreProject"): ("G", 12),  # Maps to cell B5
+#     #("RCP45", "USL_DS_CAN", "PreProject"): ("I", 15),  # Maps to cell B5
+#     #("RCP45", "USL_DS_US", "PreProject"): ("J", 15),  # Maps to cell B5
+#     ("RCP45", "SLR_US_CAN", "PreProject"): ("J", 12),  # Maps to cell B5
+#     ("RCP45", "SLR_DS_CAN", "PreProject"): ("K", 12),  # Maps to cell B5
+#
+# }
 
 dict_pi_var = {
     'CHNI_2D': {'N breeding pairs':['EXCEED_COUNT', 'CRITICAL_DIFF']},
@@ -451,7 +501,8 @@ dict_pi_var = {
 
     'BIRDS_2D': {'Abundance (n individuals)': ['EXCEED_COUNT', 'CRITICAL_DIFF']},
 
-    'ONZI_1D': {'Probability of lodge viability': ['EXCEED_COUNT', 'CRITICAL_DIFF']},
+    'ONZI_OCCUPANCY_1D': {'Probability of muskrat lodge viability': ['EXCEED_COUNT', 'CRITICAL_DIFF'],
+                'Percentage of the occupancy area in a cattail wetland': ['EXCEED_COUNT', 'CRITICAL_DIFF']},
 
     'TURTLE_1D': {'Blanding turtle winter survival probability': ['EXCEED_COUNT', 'CRITICAL_DIFF'],
                   'Snapping turtle winter survival probability': ['EXCEED_COUNT', 'CRITICAL_DIFF'],
@@ -501,6 +552,46 @@ dict_pi_var = {
     'SHORE_PROT_STRUC': {'Wave overtopping (*10e-2)': ['VALUE', 'MEAN_DIRECTION'], 'Wave overflow (*10e-4)':['VALUE', 'MEAN_DIRECTION']}
     }
 
+
+
+dict_pi_section = {
+    'CHNI_2D': ['SLR_DS'],
+
+    'IXEX_RPI_2D': ['SLR_DS'],
+
+    'SAUV_2D': ['SLR_DS'],
+
+    'BIRDS_2D': ['LKO'],
+
+    'ONZI_OCCUPANCY_1D': ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS'],
+
+    'TURTLE_1D': ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS'],
+
+    'ZIPA_1D': ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS'],
+
+    'ERIW_MIN_1D': ['LKO', 'USL_US', 'SLR_DS'],
+
+    'CWRM_2D': ['LKO', 'USL_US', 'USL_DS'],
+
+    'IERM_2D': ['SLR_DS'],
+
+     'PIKE_2D': ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'],
+
+    'AYL_2D': ['SLR_DS'],
+
+    'ROADS_2D': ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'],
+
+    'MFI_2D': ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'],
+
+    'NFB_2D': ['LKO_CAN', 'LKO_US', 'USL_US_CAN', 'USL_US_US', 'USL_DS_CAN', 'USL_DS_US', 'SLR_DS_CAN'],
+
+    'WASTE_WATER_2D': ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'],
+
+    'WATER_INTAKES_2D': ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'],
+
+    'SHORE_PROT_STRUC': ['LKO']
+    }
+
 # 'WASTE_WATER_2D': ['number of wastewater facilities exceeding the average discharge threshold',
 #                    'weighted (duration, discharge) number of wastewater facilities impacted']
 # ,
@@ -518,7 +609,7 @@ list_pi_can_us = ['NFB_2D']
 df_results = pd.read_csv(csv_path, sep=';', header=0)
 
 
-output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20250108.xlsx')
+output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20250212.xlsx')
 
 if os.path.exists(output_path):
     os.remove(output_path)
@@ -527,6 +618,7 @@ workbook = Workbook()
 workbook.save(output_path)
 
 for pi, dict_var in dict_pi_var.items():
+    sections = dict_pi_section[pi]
     for var, list_cols in dict_var.items():
         print(pi, var)
 
@@ -540,11 +632,14 @@ for pi, dict_var in dict_pi_var.items():
             value_col_plan = 'DIFF VALUE'
         else:
             value_col_plan = value_col_ref
-        df_pi = df_results[(df_results['PI_NAME'] == pi) & (df_results['VARIABLE'] == var)]
+        df_pi = df_results[(df_results['PI_NAME'] == pi) &
+                           (df_results['VARIABLE'] == var) &
+                           (df_results['SECT_NAME'].isin(sections))]
         if pi in list_pi_can_us:
-            sheet = 'CAN-US_sansSTO_avecD'
+            sheet = 'CAN-US_final'
             map_rules = mapping_country
         else:
-            sheet = 'sansSTO_avecD'
-            map_rules = mapping_rules_2
-        map_values_to_template(template_path, sheet, df_pi, output_path, map_rules, value_col_ref, value_col_plan, signif_col)
+            sheet = 'Simple_final'
+            map_rules = mapping_rules_3
+        map_values_to_template(template_path, sheet, df_pi, output_path,
+                               map_rules, value_col_ref, value_col_plan, signif_col)
