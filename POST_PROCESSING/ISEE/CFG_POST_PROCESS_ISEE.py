@@ -7,7 +7,7 @@ name='ISEE'
 
 #pis_2D_tiled=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
 
-pis_2D_tiled=['CWRM_2D', 'BIRDS_2D']
+pis_2D_tiled=['CWRM_2D']
 
 #pis_2D_tiled=['PIKE_2D']
 
