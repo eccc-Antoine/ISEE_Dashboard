@@ -658,8 +658,8 @@ for pi in tiled.pis:
 
 # for pi in not_tiled.pis:
 #     print(pi)
-#     # not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['TILE', 'PT_ID'])
 
 # for pi in pi_1D.pis:
 #     print(pi)

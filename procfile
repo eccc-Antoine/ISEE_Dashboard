@@ -1,0 +1,1 @@
+web: streamlit run DASHBOARDS\ISEE\ISEE_DASH_LIGHT_2.py --server.port=$PORT --server.address=0.0.0.0
