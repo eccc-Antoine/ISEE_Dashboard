@@ -418,7 +418,7 @@ def function_for_tab4(exec):
                     st.write('👈 Set other parameters with widgets on the left to display results accordingly')
 
                     tile_selected = st.text_input(
-                        'Enter a tile number en press "Enter"  to see its results in full resolution (click on a tile to see its number) 👇', value=None)
+                        'Type a tile number and press "Enter" to see results in full resolution (click on a tile to see its number) 👇', value=None)
 
                     dtypes = [type(element) for element in list(gdf_both['tile'])]
 
