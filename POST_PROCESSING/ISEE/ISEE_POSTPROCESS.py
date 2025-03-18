@@ -331,15 +331,11 @@ class POST_PROCESS_2D_not_tiled:
                         df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                     else:
-                        # uncomment if there is not lat lon in raw results
                         print('fetching lat lon info from isee-tiles...', PI)
-                        #t = feather.split('_')[-2]
                         df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
                         df_t['TILE']=int(t)
                         df_t = df_t[['PT_ID', 'LAT', 'LON']]
-                        # df_temp=df_temp[[self.id_column_name, str(y)]]
                         df_temp = df_temp[[PI_CFG.id_column_name, str(y)]]
-                        # df_temp=df_temp.merge(df_t, on=self.id_column_name, how='left', suffixes=('', ''))
                         df_temp = df_temp.merge(df_t, on=PI_CFG.id_column_name, how='left', suffixes=('', ''))
                     if count_y == 1:
                         df_main = df_temp
@@ -348,7 +344,6 @@ class POST_PROCESS_2D_not_tiled:
                     else:
                         df_main = df_main.merge(df_temp, on=[PI_CFG.id_column_name, 'LAT', 'LON'], how='outer',
                                                 suffixes=('', ''))
-
             if count_y == 0:
                 continue
             else:
@@ -357,8 +352,6 @@ class POST_PROCESS_2D_not_tiled:
             res_name = os.path.join(path_res,
                                     f'{var}_{PI}_{AGG_TIME}_{p}_{s}_PT_ID_{t}_{min(years_list)}_{max(years_list)}')
             df_main.to_feather(res_name)
-
-
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         
@@ -371,8 +364,7 @@ class POST_PROCESS_2D_not_tiled:
         '''
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
-        
-        
+
         for AGG_TIME in AGGS_TIME:
             for AGG_SPACE in AGGS_SPACE:  
                 print(AGG_SPACE)

@@ -8,7 +8,6 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.stats.descriptivestats import sign_test
 from scipy.stats import ttest_1samp, shapiro
 
-
 def count_exceedances(data, threshold):
     return np.sum(data < threshold)
 
@@ -48,38 +47,6 @@ def calculate_block_size(df_ref, var):
     block_size = int(np.ceil(opt['circular'].values[0]))
 
     return block_size
-
-# def bootstrap_mean_test(df_ref, df_plan, var, n_iter, block_size):
-#
-#     df_ref = df_ref.copy()
-#     df_plan = df_plan.copy()
-#
-#     array_ref = df_ref[var].to_numpy()
-#     array_plan = df_plan[var].to_numpy()
-#
-#     # Compute the observed t-statistic
-#     observed_t_stat = ttest_ind(array_ref, array_plan, equal_var=False).statistic
-#
-#     # Apply the null hypothesis that the means are equal mean1 = mean2
-#     overall_mean = np.mean(np.concatenate([array_ref, array_plan]))
-#     array_ref = array_ref - np.mean(array_ref) + overall_mean
-#     array_plan = array_plan - np.mean(array_plan) + overall_mean
-#
-#     bootstrap_samples_ref = block_bootstrap(array_ref, block_size, n_iter=n_iter)
-#     bootstrap_samples_plan = block_bootstrap(array_plan, block_size, n_iter=n_iter)
-#
-#     # For each bootstrap sample, compute the t-statistic
-#     bootstrap_t_stat = [
-#         ttest_ind(b_sample_a, b_sample_b, equal_var=False).statistic
-#         for b_sample_a, b_sample_b in zip(bootstrap_samples_ref, bootstrap_samples_plan)
-#     ]
-#
-#     # Compute the p-value
-#     bs_comparison = bootstrap_t_stat >= observed_t_stat
-#     p_value = np.mean(bs_comparison)
-#
-#     return p_value
-
 
 def bootstrap_mean_test(df_ref, df_plan, var, n_iter, block_size):
     """
@@ -145,7 +112,6 @@ def bootstrap_mean_test(df_ref, df_plan, var, n_iter, block_size):
 
     # Return the p-value and confidence interval
     return p_value, (lower_ci, upper_ci)
-
 
 def bootstrap_median_test_mannwhit(df_ref, df_plan, var, n_iter, block_size):
     """
@@ -281,7 +247,6 @@ def bootstrap_median_test_wilcoxon(df_ref, df_plan, var, n_iter, block_size):
 
     return p_value, (lower_ci, upper_ci)
 
-
 def check_stationarity(residuals, alpha=0.05):
     stationarity = True
     # Check the variance of the residuals
@@ -294,7 +259,6 @@ def check_stationarity(residuals, alpha=0.05):
             stationarity = False
 
     return stationarity
-
 
 def calculate_trend(residuals, alpha=0.05):
 
