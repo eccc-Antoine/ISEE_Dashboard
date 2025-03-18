@@ -26,7 +26,7 @@ import shutil
 # for l in liste:
 
 
-df=pd.read_feather(fr"T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW\WATER_INTAKES_2D\GERBL2_2014_ComboD\WATER_INTAKES_2D_GERBL2_2014_ComboD_1962.feather")
+df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\SAUV_2D\YEAR\PT_ID\OBS\SLR_DS\VAR1_SAUV_2D_YEAR_OBS_SLR_DS_PT_ID_103_1963_2020")
 #print(list(df))
 
 #print(df['SECTION'].unique())
