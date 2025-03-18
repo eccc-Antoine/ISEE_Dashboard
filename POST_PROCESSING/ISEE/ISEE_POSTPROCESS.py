@@ -31,7 +31,7 @@ class POST_PROCESS_2D_tiled:
             no_dat_year=y
         return df_year, no_dat_year
     
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
 
@@ -156,7 +156,7 @@ class POST_PROCESS_2D_tiled:
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
 
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param ,'', years_list)
                               
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -176,7 +176,7 @@ class POST_PROCESS_2D_tiled:
 
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, '', years_list)
 
                     elif AGG_SPACE=='TILE':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -197,7 +197,7 @@ class POST_PROCESS_2D_tiled:
                                         continue
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                     path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, '', path_feather_year, PI_CFG, years_list)
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, '', path_feather_year, years_list)
                     
                     elif AGG_SPACE=='PT_ID':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
