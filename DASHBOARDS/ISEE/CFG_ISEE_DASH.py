@@ -1,16 +1,7 @@
-import os
 
 name='ISEE'
 
 version=1.0
-
-#pi_list=['AYL_2D',  'CHNI_2D', 'ERIW_MIN_1D', 'ERIW_MIN_2D',  'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D', 'BIRDS_2D', 'ONZI_1D', 'PIKE_2D', 'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'CWRM_2D', 'IERM_2D', 'SAUV_2D', 'ZIPA_1D']
-
-# pi_list=['AYL_2D', 'WATER_INTAKES_2D', 'WASTE_WATER_2D',
-#          'ROADS_2D', 'SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D',
-#          'TURTLE_1D', 'ZIPA_1D', 'PIKE_2D',
-#          'ERIW_MIN_2D', 'IERM_2D', 'SAUV_2D',
-#          'CHNI_2D', 'IXEX_RPI_2D', 'ONZI_OCCUPANCY_1D', 'BIRDS_2D']
 
 pi_list=['AYL_2D', 'CHNI_2D', 'ERIW_MIN_1D',
          'ERIW_MIN_2D', 'NFB_2D', 'ROADS_2D', 'IXEX_RPI_2D', 'MFI_2D',
@@ -18,10 +9,7 @@ pi_list=['AYL_2D', 'CHNI_2D', 'ERIW_MIN_1D',
          'SHORE_PROT_STRUC_1D', 'TURTLE_1D', 'WASTE_WATER_2D',
          'WATER_INTAKES_2D', 'SAUV_2D', 'IERM_2D', 'CWRM_2D', 'ZIPA_1D']
 
-
 ts_list=['hist', 'sto', 'cc']
-
-#ts_list=['hist', 'cc']
 
 title=f'{name} DASHBOARD {version}'
 
@@ -64,5 +52,3 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
 
-
-dict_stations_sections = {'LKO':'ONT_MLV_M', 'LKO_CAN':'ONT_MLV_M', 'LKO_US':'ONT_MLV_M', 'USL_US':'OGDE_MLV_M', 'USL_US_CAN':'OGDE_MLV_M','USL_US_US':'OGDE_MLV_M', 'USL_DS':'LSTD_MLV_M', 'USL_DS_CAN':'LSTD_MLV_M', 'USL_DS_US':'LSTD_MLV_M', 'SLR_US':'PTCL_MLV_M', 'SLR_DS':'LSPR_MLV_M', }

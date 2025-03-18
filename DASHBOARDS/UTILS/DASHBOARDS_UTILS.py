@@ -16,16 +16,12 @@ from DASHBOARDS.ISEE import CFG_ISEE_DASH as CFG_DASHBOARD
 import numpy as np
 import tempfile
 from streamlit_folium import st_folium
-
 import streamlit as st
 import geopandas as gpd
 import io
 import zipfile
 from shapely.geometry import Point
 import fiona
-
-
-
 
 def df_2_gdf(df, xcol, ycol, crs):
     geometry = [Point(xy) for xy in zip(df[xcol], df[ycol])]
@@ -55,12 +51,9 @@ def save_gdf_to_zip(gdf, shapefile_name):
 
         return zip_buffer.getvalue()
 
-
-#@st.cache_data(ttl=3600)
-def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, s, var_stat, df_PI, Variable, multiplier):
+def prep_data_map_1d(start_year, end_year, stat, gdf_grille_origine, s, df_PI, Variable, multiplier):
 
     print('PREP_DATA_MAP')
-
     df=df_PI
     df=df.loc[(df['YEAR']>=start_year) & (df['YEAR']<=end_year)]
     if stat=='min':
@@ -73,7 +66,6 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
         val=df[Variable].sum()
     else:
         print('unavailable aggregation stat provided')
-
     val=val*multiplier
     val=np.round(val, 3)
     gdf_grille=gdf_grille_origine
@@ -82,7 +74,6 @@ def prep_data_map_1d(file, start_year, end_year, stat, var, gdf_grille_origine, 
 
     return gdf_grille
 
-#@st.cache_data(ttl=3600)
 def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var, unique_pi_module_name, start_year, end_year, Baseline):
     print('PREP_FOR_PREP_1D')
 
@@ -90,38 +81,34 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
     gdf_grille_origin['VAL']=0.0
     
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    var_stat=unique_PI_CFG.var_agg_stat[var][0]
     gdfs=[]
     
     list_sect=sect_dct.keys()
     
     for s in list_sect:
         df_folder=os.path.join(folder, PI_code, 'YEAR', 'SECTION',  scen_code, s)
-        pt_id_file=os.path.join(df_folder, f'{PI_code}_YEAR_{scen_code}_{s}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
-        
         plans_selected=[key for key,value in unique_PI_CFG.plan_dct.items() if value == scen_code]
         if plans_selected==[]:
             plans_selected=[key for key,value in unique_PI_CFG.baseline_dct.items() if value == scen_code]
         Variable=unique_PI_CFG.dct_var[var]      
 
         if s=='Lake St.Lawrence':
-
             LakeSL_prob_1D =False
             if unique_PI_CFG.type=='1D'and s=='Lake St.Lawrence' and 'PreProject' in plans_selected[0]:
                 LakeSL_prob_1D=True
                 continue
 
-            df_PI=yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+            df_PI=yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD)
 
         else:
             LakeSL_prob_1D = False
             df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, s,
-                                                    start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+                                                    start_year, end_year, Variable, CFG_DASHBOARD)
 
         df_PI = df_PI.loc[df_PI['ALT']==scen_code]
 
         multiplier=unique_PI_CFG.multiplier
-        gdf_grille_unique=prep_data_map_1d(pt_id_file, start_year, end_year, stat, var, gdf_grille_origin, s, var_stat, df_PI, Variable, multiplier)
+        gdf_grille_unique=prep_data_map_1d(start_year, end_year, stat, gdf_grille_origin, s, df_PI, Variable, multiplier)
         gdfs.append(gdf_grille_unique)
         
     gdf_grille_all=pd.concat(gdfs)
@@ -141,7 +128,6 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
     gdf_tiles['VAL'] = np.nan
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    var_stat = unique_PI_CFG.var_agg_stat[var][0]
     sect_PI = unique_PI_CFG.available_sections
 
     for s in sect_PI:
@@ -209,37 +195,23 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
 def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat, var,
                         unique_pi_module_name, start_year, end_year):
     print('PREP_FOR_PREP_TILES')
-
     gdf_tiles = gpd.read_file(tile_shp)
     gdf_tiles['VAL'] = np.nan
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    var_stat = unique_PI_CFG.var_agg_stat[var][0]
     sect_PI = unique_PI_CFG.available_sections
-    gdfs = []
-
     for s in sect_PI:
-
         liste_tiles = CFG_DASHBOARD.dct_tile_sect[s]
-
         for t in liste_tiles:
-
             df_folder = os.path.join(folder, PI_code, 'YEAR', 'TILE', scen_code, s, str(t))
-
             pt_id_file = os.path.join(df_folder,
                                       f'{PI_code}_YEAR_{scen_code}_{s}_{str(t)}_{np.min(avail_years)}_{np.max(avail_years)}{CFG_DASHBOARD.file_ext}')
-
             if not os.path.exists(pt_id_file):
                 continue
-
             df_tile = pd.read_feather(pt_id_file)
-
             df_tile = df_tile.loc[(df_tile['YEAR'] >= start_year) & (df_tile['YEAR'] <= end_year)]
-
             multiplier = unique_PI_CFG.multiplier
-
             if f'{var}_mean' in list(df_tile):
-
                 if stat == 'mean':
                     val_mean = df_tile[f'{var}_mean'].mean() * multiplier
                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_mean, 3)
@@ -272,21 +244,15 @@ def prep_for_prep_tiles(tile_shp, folder, PI_code, scen_code, avail_years, stat,
                 else:
                     print('problem with stats')
 
-
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
-
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL']!=0]
-
     gdf_tiles['VAL']=gdf_tiles['VAL']
-
     return gdf_tiles
 
-
 @st.cache_data(ttl=3600)
-def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values, baseline_value, PI_code, unit_dct,  var_direction, LakeSL_prob_1D):
+def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values, baseline_value, PI_code, unit_dct,  var_direction, LakeSL_prob_1D):
 
     print('HEADER')
-
     if var_direction=='inverse':
         delta_color='inverse'
     else:
@@ -316,7 +282,7 @@ def header(selected_pi, Stats, PIs, start_year, end_year, Region, plans_selected
                 kpis[d].metric(label=fr':green[Reference plan {Stats} ({unit_dct[PI_code]})]', value=round(baseline_value, 2), delta= 0)
             count_kpi+=1
 
-def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y, var, type, unique_pi_module_name, unit, division_col):
+def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_pi_module_name, unit, division_col):
 
     print('DUAL_MAPS')
     geometry_types = _gdf_grille_base.geom_type.unique()[0]
@@ -344,7 +310,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
     if direction == 'inverse':
         linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"],
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75), caption=unit)
-
     else:
         linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"],
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75), caption=unit)
@@ -364,7 +329,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
     centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
 
     gjson = gdf_grille_1.to_json()
-    js_data = json.loads(gjson)
 
     if division_col == 'SECTION':
         folium.GeoJson(
@@ -435,7 +399,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
     centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
 
     gjson = gdf_grille_2.to_json()
-    js_data = json.loads(gjson)
     val_dict2 = gdf_grille_2.set_index(division_col)[col]
 
     if division_col == 'SECTION':
@@ -448,7 +411,6 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
                 "dashArray": "5, 5",
             },
         ).add_to(m.m2)
-
 
         for _, r in centro.iterrows():
             lat = r["centroid"].y
@@ -497,12 +459,10 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, dim_x, dim_y
     return m
 
 #@st.cache_data(ttl=3600)
-def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module_name, unit, division_col):
+def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_pi_module_name, division_col):
 
     print('FOLIUM_MAPS')
-
     values=gdf_grille.loc[gdf_grille[col]!=0, col]
-
     empty_map=False
 
     if len(values)==0:
@@ -510,9 +470,7 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, type, unique_pi_module
         folium_map=0
 
     else:
-
         geometry_types = gdf_grille.geom_type.unique()[0]
-
         if geometry_types == 'MultiPolygon' or geometry_types == 'Polygon':
             x_med=np.round(gdf_grille.geometry.centroid.x.median(), 3)
             y_med=np.round(gdf_grille.geometry.centroid.y.median(), 3)
@@ -655,7 +613,7 @@ def folium_static(_fig, width, height):
             _fig._repr_html_(), height=height + 10, width=width)
 
 @st.cache_data(ttl=3600)
-def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name, pi_type, tile):
+def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable, unique_pi_module_name):
 
     print('PREP_DATA_MAP')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -689,7 +647,7 @@ def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable
     return df
 
 @st.cache_data(ttl=3600)
-def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, plan, col_value, mapbox_token, style_url):
+def plot_map_plotly(Variable, df, col_x, col_y, unique_pi_module_name, col_value, mapbox_token, style_url):
 
     print('PLOT_MAP_PLOTLY')
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -899,7 +857,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
         ),
         text=df_pos[col_value],
         hoverinfo='text',
-
     )
 
     trace2 = go.Scattermapbox(
@@ -916,7 +873,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
     ),
     text = df_neg[col_value],
     hoverinfo = 'text',
-
     )
 
     fig = go.Figure(data=[trace1, trace2])
@@ -936,7 +892,6 @@ def plot_map_plotly(Variable, df, col_x, col_y, id_col, unique_pi_module_name, p
 
     fig.update_traces(zmin=norm1.min(), zmax=norm1.max(), selector=dict(name="trace1"))
     fig.update_traces(zmin=norm2.min(), zmax=norm2.max(), selector=dict(name="trace2"))
-
 
     coords_lat=df[col_y]
     coords_lon=df[col_x]
@@ -964,14 +919,11 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     
     for y in list(range(start_year, end_year+1)):
         for p in list_plans:
-
             ### WORKAROUND so if value is missing it still continues....
             if len(df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])])>0:
-                #df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline])].iloc[0].round(3)
                 df_PI_plans.loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p), 'BASELINE_VALUE'] = df_PI_plans.loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==unique_PI_CFG.baseline_dct[Baseline]), Variable].iloc[0].round(3)
 
             else:
-                #df_PI_plans['BASELINE_VALUE'].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['ALT']==p)] = 0.000001
                 df_PI_plans.loc[(df_PI_plans['YEAR'] == y) & (df_PI_plans['ALT'] == p), 'BASELINE_VALUE'] = 0.000001
                 
     df_PI_plans['DIFF_PROP']=((df_PI_plans[Variable]-df_PI_plans['BASELINE_VALUE'])/df_PI_plans['BASELINE_VALUE'])*100
@@ -991,10 +943,6 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
 def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct, full_min, full_max):
 
     print('PLOT_TS')
-
-    print(list_plans, Baseline)
-
-    print(df_PI.head())
 
     df_PI_plans= df_PI.loc[df_PI['ALT'].isin(list_plans)]
 
@@ -1096,7 +1044,6 @@ def find_full_min_full_max(unique_pi_module_name, folder_raw, PI_code, Variable)
             min=df[var_s].min()
             mins.append(min)
 
-
     full_max=np.max(maxs)
     full_min=np.min(mins)
 
@@ -1124,13 +1071,8 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
     all_plans = unique_PI_CFG.available_plans + unique_PI_CFG.available_baselines
     all_plans_unique = list(set(all_plans))
 
-    maxs = []
-    mins = []
-
     maxs_diff = []
     mins_diff = []
-
-    plans_count = 0
 
     df_folder = os.path.join(folder, PI_code, 'YEAR', 'SECTION')
 
@@ -1145,7 +1087,6 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
             continue
 
         supply=supply[0]
-
 
         plans_supply=unique_PI_CFG.plans_ts_dct[supply]+unique_PI_CFG.baseline_ts_dct[supply]
 
@@ -1181,7 +1122,6 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
                     min_diff = df_diff[var_s].min()
                     mins_diff.append(min_diff)
 
-
     mins_diff = np.array(mins_diff)
     maxs_diff = np.array(maxs_diff)
     mins_diff = mins_diff[~np.isnan(mins_diff)]
@@ -1197,7 +1137,6 @@ def find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code, Variable
 @st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
-
     unique_PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     df_folder=os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
     dfs=[]
@@ -1250,7 +1189,6 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
     df_PI=df_PI.loc[(df_PI['YEAR']>=start_year) & (df_PI['YEAR']<=end_year)]
     df_PI=df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
 
-
     df_PI['SECT']=Region 
     # when a variable can be aggregated by mean or sum, sum is done in priority
     if len(stats)>1:
@@ -1278,7 +1216,7 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
 
 @st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
-                                start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
+                                start_year, end_year, Variable, CFG_DASHBOARD):
 
     print('TIMESERIES_PREP')
 
@@ -1345,8 +1283,6 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
     else:
         print('problem w. agg stat!!')
 
-    # unique_PI_CFG.dct_var.items()
-
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier
@@ -1398,10 +1334,8 @@ def MAIN_FILTERS_streamlit(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years,
         plans_selected='N/A'
         
     if Baselines:
-        #baselines= list(unique_PI_CFG.baseline_dct.keys())
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
 
-        #baselines = [item for item in baselines if item not in plans_selected]
         Baseline=st.selectbox("Select a reference plan", baselines)
     else:
         Baseline='N/A'
@@ -1415,7 +1349,7 @@ def MAIN_FILTERS_streamlit(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years,
     return  start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts
 
 
-def MAIN_FILTERS_streamlit_simple(ts_code, unique_pi_module_name, CFG_DASHBOARD, Years, Region, Plans, Baselines, Stats, Variable):
+def MAIN_FILTERS_streamlit_simple(ts_code, unique_pi_module_name, Years, Variable):
     print('FILTERS')
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')

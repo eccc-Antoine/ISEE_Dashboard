@@ -87,7 +87,7 @@ if 'pi_code' in qp and 'data' in qp:
         df_base=pd.concat(dfs)
     df_base = df_base.drop_duplicates(subset='PT_ID', keep='first')
 
-    df_base=UTILS.prep_data_map(df_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name,pi_type, int(data))
+    df_base=UTILS.prep_data_map(df_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
     df_base = df_base.sort_values(by='LAT')
 
     df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID', ze_plan_code)
@@ -107,7 +107,7 @@ if 'pi_code' in qp and 'data' in qp:
 
     df_plan = df_plan.drop_duplicates(subset='PT_ID', keep='first')
 
-    df_plan=UTILS.prep_data_map(df_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name, pi_type, int(data))
+    df_plan=UTILS.prep_data_map(df_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
 
     df_both=df_base.merge(df_plan, on=['PT_ID'], how='outer', suffixes=('_base', '_plan'))
     df_both=df_both.fillna(0)
@@ -131,7 +131,7 @@ if 'pi_code' in qp and 'data' in qp:
     df_both['LAT']=np.where(df_both['LAT_base'] == 0, df_both['LAT_plan'], df_both['LAT_base'])
     df_both['LON']=np.where(df_both['LON_base'] == 0, df_both['LON_plan'], df_both['LON_base'])
 
-    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', 'PT_ID', unique_pi_module_name, f'{ze_plan} minus {Baseline}', 'diff', mapbox_token, style_url)
+    fig=UTILS.plot_map_plotly(Variable, df_both, 'LON', 'LAT', unique_pi_module_name, 'diff', mapbox_token, style_url)
 
     if fig =='empty':
         st.write('There is no difference between those two plans according to the widget parameters. Please, change parameters on the previous page...')

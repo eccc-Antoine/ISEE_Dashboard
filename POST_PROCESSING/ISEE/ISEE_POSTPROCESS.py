@@ -3,11 +3,9 @@ import pandas as pd
 import importlib
 import CFG_POST_PROCESS_ISEE as cfg
 
-
 class POST_PROCESS_2D_tiled:
 
     def __init__(self, pis, ISEE_RES, POST_PROCESS_RES, sep):
-
         self.pis=pis
         self.ISEE_RES=ISEE_RES
         self.POST_PROCESS_RES=POST_PROCESS_RES

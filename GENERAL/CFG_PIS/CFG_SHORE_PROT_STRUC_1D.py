@@ -9,7 +9,6 @@ dct_var={'VAR1': 'Wave overtopping (*10e-2)', 'VAR2': 'Wave overflow (*10e-4)'}
 #normal mean higher is better
 var_direction={'Wave overtopping (*10e-2)':'inverse', 'Wave overflow (*10e-4)':'inverse'}
 
-
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['mean'], 'VAR2':['mean']}
 

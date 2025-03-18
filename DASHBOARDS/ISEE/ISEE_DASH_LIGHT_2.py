@@ -2,27 +2,18 @@ import streamlit as st  # web development
 import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
 
-# pd.options.mode.copy_on_write = True
 pd.set_option('mode.chained_assignment', None)
 import plotly.express as px  # interactive charts
 import os
 import importlib
 from pathlib import Path
 import sys
-#import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import CFG_ISEE_DASH_LIGHT as CFG_DASHBOARD
 from DASHBOARDS.UTILS import DASHBOARD_UTILS_LIGHT as UTILS
-#import geopandas as gpd
 import tempfile
-#import json
-#import folium as f
-#from folium import plugins
-#import branca.colormap as cm
-#import requests
 import sys
 import streamlit.components.v1 as components
-#from streamlit_folium import st_folium
 
 
 def get_env_var(var, env_name):
@@ -43,17 +34,7 @@ def get_env_var(var, env_name):
 
 
 def set_base_path():
-    #CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
-
-    #CFG_DASHBOARD.shapefile_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.shapefile_folder_name)
-    #CFG_DASHBOARD.post_process_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.post_process_folder_name)
-
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
-
-    #CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
-    #CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
-    #CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
-
 
 set_base_path()
 
@@ -82,12 +63,9 @@ for pi in pis_code:
 pis = [pi_dct[pi] for pi in pis_code]
 
 ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
-#ts_dct={'hist':'historical','cc':'climate change'}
 
-#default_PI=pis_code[0]
 default_PI=next(iter(pi_dct.values()), None)
 default_ts=next(iter(ts_dct.values()), None)
-
 
 # State management
 if 'PI_code' not in st.session_state:
@@ -97,7 +75,6 @@ if 'PI_code' not in st.session_state:
 if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
-
 
 def update_PI_code():
     selected_pi_name = st.session_state['selected_pi']
@@ -113,9 +90,6 @@ def update_timeseries():
 
 st.title(CFG_DASHBOARD.title)
 
-# st.markdown('Welcome to ISEE GLAM Dashboard \U0001F60A \n\r This interface allows you to interactively query ISEE results in order to compare Performance Indicator results under various water regulation plans \n\r First, please select a tab according to the way you want results to be displayed'
-#          )
-
 max_plans = CFG_DASHBOARD.maximum_plan_to_compare
 
 if 'active_tab' not in st.session_state:
@@ -129,37 +103,27 @@ def switch_data(tile):
 
 exec=False
 
-
 st.session_state.gdf_grille_base = None
 st.session_state.gdf_grille_plan = None
 def function_for_tab1(exec):
-
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
             #full_min, full_max = UTILS.find_full_min_full_max(unique_pi_module_name, folder, PI_code, Variable)
         with Col2:
-
             st.write('👈 Set parameters with widgets on the left to display results accordingly')
-
             if no_plans_for_ts==True:
                 st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
-
             else:
-                UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
                              baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
-
                 if LakeSL_prob_1D:
                     st.write(
                         ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
-
-
                 fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                             PI_code, unit_dct)
-
                 csv_data=df_PI_plans.to_csv(index=False, sep=';')
-
                 st.download_button(
                     label="Download displayed data in CSV format",
                     data=csv_data,
@@ -167,7 +131,6 @@ def function_for_tab1(exec):
                     mime="text/csv",
                     key='db_1'
                 )
-
                 st.plotly_chart(fig, use_container_width=True)
 
 def function_for_tab2(exec):
@@ -175,7 +138,6 @@ def function_for_tab2(exec):
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
-
 
         with Col2:
             diff_type = st.selectbox("Select a type of difference to compute",
@@ -187,7 +149,7 @@ def function_for_tab2(exec):
                 st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
             else:
-                UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
                              baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
 
                 if LakeSL_prob_1D:
@@ -210,8 +172,6 @@ def function_for_tab2(exec):
                     st.plotly_chart(fig2, use_container_width=True)
 
 def render_column1():
-    # timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
-    #                            on_change=update_timeseries)
 
     timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
                                on_change=update_timeseries)
@@ -226,11 +186,9 @@ def render_column1():
         unique_pi_module_name = f'CFG_{PI_code}'
         unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
-
         start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,
             unique_pi_module_name, CFG_DASHBOARD,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
-
 
         LakeSL_prob_1D =False
         if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
@@ -251,8 +209,6 @@ def render_column1():
         list_plans.append(unique_PI_CFG.baseline_dct[Baseline])
 
     return folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
-
-
 
 button_col1, button_col2 = st.columns(2)
 

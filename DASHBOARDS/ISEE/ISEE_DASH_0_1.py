@@ -1,8 +1,6 @@
 import streamlit as st  # web development
 import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
-
-# pd.options.mode.copy_on_write = True
 pd.set_option('mode.chained_assignment', None)
 import plotly.express as px  # interactive charts
 import os
@@ -41,7 +39,6 @@ def get_env_var(var, env_name):
         print(f'{env_name} sets to {var} (exists).')
         return var
 
-
 def set_base_path():
     CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
 
@@ -51,7 +48,6 @@ def set_base_path():
     CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
     CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
     CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
-
 
 set_base_path()
 
@@ -78,9 +74,7 @@ for pi in pis_code:
 pis = [pi_dct[pi] for pi in pis_code]
 
 ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
-#ts_dct={'hist':'historical','cc':'climate change'}
 
-#default_PI=pis_code[0]
 default_PI=next(iter(pi_dct.values()), None)
 default_ts=next(iter(ts_dct.values()), None)
 
@@ -93,7 +87,6 @@ if 'PI_code' not in st.session_state:
 if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
-
 
 def update_PI_code():
     selected_pi_name = st.session_state['selected_pi']
@@ -143,13 +136,12 @@ def function_for_tab1(exec):
                 st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
             else:
-                UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
                              baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
 
                 if LakeSL_prob_1D:
                     st.write(
                         ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
-
 
                 fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                             PI_code, unit_dct, full_min, full_max)
@@ -173,7 +165,6 @@ def function_for_tab2(exec):
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
             full_min_diff, full_max_diff = UTILS.find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code,
                                                                              Variable)
-
         with Col2:
             diff_type = st.selectbox("Select a type of difference to compute",
                                      [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'], key='select3')
@@ -184,7 +175,7 @@ def function_for_tab2(exec):
                 st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
             else:
-                UTILS.header(selected_pi, Stats, PI_code, start_year, end_year, Region, plans_selected, Baseline, max_plans, plan_values,
+                UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
                              baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
 
                 if LakeSL_prob_1D:
@@ -256,17 +247,14 @@ def function_for_tab3(exec):
                     gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
                                                                 years_list, stat5, var,
                                                                 unique_pi_module_name, start_year, end_year)
-
-                    m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 700, 700, Variable, 'compare',
+                    m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable,
                                                      unique_pi_module_name, unit_dct[PI_code], 'tile')
 
                 else:
-
                     if unique_PI_CFG.divided_by_country:
                         sct_shp = CFG_DASHBOARD.sct_poly_country
                     else:
                         sct_shp = CFG_DASHBOARD.sct_poly
-
                     gdf_grille_base = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder,
                                                              PI_code, baseline_code, years_list, stat5,
                                                              var, unique_pi_module_name,
@@ -280,10 +268,8 @@ def function_for_tab3(exec):
                     if baseline_code=='PreProjectHistorical':
                         st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
-                    m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', 1200, 700, Variable,
-                                                     'compare', unique_pi_module_name, unit_dct[PI_code], 'SECTION')
-
-
+                    m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable,
+                                                      unique_pi_module_name, unit_dct[PI_code], 'SECTION')
 
                 map_html = io.BytesIO()
                 m.save(map_html, close_file=False)
@@ -296,13 +282,11 @@ def function_for_tab3(exec):
                     key='db_3'
                 )
 
-
                 col_map1, col_map2=st.columns(2)
 
                 with col_map1:
                     shapefile_data = UTILS.save_gdf_to_zip(gdf_grille_base,
                                                            f'{PI_code}_{stat5}_{var}_{start_year}_{end_year}_{ts_code}_{baseline_code}.shp')
-
                     # Add the download button
                     st.download_button(
                         label="Download Baseline Map as shapefile",
@@ -314,7 +298,6 @@ def function_for_tab3(exec):
                 with col_map2:
                     shapefile_data = UTILS.save_gdf_to_zip(gdf_grille_plan,
                                                            f'{PI_code}_{stat5}_{var2}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}.shp')
-
                     # Add the download button
                     st.download_button(
                         label="Download Candidate Plan Map as shapefile",
@@ -354,26 +337,20 @@ def function_for_tab4(exec):
         with Col2:
 
             available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
-
             baseline, candidate = st.columns(2)
-
             baselines=unique_PI_CFG.baseline_ts_dct[ts_code]
-
             if len(baselines)==0 or len(available_plans)==0:
                 st.write(
                     ':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
             else:
-
                 with baseline:
                     Baseline = st.selectbox("Select a reference plan to display", baselines)
-
                 with candidate:
                     ze_plan = st.selectbox("Select a regulation plan to compare with reference plan", available_plans)
 
                 baseline_code = unique_PI_CFG.baseline_dct[Baseline]
                 ze_plan_code = unique_PI_CFG.plan_dct[ze_plan]
-
                 start_year3 = start_year
                 end_year3 = end_year
                 if ts_code=='hist':
@@ -392,15 +369,10 @@ def function_for_tab4(exec):
                                                                 unique_pi_module_name, start_year, end_year)
 
                     division_col = 'tile'
-
                     gdf_both = gdf_grille_base.merge(gdf_grille_plan, on=['tile'], how='outer', suffixes=('_base', '_plan'))
-
-
                     gdf_both['geometry'] = np.where(gdf_both['geometry_base'] == None, gdf_both['geometry_plan'],
                                                     gdf_both['geometry_base'])
                     gdf_both = gdf_both[['tile', 'VAL_base', 'VAL_plan', 'geometry']]
-
-
                     gdf_both = gdf_both.fillna(0)
                     gdf_both['DIFF'] = gdf_both['VAL_plan'] - gdf_both['VAL_base']
                     gdf_both['DIFF_PROP'] = (
@@ -409,11 +381,11 @@ def function_for_tab4(exec):
                     gdf_both = gpd.GeoDataFrame(gdf_both, crs=4326, geometry=gdf_both['geometry'])
 
                     if diff_type2 == f'Values ({unit_dct[PI_code]})':
-                        folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF', 1200, 700, Variable, 'diff',
-                                                       unique_pi_module_name, unit_dct[PI_code], division_col)
+                        folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF', 1200, 700, Variable,
+                                                       unique_pi_module_name, division_col)
                     else:
-                        folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF_PROP', 1200, 700, Variable, 'diff',
-                                                       unique_pi_module_name, unit_dct[PI_code], division_col)
+                        folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF_PROP', 1200, 700, Variable,
+                                                       unique_pi_module_name, division_col)
 
                     st.write('👈 Set other parameters with widgets on the left to display results accordingly')
 
@@ -442,9 +414,7 @@ def function_for_tab4(exec):
                     st.session_state.folder = folder
                     st.session_state.baseline_code = baseline_code
                     st.session_state.var = var3
-
                     st.session_state.years = years_list
-
                     st.session_state.ext = CFG_DASHBOARD.file_ext
                     st.session_state.start_year = start_year3
                     st.session_state.end_year = end_year3
@@ -471,8 +441,6 @@ def function_for_tab4(exec):
                         with placeholder1.container():
                             st.subheader(
                                f'Difference (candidate minus reference plan) between the :blue[{stat3}] of :blue[{selected_pi} ({Variable}])  from :blue[{start_year} to {end_year}] in :blue[{diff_type2}]')
-
-
                         col_map_1, col_map_2=st.columns(2)
                         with col_map_1:
                             map_html = io.BytesIO()
@@ -489,7 +457,6 @@ def function_for_tab4(exec):
                         with col_map_2:
                             shapefile_data = UTILS.save_gdf_to_zip(gdf_both,
                                                                    f'{PI_code}_{stat3}_{var3}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}_minus_{baseline_code}.shp')
-
                             # Add the download button
                             st.download_button(
                                 label="Download map as shapefile",
@@ -497,10 +464,7 @@ def function_for_tab4(exec):
                                 file_name="difference_plan_minus_baseline.zip",
                                 mime="application/zip",
                             )
-
                         click_data1 = UTILS.folium_static(folium_map, height=700, width=1200)
-
-
 
                 else:
                     if unique_PI_CFG.divided_by_country:
@@ -532,12 +496,12 @@ def function_for_tab4(exec):
                         st.write(':red[It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
                     if diff_type2 == f'Values ({unit_dct[PI_code]})':
-                        data, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable, 'diff',
-                                                       unique_pi_module_name, unit_dct[PI_code], division_col)
+                        data, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable,
+                                                       unique_pi_module_name, division_col)
 
                     else:
-                        data, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable, 'diff',
-                                                       unique_pi_module_name, unit_dct[PI_code], division_col)
+                        data, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable,
+                                                       unique_pi_module_name, division_col)
 
                     if empty_map:
                         st.write(':red[There is no differences between those 2 plans with the selected parameters, hence no map can be displayed]')
@@ -572,13 +536,9 @@ def function_for_tab4(exec):
                                 file_name="difference_plan_minus_baseline.zip",
                                 mime="application/zip",
                             )
-
                         click_data1=UTILS.folium_static(data, 1200, 700)
 
-
 def render_column1():
-    # timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
-    #                            on_change=update_timeseries)
 
     timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
                                on_change=update_timeseries)
@@ -593,11 +553,9 @@ def render_column1():
         unique_pi_module_name = f'CFG_{PI_code}'
         unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
-
         start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,
             unique_pi_module_name, CFG_DASHBOARD,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
-
 
         LakeSL_prob_1D =False
         if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
@@ -606,7 +564,6 @@ def render_column1():
         var_direction = unique_PI_CFG.var_direction[Variable]
 
         df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
-
 
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
@@ -620,8 +577,6 @@ def render_column1():
     return folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
 def render_column1_simple():
-    # timeseries = st.selectbox("Select a supply", ['historical', 'stochastic', 'climate change'], key='timeseries',
-    #                            on_change=update_timeseries)
 
     timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
                                on_change=update_timeseries)
@@ -637,11 +592,9 @@ def render_column1_simple():
         unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
         start_year, end_year, Variable = UTILS.MAIN_FILTERS_streamlit_simple(ts_code,
-            unique_pi_module_name, CFG_DASHBOARD,
-            Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
+            unique_pi_module_name,Years=True, Variable=True)
 
     return selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
-
 
 button_col1, button_col2, button_col3, button_col4  = st.columns(4)
 
@@ -662,7 +615,6 @@ with button_col4:
         switch_tab('Difference Maps')
 
 if st.session_state['active_tab'] == 'Timeseries':
-
     function_for_tab1(exec=True)
 
 elif st.session_state['active_tab'] == 'Difference':

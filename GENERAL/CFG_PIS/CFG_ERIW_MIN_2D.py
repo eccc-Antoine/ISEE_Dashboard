@@ -10,7 +10,6 @@ dct_var={'VAR1':'Total exposed riverbed area during winter'}
 #normal mean higher is better (normal or inverse)
 var_direction={'Total exposed riverbed area during winter':'inverse'}
 
-
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['sum']}
 
