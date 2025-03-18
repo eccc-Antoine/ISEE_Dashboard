@@ -387,7 +387,6 @@ def run_stat_tests_median(residuals, df_res, alpha=0.05):
 
     return df_res
 
-
 def run_stat_tests_mean(residuals, df_res, alpha=0.05):
     stationnary = True
     trend = False
@@ -466,7 +465,6 @@ def run_stat_tests_mean(residuals, df_res, alpha=0.05):
 
     return df_res
 
-
 def estimate_critical_periods(df, var, year_col, low_thresh, high_thresh, n_yrs):
 
     count_critical_periods = 0
@@ -484,32 +482,48 @@ def estimate_critical_periods(df, var, year_col, low_thresh, high_thresh, n_yrs)
 
     return count_critical_periods
 
-
-
 dict_thresholds = {
 
     'CHNI_2D': {'N breeding pairs':
-             {'SLR_US': {'p10': 0.634, 'p20': 4.023},
+             {#'SLR_US': {'p10': 0.634, 'p20': 4.023},
               'SLR_DS': {'p10': 0.195, 'p20': 1.793}}},
 
     'IXEX_RPI_2D': {'Weighted usable area (ha)':
-                    {'SLR_US': {'p5': 167.481, 'p10': 242.211, 'p20': 315.474},
+                    {#'SLR_US': {'p5': 167.481, 'p10': 242.211, 'p20': 315.474},
                      'SLR_DS': {'p5': 469.675, 'p10': 557.836, 'p20': 1179.954}}},
 
     'SAUV_2D': {'Migration habitat (ha)' :
-                                   {'SLR_US': {'p5': 141.53, 'p10': 146.60, 'p20':162.34},
+                                   {#'SLR_US': {'p5': 141.53, 'p10': 146.60, 'p20':162.34},
                                    'SLR_DS': {'p5': 1643.763, 'p10': 1992.601, 'p20': 2225.198}}},
 
     'BIRDS_2D': {'Abundance (n individuals)' :
                      {'LKO': {'p5': 699.564, 'p10': 782.401, 'p20': 991.217}}},
 
-    'ONZI_1D': {'Probability of lodge viability':
-                    {'LKO': {'low': 0.109, 'high': 0.799},
-                     'USL_US': {'low': 0.109, 'high': 0.799},
-                     'USL_DS': {'low': 0.109, 'high': 0.799},
-                     'SLR_US': {'low': 0.109, 'high': 0.799},
-                     'SLR_DS': {'low': 0.109, 'high': 0.799}}
+    # 'ONZI_1D': {'Probability of lodge viability':
+    #                 {'LKO': {'low': 0.109, 'high': 0.799},
+    #                  'USL_US': {'low': 0.109, 'high': 0.799},
+    #                  'USL_DS': {'low': 0.109, 'high': 0.799},
+    #                  'SLR_US': {'low': 0.109, 'high': 0.799},
+    #                  'SLR_DS': {'low': 0.109, 'high': 0.799}}
+    #             },
+
+
+
+    'ONZI_OCCUPANCY_1D': {'Probability of muskrat lodge viability':
+                            {'LKO': {'low': 0.109, 'high': 0.799},
+                             'USL_US': {'low': 0.109, 'high': 0.799},
+                             'USL_DS': {'low': 0.109, 'high': 0.799},
+                             'SLR_US': {'low': 0.109, 'high': 0.799},
+                             'SLR_DS': {'low': 0.109, 'high': 0.799}},
+
+                          'Percentage of the occupancy area in a cattail wetland':
+                            {'LKO': {'thresh': 0.075},
+                             'USL_US': {'thresh': 0.238},
+                             'SLR_US': {'thresh': 0.052},
+                             'SLR_DS': {'thresh': 0.084}
+                          }
                 },
+
 
     'TURTLE_1D': {'Blanding turtle winter survival probability':
                       {'LKO': {'thresh': 0.95},
@@ -517,12 +531,14 @@ dict_thresholds = {
                        'USL_DS': {'thresh': 0.95},
                        'SLR_US': {'thresh': 0.95},
                        'SLR_DS': {'thresh': 0.95}},
+
                   'Snapping turtle winter survival probability':
                       {'LKO': {'thresh': 0.95},
                        'USL_US': {'thresh': 0.95},
                        'USL_DS': {'thresh': 0.95},
                        'SLR_US': {'thresh': 0.95},
                        'SLR_DS': {'thresh': 0.95}},
+
                 'Painted turtle winter survival probability':
                       {'LKO': {'thresh': 0.95},
                        'USL_US': {'thresh': 0.95},
@@ -535,23 +551,24 @@ dict_thresholds = {
         'LKO': {'thresh': 0.756},
         'USL_US': {'thresh': 0.756},
         'USL_DS': {'thresh': 0.756},
-        'SLR_US': {'thresh': 0.756},
+        'SLR_US': {'thresh': 0.771},
         'SLR_DS': {'thresh': 0.756}
     }},
 
     'ERIW_MIN_1D': {'Exposed Riverbed Index': {
-        'LKO': {'thresh': 0.72},
-        'USL_US': {'thresh': 0.72},
-        'USL_DS': {'thresh': 0.72},
-        'SLR_US': {'thresh': 0.72},
-        'SLR_DS': {'thresh': 0.72}
+        'LKO': {'thresh': 0.636},
+        'USL_US': {'thresh': 0.636},
+        #'USL_DS': {'thresh': 0.636},
+        #'SLR_US': {'thresh': 0.636},
+        'SLR_DS': {'thresh': 0.636}
     }},
 
     'CWRM_2D': {
         'Total Wetland area (ha)':{
         'LKO': {'thresh': 10935.77},
         'USL_US': {'thresh': 3383.96},
-        'USL_DS': {'thresh': 1250.07}},
+        'USL_DS': {'thresh': 1250.07}
+        },
         # 'Wet meadow area (ha)':{
         #     'LKO':'low_supply_mean',
         #     'USL_US': 'low_supply_mean',
@@ -559,7 +576,7 @@ dict_thresholds = {
     },
 
     'IERM_2D': {'Total Wetland area (ha)': {
-        'SLR_US': {'thresh': 3012.98},
+        #'SLR_US': {'thresh': 3012.98},
         'SLR_DS': {'thresh': 22488.04}},
 
         # 'Wet meadow area (ha)': {
@@ -572,14 +589,14 @@ dict_thresholds = {
                     {'LKO': {'low': 628.98, 'high': 1668.05},
                      'USL_US': {'low': 243.64, 'high': 592.12},
                      'USL_DS': {'low': 43.5, 'high': 102.03},
-                     'SLR_US': {'low': 159.19, 'high': 381.06},
+                     #'SLR_US': {'low': 159.19, 'high': 381.06},
                      'SLR_DS': {'low': 0.01, 'high': 2924.89}},
 
                 'Habitat available for spawning (ha)':
                     {'LKO': {'low': 632.53, 'high': 1676.53},
                      'USL_US': {'low': 245.38, 'high': 595.05},
                      'USL_DS': {'low': 60.0, 'high': 116.92},
-                     'SLR_US': {'low': 321.42, 'high': 437.03},
+                     #'SLR_US': {'low': 321.42, 'high': 437.03},
                      'SLR_DS': {'low': 2682.55, 'high': 5025.28}
                      }},
 
@@ -587,17 +604,17 @@ dict_thresholds = {
 
 dict_pi_scores = {
     'CHNI_2D': {'N breeding pairs':
-                 {'SLR_US': {'p10': 2, 'p20': 1},
+                 {#'SLR_US': {'p10': 2, 'p20': 1},
                   'SLR_DS': {'p10': 2, 'p20': 1}}
                               },
 
     'IXEX_RPI_2D': {'Weighted usable area (ha)':
-                {'SLR_US': {'p5': 3, 'p10': 2, 'p20': 1},
+                {#'SLR_US': {'p5': 3, 'p10': 2, 'p20': 1},
                  'SLR_DS': {'p5': 3, 'p10': 2, 'p20': 1}}
                     },
 
     'SAUV_2D': {'Migration habitat (ha)' :
-                   {'SLR_US': {'p5': 3, 'p10': 2, 'p20':1},
+                   {#'SLR_US': {'p5': 3, 'p10': 2, 'p20':1},
                    'SLR_DS': {'p5': 3, 'p10': 2, 'p20': 1}}
                 },
 
@@ -636,8 +653,8 @@ dict_pi_scores = {
     'ERIW_MIN_1D': {'Exposed Riverbed Index': {
         'LKO': {'thresh': 1},
         'USL_US': {'thresh': 1},
-        'USL_DS': {'thresh': 1},
-        'SLR_US': {'thresh': 1},
+        #'USL_DS': {'thresh': 1},
+        #'SLR_US': {'thresh': 1},
         'SLR_DS': {'thresh': 1}
     }},
 
@@ -645,25 +662,30 @@ dict_pi_scores = {
                     {'LKO': {'low': 1, 'high': 1},
                      'USL_US': {'low': 1, 'high': 1},
                      'USL_DS': {'low': 1, 'high': 1},
-                     'SLR_US': {'low': 1, 'high': 1},
+                     #'SLR_US': {'low': 1, 'high': 1},
                      'SLR_DS': {'low': 1, 'high': 1}},
 
                 'Habitat available for spawning (ha)':
                     {'LKO': {'low': 1, 'high': 1},
                      'USL_US': {'low': 1, 'high': 1},
                      'USL_DS': {'low': 1, 'high': 1},
-                     'SLR_US': {'low': 1, 'high': 1},
+                     #'SLR_US': {'low': 1, 'high': 1},
                      'SLR_DS': {'low': 1, 'high': 1}
                      }},
 
-    'ONZI_1D': {'Probability of lodge viability':
+    'ONZI_OCCUPANCY_1D': {'Probability of muskrat lodge viability':
                     {'LKO': {'low': 1, 'high': 1},
                      'USL_US': {'low': 1, 'high': 1},
                      'USL_DS': {'low': 1, 'high': 1},
                      'SLR_US': {'low': 1, 'high': 1},
-                     'SLR_DS': {'low': 1, 'high': 1}}
-                },
+                     'SLR_DS': {'low': 1, 'high': 1}},
 
+                     'Percentage of the occupancy area in a cattail wetland':{
+                     'LKO': {'thresh': 1},
+                     'USL_US': {'thresh':1},
+                     'SLR_US': {'thresh': 1},
+                     'SLR_DS': {'thresh': 1}}
+                },
 
     'CWRM_2D': {'Total Wetland area (ha)': {
         'LKO': {'thresh': 1},
@@ -671,7 +693,7 @@ dict_pi_scores = {
         'USL_DS': {'thresh': 1}}},
 
     'IERM_2D': {'Total Wetland area (ha)': {
-        'SLR_US': {'thresh': 1},
+        #'SLR_US': {'thresh': 1},
         'SLR_DS': {'thresh': 1}}
 
     }
@@ -686,7 +708,9 @@ dict_pi_var = {
 
     'BIRDS_2D': ['Abundance (n individuals)'],
 
-    'ONZI_1D': ['Probability of lodge viability'],
+    #'ONZI_1D': ['Probability of lodge viability'],
+    'ONZI_OCCUPANCY_1D': ['Probability of muskrat lodge viability',
+                          'Percentage of the occupancy area in a cattail wetland'],
 
     'TURTLE_1D': ['Blanding turtle winter survival probability',
                   'Snapping turtle winter survival probability',
@@ -706,42 +730,31 @@ dict_pi_var = {
     'AYL_2D':  ['Average Yield Loss for all crops ($)'],
 
     'ROADS_2D': ['Primary roads (Nb of QMs)',
-                 'Secondary roads (Nb of QMs)',
-                 'Tertiary roads (Nb of QMs)',
                  'All roads (Nb of QMs)',
                  'Primary roads (Length in m)',
-                 'Secondary roads (Length in m)',
-                 'Tertiary roads (Length in m)',
                  'All roads (Length in m)'],
 
     'MFI_2D': ['Impacts during the navigation season',
                'Number of QMs with impacts'],
 
-    'NFB_2D': ['Accessory buildings (boolean)',
-               'Accessory building (Nb of QMs)',
-               'Strategic assets buildings (boolean)',
-               'Strategic assets buildings (Nb of QMs)',
-               'Non-residential (boolean)',
-               'Non-residential (Nb of QMs)',
-               'Residential (boolean)',
+    'NFB_2D': ['Residential (boolean)',
                'Residential (Nb of QMs)',
                'Total buildings (boolean)',
                'Total buildings (Nb of QMs)'],
 
-    'WASTE_WATER_2D': ['number of wastewater facilities exceeding the average discharge threshold', 'weighted (duration, discharge) number of wastewater facilities impacted']
-        ,
+    'WASTE_WATER_2D': ['number of wastewater facilities exceeding the average discharge threshold', 'weighted (duration, discharge) number of wastewater facilities impacted'],
 
     'WATER_INTAKES_2D': ['number of water intake facilities exceeding the nominal capacity threshold', 'weighted (duration, capacity) number of intake facilities impacted']
     }
 
-dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of lodge viability':5},
+dict_pi_frequency_high_lows = {'ONZI_1D': {'Probability of muskrat lodge viability':5},
                                'PIKE_2D': {'Habitat available for spawning and embryo-larval development (ha)': 7,
                                            'Habitat available for spawning (ha)': 7}}
 
 #list_mean_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'AYL_2D', 'ROADS_2D']
 list_mean_comparison = []
 #list_median_comparison = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'CWRM_2D', 'IERM_2D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D']
-list_pi_test = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'CWRM_2D', 'IERM_2D', 'ZIPA_1D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'AYL_2D']
+list_pi_test = ['CHNI_2D', 'IXEX_RPI_2D', 'SAUV_2D', 'BIRDS_2D', 'ERIW_MIN_1D', 'ONZI_OCCUPANCY_1D', 'TURTLE_1D', 'CWRM_2D', 'IERM_2D', 'ZIPA_1D', 'ROADS_2D', 'PIKE_2D', 'MFI_2D', 'NFB_2D', 'WASTE_WATER_2D', 'WATER_INTAKES_2D', 'AYL_2D']
 
 list_pi_sum = ['WASTE_WATER_2D', 'WATER_INTAKES_2D']
 
@@ -756,15 +769,16 @@ gap = 1
 n_iter = 0
 alpha = 0.05
 
-file_struct_protection = r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\PI_CSV_RESULTS\SHOR_PROT_STRUC_RESULTS_ALL_SCENARIO.csv"
-df_struct_prot = pd.read_csv(file_struct_protection, sep=';', header=0)
+# todo: à mettre à jour
+#file_struct_protection = r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\PI_CSV_RESULTS\SHOR_PROT_STRUC_RESULTS_ALL_SCENARIO.csv"
+#df_struct_prot = pd.read_csv(file_struct_protection, sep=';', header=0)
 
-folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS')
+folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20250212')
 
 #list_supplies = ['Historical']
 
 ref_plan = 'GERBL2_2014'
-list_plans = ['PreProject', 'GERBL2_2014_ComboC']
+list_plans = ['PreProject', 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD']
 list_pis = list(dict_pi_var.keys())
 #list_pis = ['CHNI_2D']
 
@@ -823,9 +837,9 @@ for pi, list_var in dict_pi_var.items():
                                 low_supply_yrs = wm_low_supply_yrs[supply]
                                 df_res_plan_low = df_res_plan[df_res_plan['YEAR'].isin(low_supply_yrs)]
                                 #df_res_ref = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
-                                mean_plan = df_res_plan[var].mean()
-                                median_plan = df_res_plan[var].median()
-                                sum_plan = df_res_plan[var].sum()
+                                mean_plan = df_res_plan_low[var].mean()
+                                median_plan = df_res_plan_low[var].median()
+                                sum_plan = df_res_plan_low[var].sum()
 
                                 df_res_ref_low = df_res_ref[df_res_ref['YEAR'].isin(low_supply_yrs)]
 
@@ -869,71 +883,71 @@ for pi, list_var in dict_pi_var.items():
                                                             'DIFF MEAN 2014BOC (%)': [pct_change_mean],
                                                             'SUM': [sum_plan],
                                                             'DIFF SUM (2014BOC)': [diff_sum]
-                                                            #'MEDIAN':[median_plan],
-                                                            #'DIFF MEDIAN 2014BOC (%)': [pct_change_median],
-                                                            #'MEDIAN (RESIDUALS)': [diff_median]
                                                             })
                             if pi in list_pi_test:
                                 if plan != ref_plan:
                                     df_res_agg_plan = run_stat_tests_mean(residuals, df_res_agg_plan, alpha=alpha)
                                     #if pi not in dict_thresholds.keys():
                                     if pi in list_plan_lower_better:
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '+'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '-'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
+                                        if pi in list_pi_sum:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
+
+                                        else:
+
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
                                     else:
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] < 0), 'MEAN_DIRECTION'] = '-'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] > 0), 'MEAN_DIRECTION'] = '+'
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'] == 0), 'MEAN_DIRECTION'] = '='
-                                        df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
-
-
+                                        if pi in list_pi_sum:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['DIFF SUM (2014BOC)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
+                                        else:
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) < 0), 'MEAN_DIRECTION'] = '-'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) > 0), 'MEAN_DIRECTION'] = '+'
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == True) & (df_res_agg_plan['MEAN (RESIDUALS)'].round(decimals=2) == 0), 'MEAN_DIRECTION'] = '='
+                                            df_res_agg_plan.loc[(df_res_agg_plan['SIGNIF_DIFF'] == False), 'MEAN_DIRECTION'] = '='
 
                             if pi in dict_pi_scores:
                                 if var in dict_pi_scores[pi]:
-                                    score_weights = list(dict_pi_scores[pi][var][sect].values())
-                                    print(dict_thresholds[pi][var][sect])
-                                    if 'low' in  dict_thresholds[pi][var][sect]:
-                                        thresholds = [dict_thresholds[pi][var][sect]['low']]
+                                    if (sect in dict_pi_scores[pi][var]) & (sect in dict_thresholds[pi][var]):
+                                        score_weights = list(dict_pi_scores[pi][var][sect].values())
+                                        print(dict_thresholds[pi][var][sect])
+                                        if 'low' in  dict_thresholds[pi][var][sect]:
+                                            thresholds = [dict_thresholds[pi][var][sect]['low']]
 
-                                    else:
-                                        thresholds = list(dict_thresholds[pi][var][sect].values())
-
-                                    #thresholds = list(dict_percentile.values())
-                                    if len(df_res_plan) == len(df_res_ref):
-
-                                        if plan == ref_plan:
-
-                                            value_ref = calculate_threshold_score(df_res_ref, var, score_weights, thresholds)
-                                            df_res_agg_plan['EXCEED_COUNT'] = value_ref
-                                            # df_res_agg_ref = pd.DataFrame({'PI_NAME': [pi],
-                                            #                                 'VARIABLE': [var],
-                                            #                                'SECT_NAME': [sect],
-                                            #                                'SUPPLY_SCEN': [supply],
-                                            #                                'PLAN_NAME': [ref_plan],
-                                            #                                'VALUE_AGG': [value_ref],
-                                            #                                'MEAN_AGG': [mean_ref],
-                                            #                                'DIFF (%)': [np.nan]
-                                            #                                })
                                         else:
+                                            thresholds = list(dict_thresholds[pi][var][sect].values())
 
-                                            value_plan = calculate_threshold_score(df_res_plan, var, score_weights, thresholds)
+                                        #thresholds = list(dict_percentile.values())
+                                        if len(df_res_plan) == len(df_res_ref):
 
-                                            diff_exceedances = value_plan - value_ref
-                                            if abs(diff_exceedances) > 20:
-                                                print("BIG DIFFERENCE...", pi, diff_exceedances, plan, supply, sect, thresholds)
-                                                print(" ")
-                                            df_res_agg_plan['EXCEED_COUNT'] = diff_exceedances
-                                            df_res_agg_plan['CRITICAL_DIFF'] = ''
-                                            if pi == 'TURTLE_1D':
-                                                gap = 0
+                                            if plan == ref_plan:
+
+                                                value_ref = calculate_threshold_score(df_res_ref, var, score_weights, thresholds)
+                                                df_res_agg_plan['EXCEED_COUNT'] = value_ref
+
                                             else:
-                                                gap = 1
-                                            df_res_agg_plan.loc[(df_res_agg_plan['EXCEED_COUNT'] <= gap) | (df_res_agg_plan['EXCEED_COUNT'] >= -gap), 'CRITICAL_DIFF'] = '='
-                                            df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] > gap, 'CRITICAL_DIFF'] = '-'
-                                            df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] < -gap, 'CRITICAL_DIFF'] = '+'
+
+                                                value_plan = calculate_threshold_score(df_res_plan, var, score_weights, thresholds)
+
+                                                diff_exceedances = value_plan - value_ref
+                                                if abs(diff_exceedances) > 20:
+                                                    print("BIG DIFFERENCE...", pi, diff_exceedances, plan, supply, sect, thresholds)
+                                                    print(" ")
+                                                df_res_agg_plan['EXCEED_COUNT'] = diff_exceedances
+                                                df_res_agg_plan['CRITICAL_DIFF'] = ''
+                                                if pi == 'TURTLE_1D':
+                                                    gap = 0
+                                                else:
+                                                    gap = 1
+                                                df_res_agg_plan.loc[(df_res_agg_plan['EXCEED_COUNT'] <= gap) | (df_res_agg_plan['EXCEED_COUNT'] >= -gap), 'CRITICAL_DIFF'] = '='
+                                                df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] > gap, 'CRITICAL_DIFF'] = '-'
+                                                df_res_agg_plan.loc[df_res_agg_plan['EXCEED_COUNT'] < -gap, 'CRITICAL_DIFF'] = '+'
 
 
 
@@ -941,64 +955,31 @@ for pi, list_var in dict_pi_var.items():
                                 if var in dict_pi_frequency_high_lows[pi]:
                                     if len(df_res_plan) == len(df_res_ref):
 
-                                        low_thresh, high_thresh = dict_thresholds[pi][var][sect]['low'], dict_thresholds[pi][var][sect]['high']
-                                        n_yrs = dict_pi_frequency_high_lows[pi][var]
-                                        #value_ref = np.nan
-                                        if plan == ref_plan:
-                                            n_periods_ref = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
-                                            df_res_agg_plan['N_FAILURE_PERIODS'] = n_periods_ref
-                                        else:
-                                            n_periods_plan = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
-                                            diff_periods = n_periods_plan - n_periods_ref
-                                            df_res_agg_plan['N_FAILURE_PERIODS'] = diff_periods
-                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] == 0, 'CRITICAL_PERIODS'] = '='
-                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] > 0, 'CRITICAL_PERIODS'] = '-'
-                                            df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] < 0, 'CRITICAL_PERIODS'] = '+'
+                                        if sect in dict_thresholds[pi][var]:
 
-                            # list_cols = ['PI_NAME', 'VARIABLE', 'SECT_NAME', 'SUPPLY_SCEN', 'PLAN_NAME', 'BOOTSTRAP_BLOCK_SIZE',
-                            #              'MEAN_AGG', 'DIFF MEAN (ABS.)', 'DIFF MEAN (%)', 'meanTest_CI_2.5', 'meanTest_CI_97.5',
-                            #              'meanTest_P-Value', 'MeanTest_Significant', 'MEDIAN_AGG', 'DIFF MEDIAN (%)', 'DIFF MEDIAN (ABS.)',
-                            #              'medianTest_CI_2.5', 'medianTest_CI_97.5', 'medianTest_P-Value', 'MedianTest_Significant', 'VALUE_AGG', 'CRITICAL_DIFF']
-                            #
-                            # list_cols_df = [col for col in list_cols if col in df_res_agg_plan.columns]
+                                            low_thresh, high_thresh = dict_thresholds[pi][var][sect]['low'], dict_thresholds[pi][var][sect]['high']
+                                            n_yrs = dict_pi_frequency_high_lows[pi][var]
+                                            #value_ref = np.nan
+                                            if plan == ref_plan:
+                                                n_periods_ref = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
+                                                df_res_agg_plan['N_FAILURE_PERIODS'] = n_periods_ref
+                                            else:
+                                                n_periods_plan = estimate_critical_periods(df_res_ref, var, 'YEAR', low_thresh, high_thresh, n_yrs)
+                                                diff_periods = n_periods_plan - n_periods_ref
+                                                df_res_agg_plan['N_FAILURE_PERIODS'] = diff_periods
+                                                df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] == 0, 'CRITICAL_PERIODS'] = '='
+                                                df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] > 0, 'CRITICAL_PERIODS'] = '-'
+                                                df_res_agg_plan.loc[df_res_agg_plan['N_FAILURE_PERIODS'] < 0, 'CRITICAL_PERIODS'] = '+'
 
                             list_results.append(df_res_agg_plan)
 
-                    #
-                    # for plan in plans_to_compare:
-                    #     df_res_plan = df_res_sect[df_res_sect['PLAN_NAME'] == plan]
-                    #     df_res_plan = df_res_plan.copy()
-                    #     mean_plan = df_res_plan[var].mean()
-                    #     pct_change = ((mean_plan / mean_ref) - 1) * 100
-                    #
-                    #     print(pi, sect, supply, plan)
-                    #     p_value = bootstrap_mean_test(df_res_ref, df_res_plan, var, n_iter=n_iter, block_size=block_size)
-                    #     df_res_agg_plan = pd.DataFrame({'PI_NAME': [pi],
-                    #                                     'VARIABLE': [var],
-                    #                                     'SECT_NAME': [sect],
-                    #                                     'SUPPLY_SCEN': [supply],
-                    #                                     'PLAN_NAME': [plan],
-                    #                                     'MEAN_AGG': [mean_plan],
-                    #                                     'DIFF (%)': [pct_change]
-                    #                                     })
-                    #     df_res_agg_plan['P-value'] = [p_value]
-                    #
-                    #     if p_value > alpha:
-                    #         df_res_agg_plan['STAT_DIFF'] = 'None'
-                    #     else:
-                    #         df_res_agg_plan['STAT_DIFF'] = '**'
-                    #
-                    #     df_res_agg_plan['CRITICAL_DIFF'] = ''
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] == gap, 'CRITICAL_DIFF'] = '='
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] > gap, 'CRITICAL_DIFF'] = '-'
-                    #     df_res_agg_plan.loc[df_res_agg_plan['VALUE_AGG'] < gap, 'CRITICAL_DIFF'] = '+'
-                    #
-                    #     list_results.append(df_res_agg_plan)
-list_results.append(df_struct_prot)
+# todo: à mettre à jour
+
+#list_results.append(df_struct_prot)
 df_res_all = pd.concat(list_results)
 
 print(df_res_all)
-output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20241209.csv')
+output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20250212.csv')
 df_res_all.to_csv(output_results, sep=';', index=False)
 
 
