@@ -1,6 +1,6 @@
 import os
 
-name='Flooded Buildings'
+name='Buildings at risk'
 
 type='2D_not_tiled'
 
