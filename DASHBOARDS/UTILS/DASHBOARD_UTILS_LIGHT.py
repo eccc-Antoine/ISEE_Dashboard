@@ -237,7 +237,7 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
                 filepath = filepath.replace('\\', '/')
 
                 #df = read_from_sftp(filepath, sftp)
-                df = pd.read_csv(filepath, sep=';')
+                df = pd.read_feather(filepath)
 
                 df['ALT'] = alt
                 df['SECT'] = s
