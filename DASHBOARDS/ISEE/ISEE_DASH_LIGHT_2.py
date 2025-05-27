@@ -38,7 +38,7 @@ def set_base_path():
 
 set_base_path()
 
-sftp, transport=UTILS.connect_sftp()
+#sftp, transport=UTILS.connect_sftp()
 
 st.set_page_config(
     page_title='ISEE Dashboard',
@@ -196,7 +196,7 @@ def render_column1():
 
         var_direction = unique_PI_CFG.var_direction[Variable]
 
-        df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D, sftp)
+        df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
 
 
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,

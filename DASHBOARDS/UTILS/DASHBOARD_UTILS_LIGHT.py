@@ -185,11 +185,18 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
 
 #@st.cache_data(ttl=3600)
 def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline, Region,
-                                start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D, sftp):
+                                start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D):
     print('TIMESERIES_PREP')
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
+
+    #df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
+
+    github_path="https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/master/post_processed_data/"
+    df_folder=os.path.join(github_path, PI_code, 'YEAR', 'SECTION')
+
+
+
     dfs = []
     feather_done = []
 
@@ -226,7 +233,12 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
 
             if feather_name not in feather_done:
                 filepath = os.path.join(df_folder, alt, s, feather_name)
-                df = read_from_sftp(filepath, sftp)
+
+                filepath = filepath.replace('\\', '/')
+
+                #df = read_from_sftp(filepath, sftp)
+                df = pd.read_csv(filepath, sep=';')
+
                 df['ALT'] = alt
                 df['SECT'] = s
 
