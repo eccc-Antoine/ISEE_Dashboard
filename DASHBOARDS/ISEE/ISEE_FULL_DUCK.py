@@ -9,8 +9,8 @@ from pathlib import Path
 import sys
 import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-import CFG_ISEE_DASH as CFG_DASHBOARD
-from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
+import CFG_ISEE_DUCK as CFG_DASHBOARD
+from DASHBOARDS.UTILS import DASHBOARD_UTILS_DUCK as UTILS
 import geopandas as gpd
 import tempfile
 import json
@@ -39,16 +39,24 @@ def get_env_var(var, env_name):
         return var
 
 def set_base_path():
-    CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
+    # CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
+    #
+    # CFG_DASHBOARD.shapefile_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.shapefile_folder_name)
+    # CFG_DASHBOARD.post_process_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.post_process_folder_name)
 
-    CFG_DASHBOARD.shapefile_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.shapefile_folder_name)
-    CFG_DASHBOARD.post_process_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.post_process_folder_name)
+    CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
 
-    CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
-    CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
-    CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
+    sct_poly = ''
+    sct_poly_country = ''
+    tiles_shp = ''
+
+    # CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
+    # CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
+    # CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
 
 set_base_path()
+
+#sftp, transport=UTILS.connect_sftp()
 
 st.set_page_config(
     page_title='ISEE Dashboard',
@@ -58,11 +66,13 @@ st.set_page_config(
 
 )
 
-st.write('imports done!')
-
 folder = CFG_DASHBOARD.post_process_folder
 pis_code = CFG_DASHBOARD.pi_list
 tss_code=CFG_DASHBOARD.ts_list
+
+sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_name)
+sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_country_name)
+tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.tiles_shp_name)
 
 pi_dct = {}
 unit_dct = {}
@@ -122,12 +132,11 @@ exec=False
 st.session_state.gdf_grille_base = None
 st.session_state.gdf_grille_plan = None
 def function_for_tab1(exec):
-
     if exec:
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
-            full_min, full_max = UTILS.find_full_min_full_max(unique_pi_module_name, folder, PI_code, Variable)
+            #full_min, full_max = UTILS.find_full_min_full_max(unique_pi_module_name, folder, PI_code, Variable)
         with Col2:
 
             st.write('👈 Set parameters with widgets on the left to display results accordingly')
@@ -144,7 +153,7 @@ def function_for_tab1(exec):
                         ':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
                 fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
-                                            PI_code, unit_dct, full_min, full_max)
+                                            PI_code, unit_dct)
 
                 csv_data=df_PI_plans.to_csv(index=False, sep=';')
 
@@ -163,8 +172,8 @@ def function_for_tab2(exec):
         Col1, Col2 = st.columns([0.2, 0.8])
         with Col1:
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
-            full_min_diff, full_max_diff = UTILS.find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code,
-                                                                             Variable)
+            # full_min_diff, full_max_diff = UTILS.find_full_min_full_max_diff(unique_pi_module_name, folder, PI_code,
+            #                                                                  Variable)
         with Col2:
             diff_type = st.selectbox("Select a type of difference to compute",
                                      [f'Values ({unit_dct[PI_code]})', 'Proportion of reference value (%)'], key='select3')
@@ -183,7 +192,7 @@ def function_for_tab2(exec):
                 else:
 
                     fig2, df_PI_plans = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
-                                                            PI_code, unit_dct, unique_pi_module_name, diff_type, full_min_diff, full_max_diff)
+                                                            PI_code, unit_dct, unique_pi_module_name, diff_type)
 
                     csv_data = df_PI_plans.to_csv(index=False, sep=';')
 
@@ -241,29 +250,32 @@ def function_for_tab3(exec):
 
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
-                    gdf_grille_base = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, baseline_code,
+                    gdf_grille_base = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, baseline_code,
                                                                 years_list, stat5, var,
-                                                                unique_pi_module_name, start_year, end_year)
-                    gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
+                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+
+                    gdf_grille_plan = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, ze_plan_code,
                                                                 years_list, stat5, var,
-                                                                unique_pi_module_name, start_year, end_year)
+                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+
                     m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable,
                                                      unique_pi_module_name, unit_dct[PI_code], 'tile')
 
                 else:
                     if unique_PI_CFG.divided_by_country:
-                        sct_shp = CFG_DASHBOARD.sct_poly_country
+                        sct_shp = sct_poly_country
                     else:
-                        sct_shp = CFG_DASHBOARD.sct_poly
+                        sct_shp = sct_poly
+
                     gdf_grille_base = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder,
                                                              PI_code, baseline_code, years_list, stat5,
                                                              var, unique_pi_module_name,
-                                                             start_year, end_year, Baseline2)
+                                                             start_year, end_year, Baseline2, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                     gdf_grille_plan = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder,
                                                              PI_code, ze_plan_code, years_list, stat5,
                                                              var2, unique_pi_module_name,
-                                                             start_year, end_year, Baseline2)
+                                                             start_year, end_year, Baseline2, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                     if baseline_code=='PreProjectHistorical':
                         st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
@@ -360,13 +372,13 @@ def function_for_tab4(exec):
 
                 if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
-                    gdf_grille_base = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, baseline_code,
+                    gdf_grille_base = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, baseline_code,
                                                                 years_list, stat3, var3,
-                                                                unique_pi_module_name, start_year, end_year)
+                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
-                    gdf_grille_plan = UTILS.prep_for_prep_tiles(CFG_DASHBOARD.tiles_shp, folder, PI_code, ze_plan_code,
+                    gdf_grille_plan = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, ze_plan_code,
                                                                 years_list, stat3, var3,
-                                                                unique_pi_module_name, start_year, end_year)
+                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                     division_col = 'tile'
                     gdf_both = gdf_grille_base.merge(gdf_grille_plan, on=['tile'], how='outer', suffixes=('_base', '_plan'))
@@ -468,19 +480,19 @@ def function_for_tab4(exec):
 
                 else:
                     if unique_PI_CFG.divided_by_country:
-                        sct_shp = CFG_DASHBOARD.sct_poly_country
+                        sct_shp = sct_poly_country
                     else:
-                        sct_shp = CFG_DASHBOARD.sct_poly
+                        sct_shp = sct_poly
 
                     gdf_grille_base = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder, PI_code,
                                                              baseline_code, years_list, stat3, var3,
                                                              unique_pi_module_name,
-                                                             start_year3, end_year3, Baseline)
+                                                             start_year3, end_year3, Baseline, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                     gdf_grille_plan = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder, PI_code, ze_plan_code,
                                                              years_list, stat3, var3,
                                                              unique_pi_module_name,
-                                                             start_year3, end_year3, Baseline)
+                                                             start_year3, end_year3, Baseline, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_urll)
 
 
 
@@ -563,7 +575,7 @@ def render_column1():
 
         var_direction = unique_PI_CFG.var_direction[Variable]
 
-        df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D)
+        df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
