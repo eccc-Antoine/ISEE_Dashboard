@@ -5,4 +5,8 @@ plotly
 pyproj
 pathlib
 paramiko
+geopandas
+folium
+shapely
+duckdb
 
