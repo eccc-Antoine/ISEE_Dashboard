@@ -2,7 +2,7 @@ import streamlit as st  # web development
 import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
 pd.set_option('mode.chained_assignment', None)
-import plotly.express as px  # interactive charts
+#import plotly.express as px  # interactive charts
 import os
 import importlib
 from pathlib import Path
@@ -14,13 +14,13 @@ from DASHBOARDS.UTILS import DASHBOARD_UTILS_DUCK as UTILS
 import geopandas as gpd
 import tempfile
 import json
-import folium as f
-from folium import plugins
-import branca.colormap as cm
-import requests
+#import folium as f
+#from folium import plugins
+#import branca.colormap as cm
+#import requests
 import sys
 import streamlit.components.v1 as components
-from streamlit_folium import st_folium
+#from streamlit_folium import st_folium
 
 def get_env_var(var, env_name):
     """This function check if an env var is set and if the path of the env var
