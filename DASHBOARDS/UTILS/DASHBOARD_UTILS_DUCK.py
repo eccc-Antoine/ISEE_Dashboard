@@ -16,7 +16,7 @@ import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
 import numpy as np
 import tempfile
-from streamlit_folium import st_folium
+#from streamlit_folium import st_folium
 import streamlit as st
 import geopandas as gpd
 import io
