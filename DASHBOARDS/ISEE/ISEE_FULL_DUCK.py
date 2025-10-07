@@ -39,24 +39,11 @@ def get_env_var(var, env_name):
         return var
 
 def set_base_path():
-    # CFG_DASHBOARD.root_data = get_env_var(os.getenv("ISEE_DASH_DATA"), 'ISEE_DASH_DATA')
-    #
-    # CFG_DASHBOARD.shapefile_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.shapefile_folder_name)
-    # CFG_DASHBOARD.post_process_folder = os.path.join(CFG_DASHBOARD.root_data, CFG_DASHBOARD.post_process_folder_name)
-
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
 
-    sct_poly = ''
-    sct_poly_country = ''
-    tiles_shp = ''
-
-    # CFG_DASHBOARD.sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_name)
-    # CFG_DASHBOARD.sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.sct_poly_country_name)
-    # CFG_DASHBOARD.tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder, CFG_DASHBOARD.tiles_shp_name)
 
 set_base_path()
 
-#sftp, transport=UTILS.connect_sftp()
 
 st.set_page_config(
     page_title='ISEE Dashboard',

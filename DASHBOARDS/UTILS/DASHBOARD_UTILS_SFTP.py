@@ -22,7 +22,7 @@ import geopandas as gpd
 import io
 import zipfile
 from shapely.geometry import Point
-import fiona
+#import fiona
 import paramiko
 
 hostname = 'sanijcfilesharingprod.blob.core.windows.net'

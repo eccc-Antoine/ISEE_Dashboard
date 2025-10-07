@@ -21,7 +21,7 @@ import geopandas as gpd
 import io
 import zipfile
 from shapely.geometry import Point
-import fiona
+#import fiona
 
 def df_2_gdf(df, xcol, ycol, crs):
     geometry = [Point(xy) for xy in zip(df[xcol], df[ycol])]

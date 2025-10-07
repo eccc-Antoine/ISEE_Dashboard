@@ -25,6 +25,9 @@ from shapely.geometry import Point
 #import fiona
 import paramiko
 import duckdb
+
+
+
 #
 # hostname = 'sanijcfilesharingprod.blob.core.windows.net'
 # port = 22
