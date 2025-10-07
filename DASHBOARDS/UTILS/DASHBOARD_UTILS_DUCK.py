@@ -23,7 +23,7 @@ import io
 import zipfile
 from shapely.geometry import Point
 #import fiona
-import paramiko
+#import paramiko
 import duckdb
 
 
