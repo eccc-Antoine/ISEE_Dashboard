@@ -466,6 +466,7 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
             count_kpi += 1
 
 
+
 def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_pi_module_name, unit, division_col):
     print('DUAL_MAPS')
     geometry_types = _gdf_grille_base.geom_type.unique()[0]
@@ -1397,6 +1398,7 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
                 print(file_url)
 
                 df=pd.read_parquet(file_url)
+                # print(df)
 
                 df['ALT'] = alt
                 df['SECT'] = s
@@ -1410,6 +1412,7 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
     df_PI = df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
 
     df_PI['SECT'] = Region
+
     # when a variable can be aggregated by mean or sum, sum is done in priority
     if len(stats) > 1:
         df_PI = df_PI[['YEAR', 'ALT', 'SECT', var_s]]

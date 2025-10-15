@@ -47,20 +47,22 @@ set_base_path()
 
 st.set_page_config(
     page_title='ISEE Dashboard',
-    page_icon=':floppy_disk:',
+    page_icon='🏞️',
     layout='wide',
     initial_sidebar_state="collapsed"
 
 )
 
-folder = CFG_DASHBOARD.post_process_folder
-pis_code = CFG_DASHBOARD.pi_list
-tss_code=CFG_DASHBOARD.ts_list
+folder = CFG_DASHBOARD.post_process_folder # Pas clair
+pis_code = CFG_DASHBOARD.pi_list # PI list
+tss_code=CFG_DASHBOARD.ts_list # Timeserie list
 
+# Thoses files are in \\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\shapefiles\
 sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_name)
 sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_country_name)
 tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.tiles_shp_name)
 
+# Import PI configuration
 pi_dct = {}
 unit_dct = {}
 for pi in pis_code:
@@ -69,6 +71,7 @@ for pi in pis_code:
     pi_dct[pi] = PI_CFG.name
     unit_dct[pi] = PI_CFG.units
 
+# Pretty name of pi
 pis = [pi_dct[pi] for pi in pis_code]
 
 ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
@@ -77,6 +80,7 @@ default_PI=next(iter(pi_dct.values()), None)
 default_ts=next(iter(ts_dct.values()), None)
 
 # State management
+# Define which PI or timeserie to show by default
 if 'PI_code' not in st.session_state:
     st.session_state['PI_code'] = pis_code[0]
     st.session_state['selected_pi'] = default_PI
@@ -84,7 +88,7 @@ if 'PI_code' not in st.session_state:
 if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
-
+# Change PI or Timeserie
 def update_PI_code():
     selected_pi_name = st.session_state['selected_pi']
     pi_code = [key for key, value in pi_dct.items() if value == selected_pi_name]
@@ -119,9 +123,11 @@ exec=False
 st.session_state.gdf_grille_base = None
 st.session_state.gdf_grille_plan = None
 def function_for_tab1(exec):
+    # Si le bouton est sélectionné
     if exec:
-        Col1, Col2 = st.columns([0.2, 0.8])
+        Col1, Col2 = st.columns([0.2, 0.8]) # Deux colonnes dans l'affichage
         with Col1:
+            # Afficher la colonne 1 (gauche)
             folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
             #full_min, full_max = UTILS.find_full_min_full_max(unique_pi_module_name, folder, PI_code, Variable)
         with Col2:
