@@ -11,6 +11,12 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import CFG_ISEE_DUCK as CFG_DASHBOARD
 from DASHBOARDS.UTILS.pages import Dual_maps_utils as UTILS
 import sys
+from datetime import datetime as dt
+import warnings
+warnings.filterwarnings('ignore')
+
+
+start = dt.now()
 
 def set_base_path():
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
@@ -59,6 +65,12 @@ if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
 
+if 'baseline_code' not in st.session_state:
+    st.session_state['baseline_code'] = None
+
+if 'gdf_grille_base' not in st.session_state:
+    st.session_state['gdf_grille_base'] = None
+
 # Change PI or Timeserie
 def update_PI_code():
     selected_pi_name = st.session_state['selected_pi']
@@ -73,7 +85,6 @@ def update_timeseries():
 st.title('Dual Maps 🗺️')
 st.subheader('Select what you want to see on the left, select which plan you want to compare and display the maps on the right.', divider="gray")
 
-st.session_state.gdf_grille_base = None
 st.session_state.gdf_grille_plan = None
 
 def function_for_tab3():
@@ -81,6 +92,7 @@ def function_for_tab3():
     Col1, Col2 = st.columns([0.2, 0.8], gap='large')
     with Col1:
         selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code=render_column1_simple()
+
         var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
         if unique_PI_CFG.var_agg_stat[var][0] =='sum':
             stat5 = st.selectbox("Select a way to aggregate values for the selected period",
@@ -90,13 +102,18 @@ def function_for_tab3():
                                      unique_PI_CFG.var_agg_stat[var] + ['min', 'max'], key='stat5', index=0)
 
     with Col2:
+
         baseline, candidate = st.columns(2)
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
 
         with baseline:
             Baseline2 = st.selectbox("Select a reference plan to display", baselines)
 
+        old_baseline_code = st.session_state['baseline_code']
+        old_gdf_grille_base = st.session_state['gdf_grille_base']
+
         baseline_code = unique_PI_CFG.baseline_dct[Baseline2]
+        st.session_state['baseline_code'] = baseline_code
 
         available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
 
@@ -104,7 +121,6 @@ def function_for_tab3():
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
         else:
-
             with candidate:
                 ze_plan2 = st.selectbox("Select a candidate plan to display", available_plans, key='ze_plan2', index=0)
             ze_plan_code = unique_PI_CFG.plan_dct[ze_plan2]
@@ -117,17 +133,15 @@ def function_for_tab3():
 
             if unique_PI_CFG.type == '2D_tiled' or unique_PI_CFG.type == '2D_not_tiled':
 
-                gdf_grille_base = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, baseline_code,
-                                                                years_list, stat5, var,
-                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+                gdf_grille_base = UTILS.prep_for_prep_tiles_parquet(tiles_shp, PI_code, baseline_code, stat5, var,
+                                                                        unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.access_key, CFG_DASHBOARD.azure_url)
+                st.session_state['gdf_grille_base'] = gdf_grille_base
 
-                gdf_grille_plan = UTILS.prep_for_prep_tiles_duckdb_lazy(tiles_shp, folder, PI_code, ze_plan_code,
-                                                                years_list, stat5, var,
-                                                                unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+                gdf_grille_plan = UTILS.prep_for_prep_tiles_parquet(tiles_shp, PI_code, ze_plan_code, stat5, var,
+                                                                        unique_pi_module_name, start_year, end_year, CFG_DASHBOARD.access_key, CFG_DASHBOARD.azure_url)
 
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable,
-                                                     unique_pi_module_name, unit_dct[PI_code], 'tile')
-
+                                                     unique_pi_module_name, unit_dct[PI_code], 'TILE')
             else:
                 if unique_PI_CFG.divided_by_country:
                     sct_shp = sct_poly_country
@@ -137,12 +151,16 @@ def function_for_tab3():
                 gdf_grille_base = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder,
                                                              PI_code, baseline_code, years_list, stat5,
                                                              var, unique_pi_module_name,
-                                                             start_year, end_year, Baseline2, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+                                                             start_year, end_year, Baseline2,
+                                                             CFG_DASHBOARD.azure_url, CFG_DASHBOARD.access_key,
+                                                             CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                 gdf_grille_plan = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder,
                                                              PI_code, ze_plan_code, years_list, stat5,
                                                              var2, unique_pi_module_name,
-                                                             start_year, end_year, Baseline2, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
+                                                             start_year, end_year, Baseline2,
+                                                             CFG_DASHBOARD.azure_url, CFG_DASHBOARD.access_key,
+                                                             CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
                 if baseline_code=='PreProjectHistorical':
                     st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
@@ -206,3 +224,5 @@ def render_column1_simple():
     return selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
 
 function_for_tab3()
+print('Execution time :', dt.now()-start)
+print('----------------------------END----------------------------')

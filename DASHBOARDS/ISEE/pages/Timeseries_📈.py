@@ -10,6 +10,8 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import CFG_ISEE_DUCK as CFG_DASHBOARD
 from DASHBOARDS.UTILS.pages import Timeseries_utils as UTILS
 import sys
+from azure.storage.blob import BlobServiceClient
+
 
 def set_base_path():
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
@@ -52,6 +54,12 @@ if 'PI_code' not in st.session_state:
 if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
+
+if 'azure_container' not in st.session_state:
+    # connect to Azur blob storage
+    blob_service_client = BlobServiceClient(CFG_DASHBOARD.azure_url, credential = CFG_DASHBOARD.access_key)
+    container = blob_service_client.get_container_client('dukc-db')
+    st.session_state['azure_container'] = container
 
 # Change PI or Timeserie
 def update_PI_code():
@@ -102,28 +110,21 @@ def function_for_tab1():
 
 def render_column1():
 
-    old_ts_code = st.session_state['ts_code']
     old_PI_code = st.session_state['PI_code']
-
-    timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries')
-    update_timeseries()
-
+    timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries', on_change=update_timeseries)
     selected_pi = st.selectbox("Select a Performance Indicator", list(pi_dct.values()), key='selected_pi')
     update_PI_code()
 
     PI_code = st.session_state['PI_code']
-    unique_pi_module_name = f'CFG_{PI_code}'
     ts_code = st.session_state['ts_code']
+    unique_pi_module_name = f'CFG_{PI_code}'
 
     # First time loading the dashboard
     if 'df_PI' not in st.session_state:
-        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code)
+        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, st.session_state['azure_container'])
 
-    if (old_ts_code != st.session_state['ts_code']) or (old_PI_code != st.session_state['PI_code']):
-        PI_code = st.session_state['PI_code']
-        unique_pi_module_name = f'CFG_{PI_code}'
-        ts_code = st.session_state['ts_code']
-        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code)
+    if (old_PI_code != st.session_state['PI_code']):
+        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, st.session_state['azure_container'])
 
     df_PI = st.session_state['df_PI']
 
