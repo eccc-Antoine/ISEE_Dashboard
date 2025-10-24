@@ -3,7 +3,7 @@ import streamlit as st
 import numpy as np
 import importlib
 import pandas as pd
-
+import io
 pd.set_option('mode.chained_assignment', None)
 import plotly.express as px
 import plotly.graph_objects as go
@@ -11,6 +11,16 @@ import numpy as np
 import streamlit as st
 
 from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
+from azure.storage.blob import BlobServiceClient
+
+def read_parquet_from_blob(container, blob_name):
+    stream = io.BytesIO()
+    data = container.download_blob(blob_name)
+    data.readinto(stream)
+    df = pd.read_parquet(stream,engine='pyarrow')
+    if 'index' in df.columns:
+        df.set_index('index',inplace=True)
+    return df
 
 def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values, baseline_value,
            PI_code, unit_dct, var_direction, LakeSL_prob_1D):
@@ -51,12 +61,12 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
 def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, PI_code, unit_dct):
     print('PLOT_TS')
 
-    df_PI_plans = df_PI.loc[df_PI['ALT'].isin(list_plans)]
+    df_PI_plans = df_PI.loc[df_PI['PLAN'].isin(list_plans)]
     # Assign colors
-    df_PI_plans['color'] = pd.Categorical(df_PI_plans['ALT']).codes
+    df_PI_plans['color'] = pd.Categorical(df_PI_plans['PLAN']).codes
 
-    df_value_to_move = df_PI_plans[df_PI_plans['ALT'] == Baseline]
-    others = df_PI_plans[df_PI_plans['ALT'] != Baseline]
+    df_value_to_move = df_PI_plans[df_PI_plans['PLAN'] == Baseline]
+    others = df_PI_plans[df_PI_plans['PLAN'] != Baseline]
     df_PI_plans = pd.concat([others, df_value_to_move])
     df_PI_plans = df_PI_plans.reset_index(drop=True)
 
@@ -64,7 +74,7 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
                                name=Baseline,legendgroup='Reference',legendgrouptitle_text='Reference'))
 
     for p in plans_selected:
-        data_plan = df_PI_plans.loc[df_PI_plans['ALT']==p]
+        data_plan = df_PI_plans.loc[df_PI_plans['PLAN']==p]
         fig.add_trace(go.Scatter(x=data_plan["YEAR"], y=data_plan[Variable], mode='lines',
                                     name=p,legendgroup='Others',legendgrouptitle_text='Plans'))
 
@@ -93,39 +103,40 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
             plan_values = []
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[
-                    df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
+                    df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
             plan_values = []
             for c in range(len(plans_selected)):
-                plan_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
+                plan_value = df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(3)
                 plan_values.append(plan_value)
 
 
     else:
         if Stats == 'mean':
             plan_values = []
-            baseline_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
+            baseline_value = df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.baseline_dct[Baseline]].mean().round(3)
             for c in range(len(plans_selected)):
                 plan_value = df_PI[Variable].loc[
-                    df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
+                    df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]].mean().round(3)
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
             plan_values = []
-            baseline_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
+            baseline_value = df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.baseline_dct[Baseline]].sum().round(3)
             for c in range(len(plans_selected)):
-                plan_value = df_PI[Variable].loc[df_PI['ALT'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(
+                plan_value = df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]].sum().round(
                     3)
                 plan_values.append(plan_value)
 
     return baseline_value, plan_values
 
-def create_timeseries_database(ts_code, unique_pi_module_name, folder_raw, PI_code):
+def create_timeseries_database(ts_code, unique_pi_module_name, folder_raw, PI_code, container):
     '''
     Create dataframe with all plan and section
     unique_pi_module_name : name of PI config file (ex : CDF_BIRDS_2D)
+    folder_raw : string to PI database (test)
     '''
 
     print('CREATE DATABASE')
@@ -133,33 +144,9 @@ def create_timeseries_database(ts_code, unique_pi_module_name, folder_raw, PI_co
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     # Path to data
     df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
-    dfs = []
+    print(os.path.join(df_folder,f'{PI_code}_ALL_SECTIONS_{CFG_DASHBOARD.file_ext}'))
 
-    plans_all = unique_PI_CFG.plans_ts_dct[ts_code]
-    sect = np.concatenate(list(unique_PI_CFG.sect_dct.values()))
-    # Éventuellement, je crois qu'on pourrait utiliser dask pour lire les fichiers
-    for p in plans_all :
-        for s in sect :
-            if ts_code == 'hist':
-                parquet_name = f'{PI_code}_YEAR_{p}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
-            else:
-                parquet_name = f'{PI_code}_YEAR_{p}_{s}_{np.min(unique_PI_CFG.available_years_future)}_{np.max(unique_PI_CFG.available_years_future)}{CFG_DASHBOARD.file_ext}'
-
-            filepath = os.path.join(df_folder,p, s, parquet_name)
-            filepath = filepath.replace('\\', '/')
-            # print(f'FILEPATH, {filepath}')
-            # all chercher le fichier sur Azur
-            file_url = f"{CFG_DASHBOARD.container_url}/{filepath}?{CFG_DASHBOARD.sas_token}"
-            # print(file_url)
-
-            df = pd.read_parquet(file_url)
-
-            df['ALT'] = p
-            df['SECT'] = s
-
-            dfs.append(df)
-
-    df_PI = pd.concat(dfs, ignore_index=True).drop(columns='index')
+    df_PI = read_parquet_from_blob(container, os.path.join(df_folder,f'{PI_code}_ALL_SECTIONS{CFG_DASHBOARD.file_ext}'))
 
     return df_PI
 
@@ -172,8 +159,8 @@ def select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year, R
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     stats = unique_PI_CFG.var_agg_stat[var]
 
-    df_PI = df_PI.loc[(df_PI['ALT'].isin(plans_selected)) | (df_PI['ALT'] == Baseline)]
-    df_PI = df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
+    df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
+    df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
@@ -181,7 +168,7 @@ def select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year, R
 
     df_PI[Variable] = df_PI[Variable] * multiplier
 
-    df_PI = df_PI[['YEAR', 'ALT', 'SECT', Variable]]
+    df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', Variable]]
 
     return df_PI
 

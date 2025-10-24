@@ -12,17 +12,31 @@ from folium import plugins
 import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
-import numpy as np
 import tempfile
-import streamlit as st
-import geopandas as gpd
 import io
 import zipfile
 import duckdb
+from azure.storage.blob import BlobServiceClient
+from datetime import datetime as dt
+import warnings
+warnings.filterwarnings('ignore')
 
-def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, avail_years, stat, var, unique_pi_module_name,
-                                    start_year, end_year, sas_token, container_url):
-    print('PREP_FOR_PREP_TILES_DUCKDB_LAZY')
+
+def read_parquet_from_blob(container, blob_name):
+    stream = io.BytesIO()
+    data = container.download_blob(blob_name)
+    data.readinto(stream)
+    df = pd.read_parquet(stream,engine='pyarrow')
+    if 'index' in df.columns:
+        df.set_index('index',inplace=True)
+    return df
+
+def prep_for_prep_tiles_parquet(tile_geojson, PI_code, scen_code, stat, var, unique_pi_module_name,
+                                    start_year, end_year, access_key, azure_url):
+
+    # connect to Azur blob storage
+    blob_service_client = BlobServiceClient(azure_url, credential = access_key)
+    container = blob_service_client.get_container_client('dukc-db')
 
     # Load module
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
@@ -30,127 +44,75 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
     sect_PI = unique_PI_CFG.available_sections
 
     # Load tile geometries
-    geojson_url = f"{container_url}/{tile_geojson}?{sas_token}"
-    gdf_tiles = gpd.read_file(geojson_url)
+    geojson_data = container.download_blob(f'{tile_geojson}').readall()
+    gdf_tiles = gpd.read_file(geojson_data)
+    gdf_tiles['TILE'] = gdf_tiles['tile'].astype(int)
 
-    # Build list of parquet URLs
-    parquet_files = []
-    for s in sect_PI:
-        for t in CFG_DASHBOARD.dct_tile_sect[s]:
-            df_folder = os.path.join(folder, PI_code, 'YEAR', 'TILE', scen_code, s, str(t))
-            parquet_file = os.path.join(
-                df_folder,
-                f'{PI_code}_YEAR_{scen_code}_{s}_{t}_{np.min(avail_years)}_{np.max(avail_years)}.parquet'
-            )
-            parquet_files.append(parquet_file.replace('\\', '/'))
-
-    parquet_urls = [f"{container_url}/{f}?{sas_token}" for f in parquet_files]
-
-    # Connect to DuckDB (in-memory)
-    con = duckdb.connect(database=':memory:')
-
-    # Create a view directly on the Parquet files (lazy, no reading yet)
-    urls_str = ', '.join([f"'{url}'" for url in parquet_urls])
-    con.execute(f"CREATE VIEW tiles AS SELECT * FROM parquet_scan([{urls_str}])")
-
-    # Determine aggregation expression
-    sample_cols = con.execute("DESCRIBE tiles").fetchall()
-    sample_cols = [c[0] for c in sample_cols]
-
-    if f'{var}_mean' in sample_cols:
-        col_name = f'{var}_mean'
-    elif f'{var}_sum' in sample_cols:
-        col_name = f'{var}_sum'
+    # Download pi data
+    folder = f'test/{PI_code}/YEAR/TILE/'
+    df = read_parquet_from_blob(container, f'{folder}{PI_code}_ALL_TILES.parquet')
+    # Filter for the right section and plan
+    df = df.loc[(df['PLAN'] == scen_code)]
+    df = df.loc[(df['YEAR']>= start_year) & (df['YEAR'] <= end_year)]
+    colname = df.columns[df.columns.str.startswith(var)][0]
+    if stat == 'mean':
+        df_stats = df.groupby('TILE')[colname].mean().reset_index()
+    elif stat == 'sum':
+        df_stats = df.groupby('TILE')[colname].sum().reset_index()
+    elif stat == 'min':
+        df_stats = df.groupby('TILE')[colname].min().reset_index()
+    elif stat == 'max':
+        df_stats = df.groupby('TILE')[colname].max().reset_index()
     else:
-        raise ValueError(f"Variable '{var}' not found in parquet columns")
-
-    if stat not in ['mean', 'sum', 'min', 'max']:
         raise ValueError("Unsupported stat")
-
-    agg_expr = f"{stat}({col_name}) * {multiplier}"
-
-    # Build SQL query
-    sql = f"""
-        SELECT tile,
-               round({agg_expr}, 3) AS VAL
-        FROM tiles
-        WHERE YEAR BETWEEN {start_year} AND {end_year}
-        GROUP BY tile
-    """
-
-    # Execute lazily
-    df_stats = con.execute(sql).df()
-
-    df_stats['tile'] = df_stats['tile'].astype(int)
-
+    df_stats['TILE'] = df_stats['TILE'].astype(int)
+    df_stats['VAL'] = (df_stats[colname] * multiplier).round(3)
     # Merge with tile geometries
-    gdf_tiles = gdf_tiles.merge(df_stats, on="tile", how="left")
+    gdf_tiles = gdf_tiles.merge(df_stats[['TILE',"VAL"]], on='TILE', how="left")
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
 
-    return gdf_tiles
+    return(gdf_tiles)
+
 
 def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var,
-                     unique_pi_module_name, start_year, end_year, Baseline, sas_token, container_url):
-    print('PREP_FOR_PREP_1D')
+                     unique_pi_module_name, start_year, end_year, Baseline, azure_url, access_key, sas_token, container_url):
+    start = dt.now()
 
-    filepath = sct_poly.replace('\\', '/')
+    # connect to Azur blob storage
+    blob_service_client = BlobServiceClient(azure_url, credential = access_key)
+    container = blob_service_client.get_container_client('dukc-db')
 
     #df_grille_origin=read_from_sftp_gdf(filepath, sftp)
+    geojson_data = container.download_blob(f'{sct_poly}').readall()
+    gdf_grille_origin = gpd.read_file(geojson_data)
 
-    shp_url = f"{container_url}/{sct_poly}?{sas_token}"
-
-    gdf_grille_origin=gpd.read_file(shp_url)
-
-    #gdf_grille_origin = gpd.read_file(filepath)
-    #gdf_grille_origin['VAL'] = 0.0
-
+    # Load module
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-    gdfs = []
+    multiplier = unique_PI_CFG.multiplier
+    sect_PI = unique_PI_CFG.available_sections
+    Variable = unique_PI_CFG.dct_var[var]
+    plans_selected = [key for key, value in unique_PI_CFG.plan_dct.items() if value == scen_code]
 
-    list_sect = sect_dct.keys()
+    df_PI = create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, container)
 
-    for s in list_sect:
-        df_folder = os.path.join(folder, PI_code, 'YEAR', 'SECTION', scen_code, s)
-        plans_selected = [key for key, value in unique_PI_CFG.plan_dct.items() if value == scen_code]
-        if plans_selected == []:
-            plans_selected = [key for key, value in unique_PI_CFG.baseline_dct.items() if value == scen_code]
-        Variable = unique_PI_CFG.dct_var[var]
+    df_PI = select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year,
+                                   Variable, plans_selected, Baseline)
 
-        if s == 'Lake St.Lawrence':
-            LakeSL_prob_1D = False
-            if unique_PI_CFG.type == '1D' and s == 'Lake St.Lawrence' and 'PreProject' in plans_selected[0]:
-                LakeSL_prob_1D = True
-                continue
+    gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable,
+                                                multiplier)
 
-            df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected,
-                                                    Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, sas_token, container_url)
-
-        else:
-            LakeSL_prob_1D = False
-            df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected,
-                                                    Baseline, s,
-                                                    start_year, end_year, Variable, CFG_DASHBOARD, sas_token, container_url)
-
-        df_PI = df_PI.loc[df_PI['ALT'] == scen_code]
-
-        multiplier = unique_PI_CFG.multiplier
-        gdf_grille_unique = prep_data_map_1d(start_year, end_year, stat, gdf_grille_origin, s, df_PI, Variable,
-                                             multiplier)
-        gdfs.append(gdf_grille_unique)
-
-    gdf_grille_all = pd.concat(gdfs)
     gdf_grille_all = gdf_grille_all.loc[gdf_grille_all['VAL'] != 0]
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION', as_index=False)
 
-    gdf_grille_all['VAL'] = gdf_grille_all['VAL'] * multiplier
-
+    gdf_grille_all['VAL'] = gdf_grille_all['VAL']
+    print('prep_for_prep_1d :', dt.now()-start)
     return gdf_grille_all
 
-def prep_data_map_1d(start_year, end_year, stat, gdf_grille_origine, s, df_PI, Variable, multiplier):
+def prep_data_map_1d(stat, gdf_grille_origine, df_PI, Variable, multiplier):
     print('PREP_DATA_MAP')
+    start = dt.now()
     df = df_PI
-    df = df.loc[(df['YEAR'] >= start_year) & (df['YEAR'] <= end_year)]
     if stat == 'min':
         val = df[Variable].min()
     elif stat == 'max':
@@ -164,100 +126,43 @@ def prep_data_map_1d(start_year, end_year, stat, gdf_grille_origine, s, df_PI, V
     val = val * multiplier
     val = np.round(val, 3)
     gdf_grille = gdf_grille_origine
-
-    gdf_grille['VAL'].loc[gdf_grille['SECTION'] == s] = val
-
+    gdf_grille['VAL'] = val
+    print('prep_data_map_1d :', dt.now()-start)
     return gdf_grille
 
-def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, PI_code, plans_selected, Baseline,
-                                    Region,
-                                    start_year, end_year, Variable, CFG_DASHBOARD, sas_token, container_url):
-    print('TIMESERIES_PREP')
+def create_timeseries_database(ts_code, unique_pi_module_name, folder_raw, PI_code, container):
 
+    print('CREATE DATABASE')
+    start = dt.now()
+    # PI config
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+    # Path to data
     df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
-    dfs = []
-    feather_done = []
+    df_PI = read_parquet_from_blob(container, os.path.join(df_folder,f'{PI_code}_ALL_SECTIONS{CFG_DASHBOARD.file_ext}'))
+    print('create_timeseries_database :', dt.now()-start)
+    return(df_PI)
 
-    plans_all = plans_selected
+# Check for some stuff regarding Saint-Laurent lake (see old function, yearly_timeseries_data_prep_map)
+def select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year, Variable, plans_selected, Baseline):
 
-    for p in plans_all:
-
-        if p == Baseline:
-
-            alt = unique_PI_CFG.baseline_dct[p]
-
-        else:
-            alt = unique_PI_CFG.plan_dct[p]
-        sect = unique_PI_CFG.sect_dct[Region]
-
-        if 'PreProject' in p:
-            sect = [item for item in sect if item != "USL_DS"]
-
-        for s in sect:
-
-            if ts_code == 'hist':
-                feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_hist)}_{np.max(unique_PI_CFG.available_years_hist)}{CFG_DASHBOARD.file_ext}'
-            else:
-                feather_name = f'{PI_code}_YEAR_{alt}_{s}_{np.min(unique_PI_CFG.available_years_future)}_{np.max(unique_PI_CFG.available_years_future)}{CFG_DASHBOARD.file_ext}'
-
-            if feather_name not in feather_done:
-                # if CFG_DASHBOARD.file_ext == '.feather':
-                #     df = pd.read_feather(os.path.join(df_folder, alt, s, feather_name))
-                # else:
-                #     df = pd.read_csv(os.path.join(df_folder, alt, s, feather_name), sep=';')
-
-                filepath = os.path.join(df_folder, alt, s, feather_name)
-
-                filepath=filepath.replace('\\', '/')
-
-                print(f'FILEPATH, {filepath}')
-
-                file_url = f"{container_url}/{filepath}?{sas_token}"
-
-                #df = read_from_sftp(filepath, sftp)
-
-                df=pd.read_parquet(file_url)
-
-                df['ALT'] = alt
-                df['SECT'] = s
-
-                dfs.append(df)
-                # to make sure that a same feather is not compiled more than once in the results
-                feather_done.append(feather_name)
-
-    df_PI = pd.concat(dfs, ignore_index=True)
-    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
-    df_PI = df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
-
-    # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
+    print('SELECT DATA')
+    start = dt.now()
+    # PI config
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
-
     stats = unique_PI_CFG.var_agg_stat[var]
 
-    df_PI['SECT'] = Region
-    # when a variable can be aggregated by mean or sum, sum is done in priority
-    if len(stats) > 1:
-        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
-        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
-    elif stats[0] == 'sum':
-        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_sum']]
-        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).sum()
-    elif stats[0] == 'mean':
-        df_PI = df_PI[['YEAR', 'ALT', 'SECT', f'{var}_mean']]
-        df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
-    else:
-        print('problem w. agg stat!!')
-
+    df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
+    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier
+
     df_PI[Variable] = df_PI[Variable] * multiplier
 
-    df_PI = df_PI[['YEAR', 'ALT', 'SECT', Variable]]
-
+    df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', Variable]]
+    print('select_timeseries_data :', dt.now()-start)
     return df_PI
-
 
 def save_gdf_to_zip(gdf, shapefile_name):
     # Create a temporary directory to store shapefile components
@@ -353,8 +258,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
             ).add_to(m.m1)
     else:
         tooltip = folium.GeoJsonTooltip(
-            fields=['tile', col],
-            aliases=['Tile', var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             sticky=True,
             labels=True,
@@ -368,8 +273,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
         )
 
         popup = folium.GeoJsonPopup(
-            fields=["tile", col],
-            aliases=["tile", var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             labels=True,
             style="background-color: yellow;",
@@ -425,8 +330,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
 
     else:
         tooltip = folium.GeoJsonTooltip(
-            fields=['tile', col],
-            aliases=['Tile', var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             sticky=True,
             labels=True,
@@ -440,8 +345,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
         )
 
         popup = folium.GeoJsonPopup(
-            fields=["tile", col],
-            aliases=["tile", var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             labels=True,
             style="background-color: yellow;",
