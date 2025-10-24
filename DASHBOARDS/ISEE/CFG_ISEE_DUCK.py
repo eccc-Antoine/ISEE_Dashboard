@@ -4,7 +4,8 @@ name='ISEE'
 version=1.0
 
 pi_list=['CHNI_2D',
-         'BIRDS_2D']
+         'BIRDS_2D',
+         'TURTLE_1D']
 
 ts_list=['hist', 'sto', 'cc']
 
@@ -48,6 +49,3 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_DS_US': [184, 182, 181, 180, 179, 178, 177, 176, 175, 174, 172, 170, 169],
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
-
-sas_token='sp=r&st=2025-09-23T17:49:14Z&se=2026-01-01T03:04:14Z&spr=https&sv=2024-11-04&sr=c&sig=iDZm15DwnTl%2BHGsamuEu0atH%2BiIULEyNtew8rCtUkIU%3D'
-container_url='https://eccciseedashboardst.blob.core.windows.net/dukc-db'
