@@ -6,12 +6,11 @@ import os
 import importlib
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 import CFG_ISEE_DUCK as CFG_DASHBOARD
 from DASHBOARDS.UTILS.pages import Timeseries_utils as UTILS
 import sys
 from azure.storage.blob import BlobServiceClient
-
 
 def set_base_path():
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
@@ -30,15 +29,14 @@ tss_code=CFG_DASHBOARD.ts_list # Timeserie list
 
 # Import PI configuration
 pi_dct = {}
-unit_dct = {}
 for pi in pis_code:
     pi_module_name = f'CFG_{pi}'
     PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
     pi_dct[pi] = PI_CFG.name
-    unit_dct[pi] = PI_CFG.units
+del PI_CFG
 
 # Pretty name of pi
-pis = [pi_dct[pi] for pi in pis_code]
+pis = list(pi_dct.values())
 
 ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
 
@@ -54,6 +52,10 @@ if 'PI_code' not in st.session_state:
 if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
+
+if 'unique_PI_CFG' not in st.session_state:
+    PI_code = st.session_state['PI_code']
+    st.session_state['unique_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
 
 if 'azure_container' not in st.session_state:
     # connect to Azur blob storage
@@ -82,26 +84,29 @@ def function_for_tab1():
     with Col1:
         st.subheader('**Parameters**')
         # Afficher la colonne 1 (gauche)
-        folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+        LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
 
+    print(PI_code)
     with Col2:
         st.subheader('**Plot**')
         if no_plans_for_ts==True:
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
         else:
+            unique_PI_CFG = st.session_state['unique_PI_CFG']
+
             UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
-                                baseline_value, PI_code, unit_dct, var_direction, LakeSL_prob_1D)
+                                baseline_value, PI_code, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
 
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
             fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
-                                                    PI_code, unit_dct)
+                                                    PI_code, unique_PI_CFG.units)
             csv_data=df_PI_plans.to_csv(index=False, sep=';')
 
             st.download_button(
-                    label="Download displayed data in CSV format",
+                    label="Download displayed data in CSV",
                     data=csv_data,
                     file_name="dataframe.csv",
                     mime="text/csv",
@@ -112,35 +117,35 @@ def render_column1():
 
     old_PI_code = st.session_state['PI_code']
     timeseries = st.selectbox("Select a supply", ts_dct.values(), key='timeseries', on_change=update_timeseries)
-    selected_pi = st.selectbox("Select a Performance Indicator", list(pi_dct.values()), key='selected_pi')
+    pi_list = list(pi_dct.values())
+    pi_list.sort()
+    selected_pi = st.selectbox("Select a Performance Indicator", pi_list, key='selected_pi')
     update_PI_code()
 
     PI_code = st.session_state['PI_code']
     ts_code = st.session_state['ts_code']
-    unique_pi_module_name = f'CFG_{PI_code}'
+    st.session_state['unique_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
+    unique_PI_CFG = st.session_state['unique_PI_CFG']
 
     # First time loading the dashboard
-    if 'df_PI' not in st.session_state:
-        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, st.session_state['azure_container'])
-
+    if 'df_PI_timeseries' not in st.session_state:
+        st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
+    # If the use changed the PI, load it
     if (old_PI_code != st.session_state['PI_code']):
-        st.session_state['df_PI'] = UTILS.create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, st.session_state['azure_container'])
+        st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
 
-    df_PI = st.session_state['df_PI']
+    df_PI = st.session_state['df_PI_timeseries']
 
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
-
-    start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,
-            unique_pi_module_name, CFG_DASHBOARD,
+    start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,unique_PI_CFG,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
-    # print(plans_selected)
+
     LakeSL_prob_1D =False
     if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
         LakeSL_prob_1D=True
 
     var_direction = unique_PI_CFG.var_direction[Variable]
 
-    df_PI = UTILS.select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year, Region, Variable, plans_selected, Baseline)
+    df_PI = UTILS.select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline)
 
     baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
@@ -153,6 +158,6 @@ def render_column1():
     if unique_PI_CFG.baseline_dct[Baseline] not in list_plans:
         list_plans.append(unique_PI_CFG.baseline_dct[Baseline])
 
-    return folder, LakeSL_prob_1D, selected_pi, unique_pi_module_name, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
+    return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
 function_for_tab1()
