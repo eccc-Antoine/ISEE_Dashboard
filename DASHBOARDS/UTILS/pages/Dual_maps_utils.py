@@ -1,7 +1,6 @@
 import os
 import streamlit as st
 import numpy as np
-import importlib
 import pandas as pd
 
 pd.set_option('mode.chained_assignment', None)
@@ -9,14 +8,11 @@ import geopandas as gpd
 import branca.colormap as cm
 import folium
 from folium import plugins
-import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
 import tempfile
 import io
 import zipfile
-import duckdb
-from azure.storage.blob import BlobServiceClient
 from datetime import datetime as dt
 import warnings
 warnings.filterwarnings('ignore')
@@ -31,40 +27,34 @@ def read_parquet_from_blob(container, blob_name):
         df.set_index('index',inplace=True)
     return df
 
-def prep_for_prep_tiles_parquet(tile_geojson, PI_code, scen_code, stat, var, unique_pi_module_name,
-                                    start_year, end_year, access_key, azure_url):
-
-    # connect to Azur blob storage
-    blob_service_client = BlobServiceClient(azure_url, credential = access_key)
-    container = blob_service_client.get_container_client('dukc-db')
+def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, unique_PI_CFG,
+                                    start_year, end_year, container):
 
     # Load module
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     multiplier = unique_PI_CFG.multiplier
-    sect_PI = unique_PI_CFG.available_sections
 
     # Load tile geometries
     geojson_data = container.download_blob(f'{tile_geojson}').readall()
     gdf_tiles = gpd.read_file(geojson_data)
     gdf_tiles['TILE'] = gdf_tiles['tile'].astype(int)
 
-    # Download pi data
-    folder = f'test/{PI_code}/YEAR/TILE/'
-    df = read_parquet_from_blob(container, f'{folder}{PI_code}_ALL_TILES.parquet')
     # Filter for the right section and plan
-    df = df.loc[(df['PLAN'] == scen_code)]
-    df = df.loc[(df['YEAR']>= start_year) & (df['YEAR'] <= end_year)]
-    colname = df.columns[df.columns.str.startswith(var)][0]
+    df_PI = df_PI.loc[(df_PI['PLAN'] == scen_code)]
+    df_PI = df_PI.loc[(df_PI['YEAR']>= start_year) & (df_PI['YEAR'] <= end_year)]
+    colname = df_PI.columns[df_PI.columns.str.startswith(var)][0]
+    start = dt.now()
+
     if stat == 'mean':
-        df_stats = df.groupby('TILE')[colname].mean().reset_index()
+        df_stats = df_PI.groupby('TILE')[colname].mean().reset_index()
     elif stat == 'sum':
-        df_stats = df.groupby('TILE')[colname].sum().reset_index()
+        df_stats = df_PI.groupby('TILE')[colname].sum().reset_index()
     elif stat == 'min':
-        df_stats = df.groupby('TILE')[colname].min().reset_index()
+        df_stats = df_PI.groupby('TILE')[colname].min().reset_index()
     elif stat == 'max':
-        df_stats = df.groupby('TILE')[colname].max().reset_index()
+        df_stats = df_PI.groupby('TILE')[colname].max().reset_index()
     else:
         raise ValueError("Unsupported stat")
+    print('GROUPBY', dt.now()-start)
     df_stats['TILE'] = df_stats['TILE'].astype(int)
     df_stats['VAL'] = (df_stats[colname] * multiplier).round(3)
     # Merge with tile geometries
@@ -75,36 +65,26 @@ def prep_for_prep_tiles_parquet(tile_geojson, PI_code, scen_code, stat, var, uni
     return(gdf_tiles)
 
 
-def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var,
-                     unique_pi_module_name, start_year, end_year, Baseline, azure_url, access_key, sas_token, container_url):
+def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
+                      unique_PI_CFG, start_year, end_year, Baseline, container):
     start = dt.now()
-
-    # connect to Azur blob storage
-    blob_service_client = BlobServiceClient(azure_url, credential = access_key)
-    container = blob_service_client.get_container_client('dukc-db')
 
     #df_grille_origin=read_from_sftp_gdf(filepath, sftp)
     geojson_data = container.download_blob(f'{sct_poly}').readall()
     gdf_grille_origin = gpd.read_file(geojson_data)
 
     # Load module
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     multiplier = unique_PI_CFG.multiplier
-    sect_PI = unique_PI_CFG.available_sections
     Variable = unique_PI_CFG.dct_var[var]
     plans_selected = [key for key, value in unique_PI_CFG.plan_dct.items() if value == scen_code]
 
-    df_PI = create_timeseries_database(ts_code, unique_pi_module_name, folder, PI_code, container)
-
-    df_PI = select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year,
+    df_PI = select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year,
                                    Variable, plans_selected, Baseline)
 
-    gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable,
-                                                multiplier)
+    gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable, multiplier)
 
     gdf_grille_all = gdf_grille_all.loc[gdf_grille_all['VAL'] != 0]
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION', as_index=False)
-
     gdf_grille_all['VAL'] = gdf_grille_all['VAL']
     print('prep_for_prep_1d :', dt.now()-start)
     return gdf_grille_all
@@ -114,13 +94,13 @@ def prep_data_map_1d(stat, gdf_grille_origine, df_PI, Variable, multiplier):
     start = dt.now()
     df = df_PI
     if stat == 'min':
-        val = df[Variable].min()
+        val = np.nanmin(df[Variable])
     elif stat == 'max':
-        val = df[Variable].max()
+        val = np.nanmax(df[Variable])
     elif stat == 'mean':
-        val = df[Variable].mean()
+        val = np.nanmean(df[Variable])
     elif stat == 'sum':
-        val = df[Variable].sum()
+        val = np.sum(df[Variable])
     else:
         print('unavailable aggregation stat provided')
     val = val * multiplier
@@ -130,25 +110,22 @@ def prep_data_map_1d(stat, gdf_grille_origine, df_PI, Variable, multiplier):
     print('prep_data_map_1d :', dt.now()-start)
     return gdf_grille
 
-def create_timeseries_database(ts_code, unique_pi_module_name, folder_raw, PI_code, container):
+def create_timeseries_database(folder_raw, PI_code, container, division):
 
     print('CREATE DATABASE')
     start = dt.now()
-    # PI config
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     # Path to data
-    df_folder = os.path.join(folder_raw, PI_code, 'YEAR', 'SECTION')
-    df_PI = read_parquet_from_blob(container, os.path.join(df_folder,f'{PI_code}_ALL_SECTIONS{CFG_DASHBOARD.file_ext}'))
+    df_folder = os.path.join(folder_raw, PI_code, 'YEAR', division)
+    df_PI = read_parquet_from_blob(container, os.path.join(df_folder,f'{PI_code}_ALL_{division}S{CFG_DASHBOARD.file_ext}'))
     print('create_timeseries_database :', dt.now()-start)
     return(df_PI)
 
 # Check for some stuff regarding Saint-Laurent lake (see old function, yearly_timeseries_data_prep_map)
-def select_timeseries_data(df_PI, unique_pi_module_name, start_year, end_year, Variable, plans_selected, Baseline):
+def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Variable, plans_selected, Baseline):
 
     print('SELECT DATA')
     start = dt.now()
-    # PI config
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
+
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     stats = unique_PI_CFG.var_agg_stat[var]
 
@@ -188,7 +165,19 @@ def save_gdf_to_zip(gdf, shapefile_name):
 
         return zip_buffer.getvalue()
 
-def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_pi_module_name, unit, division_col):
+def create_empty_zip_file():
+
+    # Create a temporary directory to store the zip file
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+            pass
+
+    zip_buffer.seek(0)
+    return zip_buffer.getvalue()
+
+
+def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_PI_CFG, division_col):
     print('DUAL_MAPS')
     geometry_types = _gdf_grille_base.geom_type.unique()[0]
 
@@ -201,12 +190,11 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
 
     m = plugins.DualMap(location=(y_med, x_med), tiles='cartodbpositron', zoom_start=8)
 
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     direction = unique_PI_CFG.var_direction[var]
 
     gdf_grille_1 = _gdf_grille_base.copy(deep=True)
 
-    if 'NFB' in unique_pi_module_name:
+    if 'NFB' in unique_PI_CFG.pi_code:
         gdf_grille_1[col] = gdf_grille_1[col].astype(int).round(3)
         gdf_grille_1 = gdf_grille_1.loc[gdf_grille_1[col] != 1]
     else:
@@ -215,11 +203,11 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
     if direction == 'inverse':
         linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"],
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75),
-                                   caption=unit)
+                                   caption=unique_PI_CFG.units)
     else:
         linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"],
                                    vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75),
-                                   caption=unit)
+                                   caption=unique_PI_CFG.units)
 
     linear.add_to(m.m1)
 
@@ -378,10 +366,8 @@ def folium_static(_fig, width, height):
         return components.html(
             _fig._repr_html_(), height=height + 10, width=width)
 
-def MAIN_FILTERS_streamlit_simple(ts_code, unique_pi_module_name, Years, Variable):
+def MAIN_FILTERS_streamlit_simple(ts_code, unique_PI_CFG, Years, Variable):
     print('FILTERS')
-
-    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
 
     if Variable:
         available_variables = list(unique_PI_CFG.dct_var.values())
