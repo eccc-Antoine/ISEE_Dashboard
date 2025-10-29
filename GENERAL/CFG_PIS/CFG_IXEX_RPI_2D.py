@@ -1,7 +1,7 @@
 import os
 
 name='Least Bittern'
-
+pi_code='IXEX_RPI_2D'
 type='2D_tiled'
 
 dct_var={'VAR1': 'Weighted usable area', 'VAR2': 'Sub-Optimal WUA', 'VAR3': 'Optimal WUA'}

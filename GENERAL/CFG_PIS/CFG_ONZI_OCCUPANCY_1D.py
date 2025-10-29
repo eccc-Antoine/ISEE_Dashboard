@@ -1,7 +1,7 @@
 import numpy
 
 name='Muskrat winter lodge viability and occupancy'
-
+pi_code='ONZI_OCCUPANCY_1D'
 type='1D'
 
 dct_var = {'VAR1': 'Viability probability',

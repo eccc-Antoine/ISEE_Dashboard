@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 name='Exposed Riverbed During Winter 2D'
-
+pi_code='ERIW_MIN_2D'
 type='2D_tiled'
 
 dct_var={'VAR1':'Total exposed riverbed area during winter'}

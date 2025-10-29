@@ -1,7 +1,7 @@
 import os
 
 name='Marsh Birds'
-
+pi_code='BIRDS_2D'
 type='2D_not_tiled'
 
 dct_var={'VAR1': 'Abundance', 'VAR2': 'Richness'}

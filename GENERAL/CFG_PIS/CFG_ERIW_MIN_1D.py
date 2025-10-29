@@ -1,7 +1,7 @@
 import numpy
 
 name='Exposed Riverbed During Winter 1D'
-
+pi_code='ERIW_MIN_1D'
 type='1D'
 
 dct_var={'VAR1':'Exposed Riverbed During Winter Index'}

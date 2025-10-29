@@ -3,6 +3,8 @@ import os
 
 name = 'Black Tern'
 
+pi_code='CHNI_2D'
+
 type = '2D_tiled'
 
 #type = '1D'

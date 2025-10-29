@@ -1,7 +1,7 @@
 import os
 
 name='Buildings at risk'
-
+pi_code='NFB_2D'
 type='2D_not_tiled'
 
 # dct_var = {'VAR1': 'Accessory buildings (boolean)',

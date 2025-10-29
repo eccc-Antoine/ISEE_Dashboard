@@ -1,7 +1,7 @@
 import os
 
 name = 'Flooded roads'
-
+pi_code='ROADS_2D'
 type = '2D_not_tiled'
 
 dct_var = {'VAR1': 'Primary roads (Nb of QMs)',

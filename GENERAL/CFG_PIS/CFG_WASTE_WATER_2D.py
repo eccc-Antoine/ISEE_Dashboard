@@ -1,7 +1,7 @@
 import os
 
 name='Waste Water'
-
+pi_code='WASTE_WATER_2D'
 type='2D_not_tiled'
 
 dct_var={'VAR1' : 'Occurrence of impact', 'VAR2':'Index'}

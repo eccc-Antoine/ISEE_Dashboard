@@ -1,7 +1,7 @@
 import os
 
 name = 'Marina Functionality Impacts'
-
+pi_code='MFI_2D'
 type = '2D_not_tiled'
 
 dct_var = {

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 name='Water levels'
-
+pi_code='WLVL_1D'
 type='1D'
 
 dct_var={'VAR1':'Yearly minimum water level', 'VAR2':'Yearly mean water level', 'VAR3':'Yearly maximum water level'}
@@ -17,7 +17,7 @@ available_years=list(range(1900, 2021))
 
 available_sections=['LKO', 'USL_UP', 'USL_DN', 'SLR_UP', 'SLR_DN']
 
-sect_dct={'Lake_ontario': ['LKO'], 
+sect_dct={'Lake_ontario': ['LKO'],
           'Upper St.lawrence upstream':['USL_UP'],
           'Upper St.lawrence downstream':['USL_DN'],
           'Lower St. Lawrence upstream':['SLR_UP'],

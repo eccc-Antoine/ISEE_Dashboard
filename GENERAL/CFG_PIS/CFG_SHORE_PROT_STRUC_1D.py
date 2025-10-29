@@ -1,7 +1,7 @@
 import numpy
 
 name='Shoreline Protection Structure'
-
+pi_code='SHORE_PROT_STRUC_1D'
 type='1D'
 
 dct_var={'VAR1': 'Wave overtopping (*10e-2)', 'VAR2': 'Wave overflow (*10e-4)'}

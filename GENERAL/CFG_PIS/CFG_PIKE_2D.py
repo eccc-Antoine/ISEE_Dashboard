@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 name='Northern Pike habitat'
-
+pi_code='PIKE_2D'
 type='2D_tiled'
 
 dct_var = {'VAR1' : 'Area suitable for spawning and embryo-larval development',

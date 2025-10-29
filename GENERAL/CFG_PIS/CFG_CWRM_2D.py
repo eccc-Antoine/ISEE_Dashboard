@@ -1,7 +1,7 @@
 import os
 
 name='Wetland class area'
-
+pi_code='CWRM_2D'
 type='2D_tiled'
 
 dct_var={'VAR1':'Open Water', 'VAR2':'Submerged Aquatic Vegetation', 'VAR3':'Emergent Marsh', 'VAR4':'Wet Meadow', 'VAR5':'Swamp', 'VAR6':'Upland', 'VAR7':'Total Wetland Area'}

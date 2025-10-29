@@ -1,7 +1,7 @@
 import os
 
 name='Waterfowl'
-
+pi_code='SAUV_2D'
 type='2D_tiled'
 
 dct_var={'VAR1':'Migration habitat', 'VAR2':'Rearing habitat'}

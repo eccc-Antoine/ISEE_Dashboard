@@ -1,7 +1,7 @@
 import os
 
 name='Wetland class area (LOSLR)'
-
+pi_code='IERM_2D'
 type='2D_tiled'
 
 dct_var={'VAR1': 'Open water', 'VAR2': 'Emergent marshes', 'VAR3': 'Wet meadow', 'VAR4': 'Swamp', 'VAR5': 'Upland', 'VAR6': 'Total wetland'}

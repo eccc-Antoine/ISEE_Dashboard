@@ -1,7 +1,7 @@
 import numpy
 
 name='Wild rice'
-
+pi_code='ZIPA_1D'
 type='1D'
 
 dct_var={'VAR1':'Survival probability'}

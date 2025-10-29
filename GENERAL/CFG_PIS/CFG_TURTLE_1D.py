@@ -2,6 +2,8 @@ import numpy
 
 name='Turtle survival during winter'
 
+pi_code='TURTLE_1D'
+
 type='1D'
 
 dct_var={'VAR1':'Blanding turtle', 'VAR2':'Snapping turtle', 'VAR3':'Painted turtle' }

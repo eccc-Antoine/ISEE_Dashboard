@@ -1,7 +1,7 @@
 import os
 
 name = 'Agriculture Yield Loss'
-
+pi_code='AYL_2D'
 type = '2D_not_tiled'
 
 dct_var = {'VAR1': 'Average Yield Loss for all crops'}
