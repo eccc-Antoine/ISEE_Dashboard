@@ -195,12 +195,14 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
         multiplier = unique_PI_CFG.multiplier
         gdf_grille_unique = prep_data_map_1d(start_year, end_year, stat, gdf_grille_origin, s, df_PI, Variable,
                                              multiplier)
+        print(gdf_grille_unique)
         gdfs.append(gdf_grille_unique)
 
     gdf_grille_all = pd.concat(gdfs)
+    print(gdf_grille_all)
     gdf_grille_all = gdf_grille_all.loc[gdf_grille_all['VAL'] != 0]
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION', as_index=False)
-
+    print(gdf_grille_all)
     gdf_grille_all['VAL'] = gdf_grille_all['VAL'] * multiplier
 
     return gdf_grille_all
@@ -214,6 +216,7 @@ def prep_for_prep_tiles_duckdb(tile_shp, folder, PI_code, scen_code, avail_years
     shp_url=f"{container_url}/{tile_shp}?{sas_token}"
 
     gdf_tiles = gpd.read_file(shp_url)
+    gdf_tiles['TILE'] = gdf_tiles['tile'].astype(int)
 
     multiplier = unique_PI_CFG.multiplier
 
@@ -275,9 +278,10 @@ def prep_for_prep_tiles_duckdb(tile_shp, folder, PI_code, scen_code, avail_years
 
     df_stats = con.execute(sql).df()
 
-    df_stats['tile']=df_stats['tile'].astype(int)
-
-    gdf_tiles = gdf_tiles.merge(df_stats, on="tile", how="left")
+    df_stats['TILE']=df_stats['TILE'].astype(int)
+    print(df_stats)
+    print(gdf_tiles)
+    gdf_tiles = gdf_tiles.merge(df_stats, on='TILE', how="left")
 
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
@@ -296,6 +300,7 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
     # Load tile geometries
     geojson_url = f"{container_url}/{tile_geojson}?{sas_token}"
     gdf_tiles = gpd.read_file(geojson_url)
+    gdf_tiles['TILE'] = gdf_tiles['tile'].astype(int)
 
     # Build list of parquet URLs
     parquet_files = []
@@ -335,20 +340,20 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
 
     # Build SQL query
     sql = f"""
-        SELECT tile,
+        SELECT TILE,
                round({agg_expr}, 3) AS VAL
         FROM tiles
         WHERE YEAR BETWEEN {start_year} AND {end_year}
-        GROUP BY tile
+        GROUP BY TILE
     """
 
     # Execute lazily
     df_stats = con.execute(sql).df()
 
-    df_stats['tile'] = df_stats['tile'].astype(int)
+    df_stats['TILE'] = df_stats['TILE'].astype(int)
 
     # Merge with tile geometries
-    gdf_tiles = gdf_tiles.merge(df_stats, on="tile", how="left")
+    gdf_tiles = gdf_tiles.merge(df_stats, on='TILE', how="left")
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
 
@@ -393,16 +398,16 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
 #             if f'{var}_mean' in list(df_tile):
 #                 if stat == 'mean':
 #                     val_mean = df_tile[f'{var}_mean'].mean() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_mean, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_mean, 3)
 #                 elif stat == 'sum':
 #                     val_sum = df_tile[f'{var}_mean'].sum() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_sum, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_sum, 3)
 #                 elif stat == 'min':
 #                     val_min = df_tile[f'{var}_mean'].min() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_min, 3)
 #                 elif stat == 'max':
 #                     val_max = df_tile[f'{var}_mean'].max() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_max, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_max, 3)
 #                 else:
 #                     print('problem with stats')
 #
@@ -410,16 +415,16 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
 #
 #                 if stat == 'mean':
 #                     val_mean = df_tile[f'{var}_sum'].mean() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_mean, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_mean, 3)
 #                 elif stat == 'sum':
 #                     val_sum = df_tile[f'{var}_sum'].sum() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_sum, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_sum, 3)
 #                 elif stat == 'min':
 #                     val_min = df_tile[f'{var}_sum'].min() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_min, 3)
 #                 elif stat == 'max':
 #                     val_max = df_tile[f'{var}_sum'].max() * multiplier
-#                     gdf_tiles.loc[gdf_tiles['tile'] == t, 'VAL'] = round(val_min, 3)
+#                     gdf_tiles.loc[gdf_tiles['TILE'] == t, 'VAL'] = round(val_min, 3)
 #                 else:
 #                     print('problem with stats')
 #
@@ -537,7 +542,7 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
             ).add_to(m.m1)
     else:
         tooltip = folium.GeoJsonTooltip(
-            fields=['tile', col],
+            fields=['TILE', col],
             aliases=['Tile', var],
             localize=True,
             sticky=True,
@@ -552,8 +557,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
         )
 
         popup = folium.GeoJsonPopup(
-            fields=["tile", col],
-            aliases=["tile", var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             labels=True,
             style="background-color: yellow;",
@@ -609,7 +614,7 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
 
     else:
         tooltip = folium.GeoJsonTooltip(
-            fields=['tile', col],
+            fields=['TILE', col],
             aliases=['Tile', var],
             localize=True,
             sticky=True,
@@ -624,8 +629,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
         )
 
         popup = folium.GeoJsonPopup(
-            fields=["tile", col],
-            aliases=["tile", var],
+            fields=['TILE', col],
+            aliases=['TILE', var],
             localize=True,
             labels=True,
             style="background-color: yellow;",
@@ -748,8 +753,8 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_pi_module_name,
                 return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
 
             tooltip = folium.GeoJsonTooltip(
-                fields=['tile', col],
-                aliases=['tile', f'{var} difference'],
+                fields=['TILE', col],
+                aliases=['TILE', f'{var} difference'],
                 localize=True,
                 sticky=True,
                 labels=True,
@@ -763,8 +768,8 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_pi_module_name,
             )
 
             popup = folium.GeoJsonPopup(
-                fields=["tile", col],
-                aliases=["tile", f'{var} difference'],
+                fields=['TILE', col],
+                aliases=['TILE', f'{var} difference'],
                 localize=True,
                 labels=True,
                 style="background-color: yellow;",

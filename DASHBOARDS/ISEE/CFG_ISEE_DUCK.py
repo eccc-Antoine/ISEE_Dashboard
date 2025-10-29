@@ -3,9 +3,9 @@ name='ISEE'
 
 version=1.0
 
-pi_list=['CHNI_2D',
-         'BIRDS_2D',
-         'TURTLE_1D']
+pi_list=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D',
+         'IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D','PIKE_2D','ROADS_2D','SAUV_2D',
+         'SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
 ts_list=['hist', 'sto', 'cc']
 
@@ -49,3 +49,4 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_DS_US': [184, 182, 181, 180, 179, 178, 177, 176, 175, 174, 172, 170, 169],
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
+

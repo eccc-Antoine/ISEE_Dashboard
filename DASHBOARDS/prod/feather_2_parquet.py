@@ -41,7 +41,7 @@ def convert_feather_to_parquet(src_root, dst_root):
 
 # Example usage
 
-PI='BIRDS_2D'
+PI='ONZI_1D'
 
 convert_feather_to_parquet(
     src_root=fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{PI}",

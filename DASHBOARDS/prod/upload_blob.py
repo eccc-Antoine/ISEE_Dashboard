@@ -24,6 +24,7 @@ def list_files(folder):
     return file_list
 
 
+
 blob_service_client = BlobServiceClient(db_url, credential = access_key)
 container = blob_service_client.get_container_client('dukc-db')
 
@@ -42,6 +43,9 @@ for pi in PI:
 
     for file in file_list:
         df = pd.read_parquet(file)
+        if ('TILE' in file) and ('TILE' not in df.columns.to_list()):
+            path = file.split('\\')
+            df['TILE'] = int(path[-2])
         blob_name = os.path.join('test/',file[31:].replace('\\','/'))
         save_parquet_to_blob(container, df, blob_name)
 
