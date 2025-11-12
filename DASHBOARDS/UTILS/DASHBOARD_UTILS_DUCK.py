@@ -114,7 +114,7 @@ def save_gdf_to_zip(gdf, shapefile_name):
 
         # Write all files from the temporary folder into the zip
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-            print(os.listdir(tmpdirname))
+            # print(os.listdir(tmpdirname))
             for file_name in os.listdir(tmpdirname):
                 file_path = os.path.join(tmpdirname, file_name)
                 zip_file.write(file_path, arcname=file_name)
@@ -142,7 +142,6 @@ def prep_data_map_1d(start_year, end_year, stat, gdf_grille_origine, s, df_PI, V
     val = val * multiplier
     val = np.round(val, 3)
     gdf_grille = gdf_grille_origine
-
     gdf_grille['VAL'].loc[gdf_grille['SECTION'] == s] = val
 
     return gdf_grille
@@ -151,6 +150,8 @@ def prep_data_map_1d(start_year, end_year, stat, gdf_grille_origine, s, df_PI, V
 def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, avail_years, stat, var,
                      unique_pi_module_name, start_year, end_year, Baseline, sas_token, container_url):
     print('PREP_FOR_PREP_1D')
+    # J'ai changé la grille d'origine pour avoir des nan et on les remplit section par section
+    # Si on ne fait pas le Lac St-Laurent, ça reste Nan et il est éliminé plus tard
 
     filepath = sct_poly.replace('\\', '/')
 
@@ -161,7 +162,7 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
     gdf_grille_origin=gpd.read_file(shp_url)
 
     #gdf_grille_origin = gpd.read_file(filepath)
-    #gdf_grille_origin['VAL'] = 0.0
+    gdf_grille_origin['VAL'] = np.nan
 
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{unique_pi_module_name}')
     gdfs = []
@@ -177,10 +178,10 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
 
         if s == 'Lake St.Lawrence':
             LakeSL_prob_1D = False
+            # If those conditions are met, Lake St.Lawrence is not extracted by yearly_timeseries_data_prep_map
             if unique_PI_CFG.type == '1D' and s == 'Lake St.Lawrence' and 'PreProject' in plans_selected[0]:
                 LakeSL_prob_1D = True
                 continue
-
             df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected,
                                                     Baseline, s, start_year, end_year, Variable, CFG_DASHBOARD, sas_token, container_url)
 
@@ -189,20 +190,19 @@ def prep_for_prep_1d(ts_code, sect_dct, sct_poly, folder, PI_code, scen_code, av
             df_PI = yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder, PI_code, plans_selected,
                                                     Baseline, s,
                                                     start_year, end_year, Variable, CFG_DASHBOARD, sas_token, container_url)
-
         df_PI = df_PI.loc[df_PI['ALT'] == scen_code]
-
         multiplier = unique_PI_CFG.multiplier
+        # Update la grille gdf_grille_origin à chaque itération, une section à la fois
+        # Donc si on a PreProject et Lake St.Lawrence et 1D, la valeur intiale n'est pas changée pour cette section
         gdf_grille_unique = prep_data_map_1d(start_year, end_year, stat, gdf_grille_origin, s, df_PI, Variable,
                                              multiplier)
-        print(gdf_grille_unique)
         gdfs.append(gdf_grille_unique)
 
     gdf_grille_all = pd.concat(gdfs)
-    print(gdf_grille_all)
-    gdf_grille_all = gdf_grille_all.loc[gdf_grille_all['VAL'] != 0]
+
+    # on a le 1000 ou nan
+    gdf_grille_all = gdf_grille_all.dropna(subset='VAL') # Retirer le Lac St-Laurent
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION', as_index=False)
-    print(gdf_grille_all)
     gdf_grille_all['VAL'] = gdf_grille_all['VAL'] * multiplier
 
     return gdf_grille_all
@@ -279,8 +279,6 @@ def prep_for_prep_tiles_duckdb(tile_shp, folder, PI_code, scen_code, avail_years
     df_stats = con.execute(sql).df()
 
     df_stats['TILE']=df_stats['TILE'].astype(int)
-    print(df_stats)
-    print(gdf_tiles)
     gdf_tiles = gdf_tiles.merge(df_stats, on='TILE', how="left")
 
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
@@ -356,6 +354,7 @@ def prep_for_prep_tiles_duckdb_lazy(tile_geojson, folder, PI_code, scen_code, av
     gdf_tiles = gdf_tiles.merge(df_stats, on='TILE', how="left")
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
+    print(gdf_tiles)
 
     return gdf_tiles
 
@@ -753,8 +752,8 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_pi_module_name,
                 return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
 
             tooltip = folium.GeoJsonTooltip(
-                fields=['TILE', col],
-                aliases=['TILE', f'{var} difference'],
+                fields=['tile', col],
+                aliases=['tile', f'{var} difference'],
                 localize=True,
                 sticky=True,
                 labels=True,
@@ -768,8 +767,8 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_pi_module_name,
             )
 
             popup = folium.GeoJsonPopup(
-                fields=['TILE', col],
-                aliases=['TILE', f'{var} difference'],
+                fields=['tile', col],
+                aliases=['tile', f'{var} difference'],
                 localize=True,
                 labels=True,
                 style="background-color: yellow;",
@@ -823,6 +822,7 @@ def prep_data_map(df, start_year, end_year, id_col, col_x, col_y, stat, Variable
 
     columns = [id_col, col_x, col_y] + liste_year
     df = df[columns]
+    # Transform to numpy
     if stat == 'min':
         df['stat'] = df[liste_year].min(axis=1)
     if stat == 'max':
@@ -1400,8 +1400,6 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
 
                 file_url = f"{container_url}/{filepath}?{sas_token}"
 
-                print(file_url)
-
                 df=pd.read_parquet(file_url)
                 # print(df)
 
@@ -1430,7 +1428,6 @@ def yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder_raw, PI_c
         df_PI = df_PI.groupby(by=['YEAR', 'ALT', 'SECT'], as_index=False).mean()
     else:
         print('problem w. agg stat!!')
-
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier
@@ -1485,7 +1482,7 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
 
                 filepath=filepath.replace('\\', '/')
 
-                print(f'FILEPATH, {filepath}')
+                # print(f'FILEPATH, {filepath}')
 
                 file_url = f"{container_url}/{filepath}?{sas_token}"
 
@@ -1503,7 +1500,6 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
     df_PI = pd.concat(dfs, ignore_index=True)
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
     df_PI = df_PI.loc[df_PI['SECT'].isin(unique_PI_CFG.sect_dct[Region])]
-
     # for regions that include more than one section (ex. Canada inludes LKO_CAN and USL_CAN but we want only one value per year)
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
 
@@ -1529,7 +1525,6 @@ def yearly_timeseries_data_prep_map(ts_code, unique_pi_module_name, folder_raw, 
     df_PI[Variable] = df_PI[Variable] * multiplier
 
     df_PI = df_PI[['YEAR', 'ALT', 'SECT', Variable]]
-
     return df_PI
 
 

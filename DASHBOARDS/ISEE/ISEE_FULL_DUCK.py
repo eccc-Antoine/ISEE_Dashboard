@@ -21,6 +21,8 @@ import json
 import sys
 import streamlit.components.v1 as components
 #from streamlit_folium import st_folium
+import warnings
+warnings.filterwarnings('ignore')
 
 def get_env_var(var, env_name):
     """This function check if an env var is set and if the path of the env var
@@ -147,7 +149,6 @@ def function_for_tab1(exec):
 
                 fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year,
                                             PI_code, unit_dct)
-
                 csv_data=df_PI_plans.to_csv(index=False, sep=';')
 
                 st.download_button(
@@ -485,7 +486,7 @@ def function_for_tab4(exec):
                     gdf_grille_plan = UTILS.prep_for_prep_1d(ts_code, unique_PI_CFG.sect_dct, sct_shp, folder, PI_code, ze_plan_code,
                                                              years_list, stat3, var3,
                                                              unique_pi_module_name,
-                                                             start_year3, end_year3, Baseline, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_urll)
+                                                             start_year3, end_year3, Baseline, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
 
 
 
@@ -569,7 +570,6 @@ def render_column1():
         var_direction = unique_PI_CFG.var_direction[Variable]
 
         df_PI= UTILS.yearly_timeseries_data_prep(ts_code, unique_pi_module_name, folder, PI_code, plans_selected, Baseline, Region, start_year, end_year, Variable, CFG_DASHBOARD, LakeSL_prob_1D, CFG_DASHBOARD.sas_token, CFG_DASHBOARD.container_url)
-
         baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
 

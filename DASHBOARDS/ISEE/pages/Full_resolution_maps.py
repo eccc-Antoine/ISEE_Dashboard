@@ -6,10 +6,12 @@ pd.set_option('mode.chained_assignment', None)
 import os
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from DASHBOARDS.UTILS import DASHBOARDS_UTILS as UTILS
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
+import CFG_ISEE_DUCK as CFG_DASHBOARD
+from DASHBOARDS.UTILS import DASHBOARD_UTILS_DUCK as UTILS
 import ast
 import tempfile
+import importlib
 
 mapbox_token='pk.eyJ1IjoidG9ueW1hcmFuZGExOTg1IiwiYSI6ImNsM3cwYm8zeDAzNHAzY3FxcWV3ZXJkbWEifQ.5rgErxAFf7_k0Kn0mz3RdA'
 style_url='mapbox://styles/tonymaranda1985/clmhwft2i03rs01ph9z2kbbos'
@@ -62,49 +64,57 @@ if 'pi_code' in qp and 'data' in qp:
     years=[int(x) for x in years]
     unit_dct=ast.literal_eval(unit_dct)
 
+    container_url = CFG_DASHBOARD.container_url
+    sas_token = CFG_DASHBOARD.sas_token
+    unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
+    sect_PI = unique_PI_CFG.available_sections
 
     df_folder_base=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  baseline_code)
-    ### pour s assurer quon considere correctement tous les points des tuiles qui chevauchent 2 sections
-    def list_all_files(folder_path):
-        liste_files=[]
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                liste_files.append(os.path.join(root, file))
-        return liste_files
-    liste_files=list_all_files(df_folder_base)
-    tile_file=[]
-    for f in liste_files:
-        if f'PT_ID_{int(data)}_' in f and var in f:
-            tile_file.append(f)
+    parquet_files = []
+    for s in sect_PI:
+        parquet_file = os.path.join(df_folder_base,s,
+                                    f'{var}_{PI_code}_YEAR_{baseline_code}_{s}_PT_ID_{data}_{np.min(years)}_{np.max(years)}.parquet')
+        if int(data) in CFG_DASHBOARD.dct_tile_sect[s]:
+            parquet_files.append(parquet_file.replace('\\', '/'))
 
-    if len(tile_file)==1:
-        df_base=pd.read_feather(tile_file[0])
+    parquet_urls = [f"{container_url}/{f}?{sas_token}" for f in parquet_files]
+
+    if len(parquet_urls)==1:
+        df_base=pd.read_parquet(parquet_urls[0])
     else:
         dfs=[]
-        for tf in tile_file:
-            df=pd.read_feather(tf)
-            dfs.append(df)
+        for tf in parquet_urls:
+            try:
+                df=pd.read_parquet(tf)
+                dfs.append(df)
+            except:
+                print(tf,'does not exist on Azure')
         df_base=pd.concat(dfs)
     df_base = df_base.drop_duplicates(subset='PT_ID', keep='first')
 
     df_base=UTILS.prep_data_map(df_base, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
     df_base = df_base.sort_values(by='LAT')
 
-    df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID', ze_plan_code)
-    liste_files_plan = list_all_files(df_folder_plan)
-    tile_file = []
-    for f in liste_files_plan:
-        if f'PT_ID_{int(data)}_' in f and var in f:
-            tile_file.append(f)
-    if len(tile_file) == 1:
-        df_plan = pd.read_feather(tile_file[0])
-    else:
-        dfs = []
-        for tf in tile_file:
-            df = pd.read_feather(tf)
-            dfs.append(df)
-        df_plan = pd.concat(dfs)
+    df_folder_plan=os.path.join(folder, PI_code, 'YEAR', 'PT_ID',  ze_plan_code)
+    parquet_files = []
+    for s in sect_PI:
+        parquet_file = os.path.join(df_folder_plan,s,
+                                    f'{var}_{PI_code}_YEAR_{ze_plan_code}_{s}_PT_ID_{data}_{np.min(years)}_{np.max(years)}.parquet')
+        if int(data) in CFG_DASHBOARD.dct_tile_sect[s]:
+            parquet_files.append(parquet_file.replace('\\', '/'))
 
+    parquet_urls = [f"{container_url}/{f}?{sas_token}" for f in parquet_files]
+    if len(parquet_urls)==1:
+        df_plan=pd.read_parquet(parquet_urls[0])
+    else:
+        dfs=[]
+        for tf in parquet_urls:
+            try:
+                df=pd.read_parquet(tf)
+                dfs.append(df)
+            except:
+                print(tf,'does not exist on Azure')
+        df_plan=pd.concat(dfs)
     df_plan = df_plan.drop_duplicates(subset='PT_ID', keep='first')
 
     df_plan=UTILS.prep_data_map(df_plan, int(start_year), int(end_year), 'PT_ID', 'LAT', 'LON', stat, Variable, unique_pi_module_name)
