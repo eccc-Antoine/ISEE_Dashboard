@@ -2,12 +2,12 @@ import os
 import streamlit as st
 import numpy as np
 import pandas as pd
-
 pd.set_option('mode.chained_assignment', None)
 import geopandas as gpd
 import branca.colormap as cm
 import folium
 from folium import plugins
+import json
 import streamlit.components.v1 as components
 from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
 import importlib
@@ -42,7 +42,6 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
     df_PI = df_PI.loc[(df_PI['PLAN'] == scen_code)]
     df_PI = df_PI.loc[(df_PI['YEAR']>= start_year) & (df_PI['YEAR'] <= end_year)]
     colname = df_PI.columns[df_PI.columns.str.startswith(var)][0]
-    start = dt.now()
 
     if stat == 'mean':
         df_stats = df_PI.groupby('TILE')[colname].mean().reset_index()
@@ -60,8 +59,181 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
     gdf_tiles = gdf_tiles.merge(df_stats[['TILE',"VAL"]], on='TILE', how="left")
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
     gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
+
     return(gdf_tiles)
 
+def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_PI_CFG, division_col):
+    print('FOLIUM_MAPS')
+    values = gdf_grille.loc[gdf_grille[col] != 0, col]
+    empty_map = False
+
+    if len(values) == 0:
+        empty_map = True
+        folium_map = 0
+
+    else:
+        geometry_types = gdf_grille.geom_type.unique()[0]
+        if geometry_types == 'MultiPolygon' or geometry_types == 'Polygon':
+            x_med = np.round(gdf_grille.geometry.centroid.x.median(), 3)
+            y_med = np.round(gdf_grille.geometry.centroid.y.median(), 3)
+        else:
+            x_med = np.round(gdf_grille.geometry.x.median(), 3)
+            y_med = np.round(gdf_grille.geometry.y.median(), 3)
+
+        folium_map = folium.Map(location=[y_med, x_med], zoom_start=8, tiles='cartodbpositron', height=dim_y,
+                                width=dim_x)
+
+        direction = unique_PI_CFG.var_direction[var]
+
+        gdf_grille[col] = gdf_grille[col].astype(float)
+
+        val_dict = gdf_grille.set_index(division_col)[col]
+
+        centro = gdf_grille.copy(deep=True)
+
+        gdf_grille = gdf_grille.to_crs(epsg='4326')
+
+        gdf_grille = gdf_grille.dropna()
+
+        centro['centroid'] = centro.centroid
+        centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
+
+        gjson = gdf_grille.to_json()
+        js_data = json.loads(gjson)
+        val_dict = gdf_grille.set_index(division_col)[col]
+
+        if unique_PI_CFG.type == '1D':
+            if direction == 'inverse':
+                linear = cm.LinearColormap(colors=['green', 'white', 'red'],
+                                           index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)],
+                                           vmin=gdf_grille[col].quantile(0.25),
+                                           vmax=gdf_grille[col].quantile(0.75))
+            else:
+                linear = cm.LinearColormap(colors=['red', 'white', 'green'],
+                                           index=[gdf_grille[col].quantile(0.25), 0, gdf_grille[col].quantile(0.75)],
+                                           vmin=gdf_grille[col].quantile(0.25),
+                                           vmax=gdf_grille[col].quantile(0.75))
+
+            folium.GeoJson(
+                gjson,
+                style_function=lambda feature: {
+                    "fillColor": linear(val_dict[feature["properties"][division_col]]),
+                    "color": "black",
+                    "weight": 2,
+                    "dashArray": "5, 5",
+                },
+            ).add_to(folium_map)
+
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                    # popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+                ).add_to(folium_map)
+
+            linear.add_to(folium_map)
+
+        else:
+            pos_values = gdf_grille.loc[gdf_grille[col] > 0]
+            pos_values = pos_values.sort_values(by=col)
+            pos_values = pos_values[col]
+            neg_values = gdf_grille.loc[gdf_grille[col] < 0]
+            neg_values = neg_values.sort_values(by=col)
+            neg_values = neg_values[col]
+
+            if direction == 'inverse':
+                neg_colormap = cm.LinearColormap(colors=['darkgreen', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkred'], vmin=0, vmax=pos_values.quantile(0.85))
+
+            else:
+                neg_colormap = cm.LinearColormap(colors=['darkred', 'white'], vmin=neg_values.quantile(0.15), vmax=0)
+                pos_colormap = cm.LinearColormap(colors=['white', 'darkgreen'], vmin=0, vmax=pos_values.quantile(0.85))
+
+            if neg_values.empty:
+                neg_colormap = cm.LinearColormap(colors=['white', 'white'], vmin=0, vmax=0)
+
+            if pos_values.empty:
+                pos_colormap = cm.LinearColormap(colors=['white', 'white'], vmin=0, vmax=0)
+
+            def get_color(value):
+                return neg_colormap(int(value)) if int(value) < 0 else pos_colormap(int(value))
+
+            tooltip = folium.GeoJsonTooltip(
+                fields=['TILE', col],
+                aliases=['TILE', f'{var} difference'],
+                localize=True,
+                sticky=True,
+                labels=True,
+                style="""
+                    background-color: #F0EFEF;
+                    border: 2px solid black;
+                    border-radius: 3px;
+                    box-shadow: 3px;
+                """,
+                max_width=800,
+            )
+
+            popup = folium.GeoJsonPopup(
+                fields=['TILE', col],
+                aliases=['TILE', f'{var} difference'],
+                localize=True,
+                labels=True,
+                style="background-color: yellow;",
+            )
+
+            g = folium.GeoJson(
+                gjson,
+                style_function=lambda x: {
+                    "fillColor": get_color(val_dict[x["properties"][division_col]]),
+                    "color": "black",
+                    "fillOpacity": 0.4,
+                },
+                tooltip=tooltip,
+                popup=popup,
+            ).add_to(folium_map)
+
+            neg_colormap.caption = "Negative Values"
+            neg_colormap.add_to(folium_map)
+
+            pos_colormap.caption = "Positive Values"
+            pos_colormap.add_to(folium_map)
+    return folium_map, empty_map
+
+def save_gdf_to_zip(gdf, shapefile_name):
+    # Create a temporary directory to store shapefile components
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        # Define the shapefile path (without extension)
+        shapefile_path = os.path.join(tmpdirname, shapefile_name)
+
+        # Save the GeoDataFrame to the shapefile components (.shp, .shx, .dbf, etc.)
+        gdf.to_file(shapefile_path)
+
+        # Create a zip file in memory
+        zip_buffer = io.BytesIO()
+
+        # Write all files from the temporary folder into the zip
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for file_name in os.listdir(tmpdirname):
+                file_path = os.path.join(tmpdirname, file_name)
+                zip_file.write(file_path, arcname=file_name)
+
+        # Move the pointer to the beginning of the buffer
+        zip_buffer.seek(0)
+
+        return zip_buffer.getvalue()
+
+def folium_static(_fig, width, height):
+    print('FOLIUM_STATIC')
+
+    if isinstance(_fig, folium.Map):
+        _fig = folium.Figure().add_child(_fig)
+        return components.html(_fig.render(), height=(_fig.height or height) + 10, width=width)
+
+    elif isinstance(_fig, plugins.DualMap):
+        return components.html(_fig._repr_html_(), height=height + 10, width=width)
 
 def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
                       unique_PI_CFG, start_year, end_year, Baseline, container):
@@ -144,227 +316,6 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Variable,
     df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', Variable]]
     print('select_timeseries_data :', dt.now()-start)
     return df_PI
-
-def save_gdf_to_zip(gdf, shapefile_name):
-    # Create a temporary directory to store shapefile components
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        # Define the shapefile path (without extension)
-        shapefile_path = os.path.join(tmpdirname, shapefile_name)
-
-        # Save the GeoDataFrame to the shapefile components (.shp, .shx, .dbf, etc.)
-        gdf.to_file(shapefile_path)
-
-        # Create a zip file in memory
-        zip_buffer = io.BytesIO()
-
-        # Write all files from the temporary folder into the zip
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-            for file_name in os.listdir(tmpdirname):
-                file_path = os.path.join(tmpdirname, file_name)
-                zip_file.write(file_path, arcname=file_name)
-
-        # Move the pointer to the beginning of the buffer
-        zip_buffer.seek(0)
-
-        return zip_buffer.getvalue()
-
-def create_empty_zip_file():
-
-    # Create a temporary directory to store the zip file
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-            pass
-
-    zip_buffer.seek(0)
-    return zip_buffer.getvalue()
-
-
-def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_PI_CFG, division_col):
-    print('DUAL_MAPS')
-    geometry_types = _gdf_grille_base.geom_type.unique()[0]
-
-    if geometry_types == 'MultiPolygon' or geometry_types == 'Polygon':
-        x_med = np.round(_gdf_grille_base.geometry.centroid.x.median(), 3)
-        y_med = np.round(_gdf_grille_base.geometry.centroid.y.median(), 3)
-    else:
-        x_med = np.round(_gdf_grille_base.geometry.x.median(), 3)
-        y_med = np.round(_gdf_grille_base.geometry.y.median(), 3)
-
-    m = plugins.DualMap(location=(y_med, x_med), tiles='cartodbpositron', zoom_start=8)
-
-    direction = unique_PI_CFG.var_direction[var]
-
-    gdf_grille_1 = _gdf_grille_base.copy(deep=True)
-
-    if 'NFB' in unique_PI_CFG.pi_code:
-        gdf_grille_1[col] = gdf_grille_1[col].astype(int).round(3)
-        gdf_grille_1 = gdf_grille_1.loc[gdf_grille_1[col] != 1]
-    else:
-        gdf_grille_1[col] = gdf_grille_1[col].astype(float).round(3)
-
-    if direction == 'inverse':
-        linear = cm.LinearColormap(["darkgreen", "green", "lightblue", "orange", "red"],
-                                   vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75),
-                                   caption=unique_PI_CFG.units)
-    else:
-        linear = cm.LinearColormap(["red", "orange", "lightblue", "green", "darkgreen"],
-                                   vmin=gdf_grille_1[col].quantile(0.25), vmax=gdf_grille_1[col].quantile(0.75),
-                                   caption=unique_PI_CFG.units)
-
-    linear.add_to(m.m1)
-
-    if division_col != 'SECTION':
-        gdf_grille_1[division_col] = gdf_grille_1[division_col].astype(int)
-
-    val_dict = gdf_grille_1.set_index(division_col)[col]
-
-    centro = gdf_grille_1.copy(deep=True)
-
-    gdf_grille_1 = gdf_grille_1.to_crs(epsg='4326')
-
-    centro['centroid'] = centro.centroid
-    centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
-
-    gjson = gdf_grille_1.to_json()
-
-    if division_col == 'SECTION':
-        folium.GeoJson(
-            gjson,
-            style_function=lambda feature: {
-                "fillColor": linear(val_dict[feature["properties"][division_col]]),
-                "color": "black",
-                "weight": 2,
-                "dashArray": "5, 5",
-            },
-        ).add_to(m.m1)
-
-        for _, r in centro.iterrows():
-            lat = r["centroid"].y
-            lon = r["centroid"].x
-            folium.Marker(
-                location=[lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-            ).add_to(m.m1)
-    else:
-        tooltip = folium.GeoJsonTooltip(
-            fields=['TILE', col],
-            aliases=['TILE', var],
-            localize=True,
-            sticky=True,
-            labels=True,
-            style="""
-                background-color: #F0EFEF;
-                border: 2px solid black;
-                border-radius: 3px;
-                box-shadow: 3px;
-            """,
-            max_width=800,
-        )
-
-        popup = folium.GeoJsonPopup(
-            fields=['TILE', col],
-            aliases=['TILE', var],
-            localize=True,
-            labels=True,
-            style="background-color: yellow;",
-        )
-
-        folium.GeoJson(
-            gjson,
-            style_function=lambda feature: {
-                "fillColor": linear(val_dict[feature["properties"][division_col]]),
-                "color": "black",
-                "fillOpacity": 0.4,
-            },
-            tooltip=tooltip,
-            popup=popup
-        ).add_to(m.m1)
-
-    ######
-
-    gdf_grille_2 = _gdf_grille_plan.copy(deep=True)
-    gdf_grille_2[col] = gdf_grille_2[col].astype(float)
-
-    val_dict2 = gdf_grille_2.set_index(division_col)[col]
-
-    centro = gdf_grille_2.copy(deep=True)
-
-    gdf_grille_2 = gdf_grille_2.to_crs(epsg='4326')
-
-    centro['centroid'] = centro.centroid
-    centro['centroid'] = centro["centroid"].to_crs(epsg=4326)
-
-    gjson = gdf_grille_2.to_json()
-    val_dict2 = gdf_grille_2.set_index(division_col)[col]
-
-    if division_col == 'SECTION':
-        folium.GeoJson(
-            gjson,
-            style_function=lambda feature: {
-                "fillColor": linear(val_dict2[feature["properties"][division_col]]),
-                "color": "black",
-                "weight": 2,
-                "dashArray": "5, 5",
-            },
-        ).add_to(m.m2)
-
-        for _, r in centro.iterrows():
-            lat = r["centroid"].y
-            lon = r["centroid"].x
-            folium.Marker(
-                location=[lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-            ).add_to(m.m2)
-
-    else:
-        tooltip = folium.GeoJsonTooltip(
-            fields=['TILE', col],
-            aliases=['TILE', var],
-            localize=True,
-            sticky=True,
-            labels=True,
-            style="""
-                background-color: #F0EFEF;
-                border: 2px solid black;
-                border-radius: 3px;
-                box-shadow: 3px;
-            """,
-            max_width=800,
-        )
-
-        popup = folium.GeoJsonPopup(
-            fields=['TILE', col],
-            aliases=['TILE', var],
-            localize=True,
-            labels=True,
-            style="background-color: yellow;",
-        )
-
-        g = folium.GeoJson(
-            gjson,
-            style_function=lambda x: {
-                "fillColor": linear(val_dict2[x["properties"][division_col]]),
-                "color": "black",
-                "fillOpacity": 0.4,
-            },
-            tooltip=tooltip,
-            popup=popup
-        ).add_to(m.m2)
-
-    return m
-
-def folium_static(_fig, width, height):
-    print('FOLIUM_STATIC')
-
-    if isinstance(_fig, folium.Map):
-        _fig = folium.Figure().add_child(_fig)
-        return components.html(_fig.render(), height=(_fig.height or height) + 10, width=width)
-
-    elif isinstance(_fig, plugins.DualMap):
-        return components.html(_fig._repr_html_(), height=height + 10, width=width)
 
 def MAIN_FILTERS_streamlit_simple(ts_code, unique_PI_CFG, Years, Variable):
     print('FILTERS')

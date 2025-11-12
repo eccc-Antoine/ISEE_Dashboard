@@ -53,9 +53,27 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
                                value=round(baseline_value, 2), delta=0)
             count_kpi += 1
 
-def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start_year, end_year, unit):
-    print('PLOT_TS')
+def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year, unit, unique_PI_CFG, diff_type):
+    print('PLOT_DTS')
+    diff_dct = {f'Values ({unit})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
 
+    # df_PI already has only the concerned plans
+    df_PI_plans = df_PI
+    df_PI_plans['BASELINE_VALUE'] = np.nan
+    for y in list(range(start_year, end_year+1)):
+        df_PI_plans['BASELINE_VALUE'].loc[df_PI_plans['YEAR']==y] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == unique_PI_CFG.baseline_dct[Baseline])].iloc[0]
+
+    if diff_dct[diff_type] == 'DIFF':
+        df_PI_plans['DIFF'] = df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']
+        df_PI_plans['DIFF'] = df_PI_plans['DIFF'].round(3)
+    elif diff_dct[diff_type] == 'DIFF_PROP':
+        df_PI_plans['DIFF_PROP'] = ((df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']) / df_PI_plans[
+            'BASELINE_VALUE']) * 100
+        df_PI_plans['DIFF_PROP'] = df_PI_plans['DIFF_PROP'].round(3)
+    else:
+        assert False, print('INVALID DIFF TYPE')
+
+    # Plot
     # Import the user theme to choose the plot coloring
     theme = st.context.theme.type
     if theme=='light':
@@ -64,28 +82,20 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
         ref_color = '#ffffff'
     else:
         ref_color = "#6E6E6E"
-    df_PI_plans = df_PI.loc[df_PI['PLAN'].isin(list_plans)]
 
-    df_value_to_move = df_PI_plans[df_PI_plans['PLAN'] == Baseline]
-    others = df_PI_plans[df_PI_plans['PLAN'] != Baseline]
-    df_PI_plans = pd.concat([others, df_value_to_move])
-    df_PI_plans = df_PI_plans.reset_index(drop=True)
-
-    fig = go.Figure(go.Scatter(x=df_value_to_move["YEAR"],y=df_value_to_move[Variable], mode='lines', line=dict(width=3, color=ref_color, dash='dot'),
-                               name=Baseline,legendgroup='Reference',legendgrouptitle_text='Reference'))
-
-    for p in plans_selected:
-        data_plan = df_PI_plans.loc[df_PI_plans['PLAN']==p]
-        fig.add_trace(go.Scatter(x=data_plan["YEAR"], y=data_plan[Variable], mode='lines',
-                                    name=p,legendgroup='Others',legendgrouptitle_text='Plans'))
-
-    fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
+    plans_to_plot = list_plans.copy()
+    plans_to_plot.remove(Baseline)
+    fig2 = go.Figure(data=[go.Bar(x=df_PI_plans["YEAR"].loc[df_PI_plans['PLAN']==p],
+                           y=df_PI_plans[diff_dct[diff_type]].loc[df_PI_plans['PLAN']==p],
+                           name=p) for p in plans_to_plot])
+    fig2.add_hline(y=0, line=dict(color=ref_color, width=1))
+    fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
                       xaxis_title='Years',
-                      yaxis_title=f'{unit}',
-                      legend=dict(groupclick='toggleitem'))
-    #fig.update_yaxes(range=[full_min, full_max])
+                      yaxis_title=f'Difference in {diff_type}',
+                      yaxis=dict(zeroline=True,zerolinecolor=ref_color,zerolinewidth=1),
+                      xaxis=dict(showgrid=True))
 
-    return fig, df_PI_plans
+    return fig2, df_PI_plans
 
 @st.cache_data(ttl=3600)
 def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG, LakeSL_prob_1D):
@@ -147,7 +157,7 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
-    df_PI[Variable] = df_PI[f'{var}_{stats[0]}'].fillna(0)
+    df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier
 
@@ -272,5 +282,3 @@ def initialize_session_state():
 
     # diff_type
     st.session_state['diff_type'] = f"Values ({st.session_state['unique_PI_CFG'].units})"
-
-
