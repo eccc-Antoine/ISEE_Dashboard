@@ -13,37 +13,37 @@ def convert_feather_to_parquet(src_root, dst_root):
     """
     for subdir, _, files in os.walk(src_root):
         for file in files:
-            if file.endswith(".feather"):
-                feather_path = os.path.join(subdir, file)
+            # if file.endswith(".feather"):
+            feather_path = os.path.join(subdir, file)
 
-                # Build the destination path with same relative structure
-                rel_path = os.path.relpath(feather_path, src_root)
-                parquet_path = os.path.join(dst_root, rel_path).replace(".feather", ".parquet")
+            # Build the destination path with same relative structure
+            rel_path = os.path.relpath(feather_path, src_root)
+            parquet_path = os.path.join(dst_root, rel_path) +  ".parquet"
 
-                # Ensure destination directory exists
-                os.makedirs(os.path.dirname(parquet_path), exist_ok=True)
+            # Ensure destination directory exists
+            os.makedirs(os.path.dirname(parquet_path), exist_ok=True)
 
-                print(f"Converting: {feather_path} -> {parquet_path}")
-                try:
-                    # Load feather
-                    df = pd.read_feather(feather_path)
-                    # tile_id = os.path.basename(subdir)
-                    # print(tile_id)
-                    # df['tile'] = tile_id
+            # print(f"Converting: {feather_path} -> {parquet_path}")
+            try:
+                # Load feather
+                df = pd.read_feather(feather_path)
 
-                    # Save parquet with snappy compression
-                    df.to_parquet(parquet_path, engine="pyarrow", index=False, compression="snappy")
+                # Save parquet with snappy compression
+                df.to_parquet(parquet_path, engine="pyarrow", index=False, compression="snappy")
 
-                except Exception as e:
-                    print(f"⚠️ Failed to convert {feather_path}: {e}")
+            except Exception as e:
+                print(f"⚠️ Failed to convert {feather_path}: {e}")
 
 
 
 # Example usage
 
-PI='ONZI_1D'
+PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
+    'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
-convert_feather_to_parquet(
-    src_root=fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{PI}",
-    dst_root=fr"F:\GLAM_DASHBOARD\PARQUET_TEST\{PI}"
-)
+for pi in PI:
+    print(pi)
+    convert_feather_to_parquet(
+        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\PT_ID",
+        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\PT_ID"
+    )

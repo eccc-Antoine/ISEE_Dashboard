@@ -29,7 +29,7 @@ def save_parquet_to_blob(container, df, blob_name):
     blob_client.upload_blob(data,overwrite=True)
     return
 
-def group_parquet_files(folder, container, sas_token):
+def group_parquet_files(folder, container):
 
     division = folder.split('/')[-2]
     print('-->',division)
@@ -84,10 +84,8 @@ def group_parquet_files(folder, container, sas_token):
     df_final = pd.concat(df_all).reset_index(drop=True)
     return df_final
 
-# PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
-#     'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
-PI = ['ONZI_1D']
-
+PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
+    'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
 blob_service_client = BlobServiceClient(container_url, credential = access_key)
 container = blob_service_client.get_container_client('dukc-db')
@@ -100,14 +98,14 @@ for pi in PI:
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{unique_pi_module_name}')
 
     folder = f'test/{unique_pi_module_name}/YEAR/PLAN/'
-    df = group_parquet_files(folder, container, sas_token)
+    df = group_parquet_files(folder, container)
     save_parquet_to_blob(container, df, f'{folder}{unique_pi_module_name}_ALL_PLANS.parquet')
 
     folder = f'test/{unique_pi_module_name}/YEAR/SECTION/'
-    df = group_parquet_files(folder, container, sas_token)
+    df = group_parquet_files(folder, container)
     save_parquet_to_blob(container, df, f'{folder}{unique_pi_module_name}_ALL_SECTIONS.parquet')
 
     if pi[-2:] == '2D':
         folder = f'test/{unique_pi_module_name}/YEAR/TILE/'
-        df = group_parquet_files(folder, container, sas_token)
+        df = group_parquet_files(folder, container)
         save_parquet_to_blob(container, df, f'{folder}{unique_pi_module_name}_ALL_TILES.parquet')
