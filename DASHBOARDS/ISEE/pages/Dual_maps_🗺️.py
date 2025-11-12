@@ -1,6 +1,6 @@
-import streamlit as st  # web development
-import numpy as np  # np mean, np random
-import pandas as pd  # read csv, df manipulation
+import streamlit as st
+import numpy as np
+import pandas as pd
 pd.set_option('mode.chained_assignment', None)
 import os
 import importlib
@@ -17,7 +17,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 start = dt.now()
-
 def set_base_path():
     CFG_DASHBOARD.post_process_folder = CFG_DASHBOARD.post_process_folder_name
 
@@ -64,12 +63,6 @@ if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
 
-if 'baseline_code' not in st.session_state:
-    st.session_state['baseline_code'] = None
-
-if 'gdf_grille_base' not in st.session_state:
-    st.session_state['gdf_grille_base'] = None
-
 if 'unique_PI_CFG' not in st.session_state:
     PI_code = st.session_state['PI_code']
     st.session_state['unique_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
@@ -79,12 +72,22 @@ if 'azure_container' not in st.session_state:
     blob_service_client = BlobServiceClient(CFG_DASHBOARD.azure_url, credential = CFG_DASHBOARD.access_key)
     container = blob_service_client.get_container_client('dukc-db')
     st.session_state['azure_container'] = container
+    # If azure container is not in session state, it means it's the first time loading a page, since we have this on all pages
+    UTILS.initialize_session_state()
+
+if 'baseline_code' not in st.session_state:
+    st.session_state['baseline_code'] = None
+
+if 'gdf_grille_base' not in st.session_state:
+    st.session_state['gdf_grille_base'] = None
 
 # Change PI or Timeserie
 def update_PI_code():
+    st.session_state['selected_pi'] = st.session_state['_selected_pi']
     selected_pi_name = st.session_state['selected_pi']
     pi_code = [key for key, value in pi_dct.items() if value == selected_pi_name]
     st.session_state['PI_code'] = pi_code[0]
+    st.session_state['unique_PI_CFG'] = importlib.import_module(f"GENERAL.CFG_PIS.CFG_{pi_code[0]}")
 
 def update_timeseries():
     selected_timeseries = st.session_state['timeseries']
@@ -107,18 +110,22 @@ st.subheader('Select what you want to see on the left, select which plan you wan
 st.session_state.gdf_grille_plan = None
 
 def function_for_tab3():
-
     Col1, Col2 = st.columns([0.2, 0.8], gap='large')
     with Col1:
+        st.subheader('**Parameters**')
         old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code=render_column1_simple()
         var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
 
-        if unique_PI_CFG.var_agg_stat[var][0] =='sum':
-            stat5 = st.selectbox("Select a way to aggregate values for the selected period",
-                                     unique_PI_CFG.var_agg_stat[var] + ['mean', 'min', 'max'], key='stat5', index=0)
+        if unique_PI_CFG.var_agg_stat[var][0]=='sum':
+            stat_list = unique_PI_CFG.var_agg_stat[var] + ['mean', 'min', 'max']
+            stat = st.selectbox("Select a way to aggregate values for the selected period",
+                                     stat_list, index=stat_list.index(st.session_state['selected_stat']),
+                                     key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
         else:
-            stat5 = st.selectbox("Select a way to aggregate values for the selected period",
-                                     unique_PI_CFG.var_agg_stat[var] + ['min', 'max'], key='stat5', index=0)
+            stat_list = unique_PI_CFG.var_agg_stat[var] + ['min', 'max']
+            stat = st.selectbox("Select a way to aggregate values for the selected period",
+                                stat_list, index=stat_list.index(st.session_state['selected_stat']),
+                                key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
 
         if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
             division = 'TILE'
@@ -133,33 +140,33 @@ def function_for_tab3():
         df_PI = st.session_state['df_PI_dualmaps']
 
     with Col2:
-
+        st.subheader('**Plot**')
+        # Compare with dual Maps
+        available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
         baseline, candidate = st.columns(2)
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
-
-        with baseline:
-            Baseline2 = st.selectbox("Select a reference plan to display", baselines)
-
-        baseline_code = unique_PI_CFG.baseline_dct[Baseline2]
-        available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
-
         if len(baselines)==0 or len(available_plans)==0:
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
-
         else:
+            with baseline:
+                Baseline = st.selectbox("Select a reference plan to display", baselines,
+                                            index=baselines.index(st.session_state['Baseline']),
+                                            key='_Baseline',on_change=UTILS.update_session_state, args=('Baseline',))
             with candidate:
-                ze_plan2 = st.selectbox("Select a candidate plan to display", available_plans, key='ze_plan2', index=0)
-            ze_plan_code = unique_PI_CFG.plan_dct[ze_plan2]
-            var2 = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+                ze_plan = st.selectbox("Select a regulation plan to compare with reference plan", available_plans,
+                                       index=available_plans.index(st.session_state['ze_plan']),
+                                       key='_ze_plan',on_change=UTILS.update_session_state, args=('ze_plan', ))
 
+            baseline_code = unique_PI_CFG.baseline_dct[Baseline]
+            ze_plan_code = unique_PI_CFG.plan_dct[ze_plan]
 
             if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
 
-                gdf_grille_base = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, baseline_code, stat5, var,
+                gdf_grille_base = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, baseline_code, stat, var,
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
                 st.session_state['gdf_grille_base'] = gdf_grille_base
 
-                gdf_grille_plan = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, ze_plan_code, stat5, var,
+                gdf_grille_plan = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, ze_plan_code, stat, var,
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
 
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'TILE')
@@ -169,14 +176,14 @@ def function_for_tab3():
                 else:
                     sct_shp = sct_poly
 
-                gdf_grille_base = UTILS.prep_for_prep_1d(sct_shp, df_PI, baseline_code, stat5,
+                gdf_grille_base = UTILS.prep_for_prep_1d(sct_shp, df_PI, baseline_code, stat,
                                                              var, unique_PI_CFG,
-                                                             start_year, end_year, Baseline2,
+                                                             start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
 
-                gdf_grille_plan = UTILS.prep_for_prep_1d(sct_shp, df_PI, ze_plan_code, stat5,
-                                                             var2, unique_PI_CFG,
-                                                             start_year, end_year, Baseline2,
+                gdf_grille_plan = UTILS.prep_for_prep_1d(sct_shp, df_PI, ze_plan_code, stat,
+                                                             var, unique_PI_CFG,
+                                                             start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
 
                 if baseline_code=='PreProjectHistorical':
@@ -184,7 +191,6 @@ def function_for_tab3():
 
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'SECTION')
 
-            st.session_state['baseline_ready'] = True
             col_shape, col_html = st.columns(2,gap='small',width=600)
             with col_shape:
                 st.write('Download as shapefile')
@@ -203,14 +209,14 @@ def function_for_tab3():
         with baseline_button:                # Add the download button
             st.download_button(
                     label="Baseline Map",
-                    data=prepare_shapefile(gdf_grille_base,f'{PI_code}_{stat5}_{var}_{start_year}_{end_year}_{ts_code}_{baseline_code}.shp'),
+                    data=prepare_shapefile(gdf_grille_base,f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ts_code}_{baseline_code}.shp'),
                     file_name="Baseline_map.zip",
                     mime="application/zip")
         with plan_button:
             # Add the download button
             st.download_button(
                         label="Candidate Map",
-                        data=prepare_shapefile(gdf_grille_plan,f'{PI_code}_{stat5}_{var2}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}.shp'),
+                        data=prepare_shapefile(gdf_grille_plan,f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}.shp'),
                         file_name="Plan_map.zip",
                         mime="application/zip")
 
@@ -224,19 +230,26 @@ def function_for_tab3():
 
 def render_column1_simple():
 
-    st.selectbox("Select a supply", ts_dct.values(), key='timeseries',
-                               on_change=update_timeseries)
-    ts_code = st.session_state['ts_code']
+    old_ts_code = st.session_state['ts_code']
+    ts_list = list(ts_dct.values())
+    st.selectbox("Select a supply", ts_list, index=ts_list.index(ts_dct[st.session_state['ts_code']]), key='timeseries')
+    update_timeseries()
+
     old_PI_code = st.session_state['PI_code']
     pi_list = list(pi_dct.values())
     pi_list.sort()
-    st.selectbox("Select a Performance Indicator", pi_list, key='selected_pi')
+    st.selectbox("Select a Performance Indicator", pi_list,
+                 index=pi_list.index(pi_dct[st.session_state['PI_code']]),
+                 key='_selected_pi')
     update_PI_code()
 
     PI_code = st.session_state['PI_code']
-
-    st.session_state['unique_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
+    ts_code = st.session_state['ts_code']
     unique_PI_CFG = st.session_state['unique_PI_CFG']
+
+    # If the user changed the PI or the timseries, update widgets
+    if (old_PI_code != st.session_state['PI_code']) or (old_ts_code != st.session_state['ts_code']):
+        UTILS.initialize_session_state()
 
     start_year, end_year, Variable = UTILS.MAIN_FILTERS_streamlit_simple(ts_code,
             unique_PI_CFG, Years=True, Variable=True)
