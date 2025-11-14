@@ -5,6 +5,7 @@ pd.set_option('mode.chained_assignment', None)
 import os
 import importlib
 from pathlib import Path
+import traceback
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 import CFG_ISEE_DUCK as CFG_DASHBOARD
@@ -61,6 +62,9 @@ qp = st.query_params
 
 st.cache_data.clear()
 st.cache_resource.clear()
+
+if 'has_resetted' not in st.session_state:
+    st.session_state['has_resetted'] = False
 
 if 'PI_code' not in st.session_state:
     if 'pi_code' in qp:
@@ -319,7 +323,26 @@ def possible_tiles(baseline_code, ze_plan_code, PI_code, folder):
     ze_plan_tiles = [int(f.split('_')[-3]) for f in ze_plan_parquets]
     return(np.intersect1d(baseline_tiles,ze_plan_tiles))
 
-function_for_tab5()
+try:
+    function_for_tab5()
+    st.session_state['has_resetted'] = False
+except Exception as e:
+    if not st.session_state['has_resetted']:
+        st.warning('An error occurred, restarting the dashboard now...')
+        st.error(traceback.format_exc())
+
+        st.session_state['PI_code'] = pis_code[0]
+        st.session_state['selected_pi'] = default_PI
+        st.session_state['ts_code'] = tss_code[0]
+        st.session_state['selected_timeseries'] = default_ts
+
+        UTILS.initialize_session_state()
+        st.session_state['has_resetted'] = True
+        st.rerun()
+    else:
+        st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
+        st.error(traceback.format_exc())
+
 print('Execution time :', dt.now()-start)
 print('----------------------------END----------------------------')
 

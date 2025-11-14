@@ -157,6 +157,21 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
+    df_PI['SECTION'] = Region
+
+    if len(unique_PI_CFG.sect_dct[Region]) > 1: # Append when region is Downstream or Upstream
+        if len(stats) > 1:
+            df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', f'{var}_sum']]
+            df_PI = df_PI.groupby(by=['YEAR', 'PLAN', 'SECTION'], as_index=False).sum()
+        elif stats[0] == 'sum':
+            df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', f'{var}_{stats[0]}']]
+            df_PI = df_PI.groupby(by=['YEAR', 'PLAN', 'SECTION'], as_index=False).sum()
+        elif stats[0] == 'mean':
+            df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', f'{var}_{stats[0]}']]
+            df_PI = df_PI.groupby(by=['YEAR', 'PLAN', 'SECTION'], as_index=False).mean()
+        else:
+            print('problem w. agg stat!!')
+
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier

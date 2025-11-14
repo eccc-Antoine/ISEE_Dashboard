@@ -5,6 +5,7 @@ pd.set_option('mode.chained_assignment', None)
 import os
 import importlib
 from pathlib import Path
+import traceback
 import sys
 import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
@@ -55,6 +56,9 @@ default_ts=next(iter(ts_dct.values()), None)
 
 # State management
 # Define which PI or timeserie to show by default
+if 'has_resetted' not in st.session_state:
+    st.session_state['has_resetted'] = False
+
 if 'PI_code' not in st.session_state:
     st.session_state['PI_code'] = pis_code[0]
     st.session_state['selected_pi'] = default_PI
@@ -256,6 +260,25 @@ def render_column1_simple():
 
     return old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
 
-function_for_tab3()
+try:
+    function_for_tab3()
+    st.session_state['has_resetted'] = False
+except Exception as e:
+    if not st.session_state['has_resetted']:
+        st.warning('An error occurred, restarting the dashboard now...')
+        st.error(traceback.format_exc())
+
+        st.session_state['PI_code'] = pis_code[0]
+        st.session_state['selected_pi'] = default_PI
+        st.session_state['ts_code'] = tss_code[0]
+        st.session_state['selected_timeseries'] = default_ts
+
+        UTILS.initialize_session_state()
+        st.session_state['has_resetted'] = True
+        st.rerun()
+    else:
+        st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
+        st.error(traceback.format_exc())
+
 print('Execution time :', dt.now()-start)
 print('----------------------------END----------------------------')

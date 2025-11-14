@@ -4,6 +4,7 @@ import pandas as pd
 pd.set_option('mode.chained_assignment', None)
 import importlib
 from pathlib import Path
+import traceback
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 import CFG_ISEE_DUCK as CFG_DASHBOARD
@@ -46,6 +47,9 @@ default_ts=next(iter(ts_dct.values()), None)
 
 # State management
 # Define which PI or timeserie to show by default
+if 'has_resetted' not in st.session_state:
+    st.session_state['has_resetted'] = False
+
 if 'PI_code' not in st.session_state:
     st.session_state['PI_code'] = pis_code[0]
     st.session_state['selected_pi'] = default_PI
@@ -142,17 +146,17 @@ def render_column1():
     unique_PI_CFG = st.session_state['unique_PI_CFG']
 
     # First time loading the dashboard
-    if 'df_PI_tdifference' not in st.session_state:
-        st.session_state['df_PI_tdifference'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
+    if 'df_PI_timeseries' not in st.session_state:
+        st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
     # If the use changed the PI, load it
     if (old_PI_code != st.session_state['PI_code']):
-        st.session_state['df_PI_tdifference'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
+        st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
         # when the timeserie changes, the value of the widgets need to change too
         UTILS.initialize_session_state()
     if (old_ts_code != st.session_state['ts_code']):
         UTILS.initialize_session_state()
 
-    df_PI = st.session_state['df_PI_tdifference']
+    df_PI = st.session_state['df_PI_timeseries']
 
     start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,unique_PI_CFG,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
@@ -177,6 +181,27 @@ def render_column1():
 
     return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
-function_for_tab2()
+try:
+    function_for_tab2()
+    st.session_state['has_resetted'] = False
+except Exception as e:
+    if not st.session_state['has_resetted']:
+        st.warning('An error occurred, restarting the dashboard now...')
+        st.error(traceback.format_exc())
+
+        st.session_state['PI_code'] = pis_code[0]
+        st.session_state['selected_pi'] = default_PI
+        st.session_state['ts_code'] = tss_code[0]
+        st.session_state['selected_timeseries'] = default_ts
+        st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, st.session_state['PI_code'], st.session_state['azure_container'])
+
+        UTILS.initialize_session_state()
+        st.session_state['has_resetted'] = True
+        st.rerun()
+    else:
+        st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
+        st.error(traceback.format_exc())
+
+
 print('Execution time:',dt.now()-start)
 print('-------------END-------------')
