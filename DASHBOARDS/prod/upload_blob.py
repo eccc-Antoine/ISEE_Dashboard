@@ -23,9 +23,11 @@ def list_files(folder):
                 file_list.append(os.path.join(root, file))
     return file_list
 
+azure_access = importlib.import_module("DASHBOARDS.azure_access")
+azure_url = azure_access.azure_url
+access_key = azure_access.access_key
 
-
-blob_service_client = BlobServiceClient(db_url, credential = access_key)
+blob_service_client = BlobServiceClient(azure_url, credential = access_key)
 container = blob_service_client.get_container_client('dukc-db')
 
 # PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',

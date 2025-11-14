@@ -89,8 +89,11 @@ def group_parquet_files(folder, container):
 
 PI=['TURTLE_1D']
 
+azure_access = importlib.import_module("DASHBOARDS.azure_access")
+azure_url = azure_access.azure_url
+access_key = azure_access.access_key
 
-blob_service_client = BlobServiceClient(container_url, credential = access_key)
+blob_service_client = BlobServiceClient(azure_url, credential = access_key)
 container = blob_service_client.get_container_client('dukc-db')
 
 for pi in PI:

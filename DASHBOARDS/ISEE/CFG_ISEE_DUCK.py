@@ -82,3 +82,9 @@ dct_tile_sect = {'LKO': [492, 491, 490, 489, 488, 487, 486, 485, 484, 483, 482, 
 'USL_US_US': [227, 226, 217, 216, 206, 205, 204, 199, 198, 197, 195, 194, 193, 191, 190, 189, 188, 187, 186, 185, 184, 183, 181, 180]
 }
 
+import importlib
+azure_access=importlib.import_module("DASHBOARDS.azure_access")
+azure_url=azure_access.azure_url
+access_key=azure_access.access_key
+sas_token=azure_access.sas_token
+container_url=azure_access.container_url
