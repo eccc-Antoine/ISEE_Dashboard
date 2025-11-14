@@ -13,11 +13,13 @@ def convert_feather_to_parquet(src_root, dst_root):
     """
     for subdir, _, files in os.walk(src_root):
         for file in files:
-            # if file.endswith(".feather"):
+
             feather_path = os.path.join(subdir, file)
 
             # Build the destination path with same relative structure
             rel_path = os.path.relpath(feather_path, src_root)
+            if rel_path.endswith(".feather"):
+                rel_path = rel_path[:-8]
             parquet_path = os.path.join(dst_root, rel_path) +  ".parquet"
 
             # Ensure destination directory exists
@@ -38,12 +40,22 @@ def convert_feather_to_parquet(src_root, dst_root):
 
 # Example usage
 
-PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
-    'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
+# PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
+#     'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
+
+PI=['TURTLE_1D'] #
 
 for pi in PI:
     print(pi)
+    print('GERBL2_2014_ComboB_STO_330')
     convert_feather_to_parquet(
-        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\PT_ID",
-        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\PT_ID"
-    )
+        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\SECTION\GERBL2_2014_ComboB_STO_330",
+        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\SECTION\GERBL2_2014_ComboB_STO_330")
+    print('GERBL2_2014_ComboB_RCP45')
+    convert_feather_to_parquet(
+        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\SECTION\GERBL2_2014_ComboB_RCP45",
+        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\SECTION\GERBL2_2014_ComboB_RCP45")
+    print('GERBL2_2014_ComboB')
+    convert_feather_to_parquet(
+        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\SECTION\GERBL2_2014_ComboB",
+        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\SECTION\GERBL2_2014_ComboB")

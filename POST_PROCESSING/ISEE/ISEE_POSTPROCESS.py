@@ -3,6 +3,8 @@ import pandas as pd
 import importlib
 import CFG_POST_PROCESS_ISEE as cfg
 import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import sysconfig
 import os
 
@@ -13,7 +15,6 @@ print("Installed site-packages:", sysconfig.get_paths()["purelib"])
 print("Environment variables (conda/venv):", os.environ.get("VIRTUAL_ENV") or os.environ.get("CONDA_PREFIX"))
 
 
-
 class POST_PROCESS_2D_tiled:
 
     def __init__(self, pis, ISEE_RES, POST_PROCESS_RES, sep):
@@ -21,7 +22,7 @@ class POST_PROCESS_2D_tiled:
         self.ISEE_RES=ISEE_RES
         self.POST_PROCESS_RES=POST_PROCESS_RES
         self.sep=sep
-           
+
     def agg_YEAR(self, folder_space, y, columns):
         liste_files=[]
         for root, dirs, files in os.walk(folder_space):
@@ -41,8 +42,8 @@ class POST_PROCESS_2D_tiled:
             df_year=pd.DataFrame(0, index=range(1), columns=columns)
             no_dat_year=y
         return df_year, no_dat_year
-    
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list):
+
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list, space):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
 
@@ -74,7 +75,7 @@ class POST_PROCESS_2D_tiled:
                         print('STAT value provided is unavailable')
         df_space=df_space.reset_index()
         df_space.to_feather(os.path.join(path_res, res_name))
-    
+
     def AGG_PT_ID_ALL_YEARS(self, PI, p, s, var, path_res, AGG_TIME, PI_CFG, years_list):
         count_y=0
         tiles=cfg.dct_tile_sect[s]
@@ -133,16 +134,16 @@ class POST_PROCESS_2D_tiled:
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
-        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
+        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata
         AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
         AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE']
-        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
+        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean']
         '''
-        
+
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
         for AGG_TIME in AGGS_TIME:
-            for AGG_SPACE in AGGS_SPACE:  
+            for AGG_SPACE in AGGS_SPACE:
                 print(AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
@@ -151,7 +152,7 @@ class POST_PROCESS_2D_tiled:
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
-                        
+
                 if AGG_TIME=='YEAR':
                     if AGG_SPACE=='PLAN':
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -170,8 +171,8 @@ class POST_PROCESS_2D_tiled:
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
 
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param ,'', years_list)
-                              
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param ,'', years_list,space)
+
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
 
@@ -190,7 +191,7 @@ class POST_PROCESS_2D_tiled:
 
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, '', years_list)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, '', years_list, space)
 
                     elif AGG_SPACE=='TILE':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -211,8 +212,8 @@ class POST_PROCESS_2D_tiled:
                                         continue
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                     path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, '', path_feather_year, years_list)
-                    
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, '', path_feather_year, years_list, space)
+
                     elif AGG_SPACE=='PT_ID':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
 
@@ -240,7 +241,7 @@ class POST_PROCESS_2D_tiled:
                                         continue
 
                                     self.AGG_PT_ID_ALL_YEARS(PI, p, s, var, path_res, AGG_TIME, PI_CFG, years_list)
-                    
+
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
                         quit()
@@ -249,7 +250,7 @@ class POST_PROCESS_2D_tiled:
                     pass
                 else:
                     pass
-                
+
 class POST_PROCESS_2D_not_tiled:
 
     def __init__(self, pis, ISEE_RES, POST_PROCESS_RES, sep):
@@ -282,7 +283,7 @@ class POST_PROCESS_2D_not_tiled:
             empty_year=True
 
         return df_year, empty_year
-    
+
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
         print('AGG_SPACE_YEAR')
         not_empty=False
@@ -296,13 +297,13 @@ class POST_PROCESS_2D_not_tiled:
         if not os.path.exists(path_res):
             os.makedirs(path_res)
         for y in years_list:
-            if AGG_SPACE == 'PLAN':               
+            if AGG_SPACE == 'PLAN':
                 df_year=self.agg_YEAR(agg_year_param, y)
-            
+
             elif AGG_SPACE == 'SECTION':
                 df_year=self.agg_YEAR(agg_year_param, y)
                 df_year=df_year.loc[df_year['SECTION']==space]
-            
+
             elif AGG_SPACE == 'TILE':
                 df_year, empty_year=self.agg_YEAR(agg_year_param, y)
                 if empty_year:
@@ -322,7 +323,7 @@ class POST_PROCESS_2D_not_tiled:
                         df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=value
                         not_empty=True
                     else:
-                        print('STAT value provided is unavailable') 
+                        print('STAT value provided is unavailable')
 
         if not_empty:
             df_space=df_space.reset_index()
@@ -393,19 +394,19 @@ class POST_PROCESS_2D_not_tiled:
             df_main.to_feather(res_name)
 
     def agg_2D_space(self, PI, AGGS_TIME, AGGS_SPACE):
-        
+
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
-        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
+        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata
         AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
         AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION', 'TILE']
-        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
+        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean']
         '''
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
 
         for AGG_TIME in AGGS_TIME:
-            for AGG_SPACE in AGGS_SPACE:  
+            for AGG_SPACE in AGGS_SPACE:
                 print(AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 stats=[]
@@ -507,7 +508,7 @@ class POST_PROCESS_2D_not_tiled:
 
                 else:
                     pass
-                
+
 class POST_PROCESS_1D:
 
     def __init__(self, pis,ISEE_RES, POST_PROCESS_RES, sep):
@@ -516,8 +517,8 @@ class POST_PROCESS_1D:
         self.ISEE_RES=ISEE_RES
         self.POST_PROCESS_RES=POST_PROCESS_RES
         self.sep=sep
-           
-    def agg_YEAR(self, folder_space):  
+
+    def agg_YEAR(self, folder_space):
         liste_files=[]
         for root, dirs, files in os.walk(folder_space):
             for name in files:
@@ -535,14 +536,14 @@ class POST_PROCESS_1D:
             df_year=0
             exists = False
         return df_year, exists
-    
+
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=years_list
         if not os.path.exists(path_res):
             os.makedirs(path_res)
-        if AGG_SPACE == 'PLAN':               
+        if AGG_SPACE == 'PLAN':
             df_year, exists=self.agg_YEAR(agg_year_param)
             if exists:
                 for stat in stats:
@@ -560,7 +561,7 @@ class POST_PROCESS_1D:
                 else:
                     print('STAT value provided is unavailable')
 
-                       
+
         elif AGG_SPACE == 'SECTION':
             df_space, exists=self.agg_YEAR(agg_year_param)
 
@@ -581,17 +582,17 @@ class POST_PROCESS_1D:
     def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         '''
         PI = PI accronym (ex. Northern Pike = ESLU_2D)
-        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata 
+        VAR = VAR1, VAR2 ... VARx which corresponds to VAR names in PI's metadata
         AGGS_TIME = level of aggregation over time : list of values amongst ['YEAR', 'QM'] QM not available yet
         AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION']
-        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean'] 
+        stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean']
         '''
-        
+
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
-        
+
         for AGG_TIME in AGGS_TIME:
-            for AGG_SPACE in AGGS_SPACE:  
+            for AGG_SPACE in AGGS_SPACE:
                 print(AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
@@ -600,7 +601,7 @@ class POST_PROCESS_1D:
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
-                        
+
                 if AGG_TIME=='YEAR':
                     if AGG_SPACE=='PLAN':
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -621,7 +622,7 @@ class POST_PROCESS_1D:
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
-                              
+
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
 
@@ -646,37 +647,37 @@ class POST_PROCESS_1D:
                     else:
                         print(f'input AGG_SPACE {AGG_SPACE} is not valid !!')
                         quit()
-                        
+
                 elif AGG_TIME=='QM':
                     ### NOT coded yet!!
                     pass
-                            
+
                 else:
                     pass
 
 
-tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep) 
+tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)  
- 
+not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
+
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-# for pi in tiled.pis:
-#     print(pi)
-#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
-#     #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
-
-for pi in not_tiled.pis:
+for pi in tiled.pis:
     print(pi)
-    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
 
-# for pi in pi_1D.pis:
+# for pi in not_tiled.pis:
 #     print(pi)
-#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
-             
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+
+for pi in pi_1D.pis:
+    print(pi)
+    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
+
 quit()
 
 
-               
+
