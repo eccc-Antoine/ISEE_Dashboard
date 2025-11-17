@@ -23,38 +23,29 @@ for pi in pis_code:
     pi_type[pi] = PI_CFG.type.replace('_',' ')
 del PI_CFG
 
-st.header('Welcome to the ISEE Dashboard for the GLAM project 👋', divider="grey")
+st.header('👋 Welcome to the ISEE Dashboard for Phase 2 of the Plan 2014 Expedited Review', divider="grey")
 st.write('Choose what you want to see on the left panel. 👀')
 
 _, col = st.columns([0.01,0.99])
 with col:
-    st.write("-> Difference map 🌎 is a tiled map showing the difference between two plans.")
-    st.write("-> Difference maps ⚖️ compares annually aggregated values for multiple plans.")
-    st.write('-> Dual maps 🗺️ shows two tiled maps side to side to compare two plans.')
-    st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
     st.write('-> Timeseries 📈 plots annually aggregated values for multiple plans.')
+    st.write("-> Difference ⚖️ compares annually aggregated values for multiple plans.")
+    st.write('-> Dual maps 🗺️ shows two maps aggregated per tile to compare two plans.')
+    st.write("-> Difference map 🌎 is a map aggregated per tile showing the difference between two plans.")
+    st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
+
+plans_ts_dct={'hist':['OBS','PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'],
+              'sto':['-','PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330'],
+              'cc':['-','PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
 
 
-plans_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'OBS'],
-              'sto':['PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330'],
-              'cc':['PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
-
-
-st.subheader('Plans')
+st.subheader('Plans and water supplies')
 st.write('Note that the plans available per PI may vary.')
-hist, sto, cc = st.columns(3,gap='small',width=900)
-with hist:
-    st.write('**Historical**')
-    for i in plans_ts_dct['hist']:
-        st.markdown("- " + i + "\n")
-with sto:
-    st.write('**Stochastic**')
-    for i in plans_ts_dct['sto']:
-        st.markdown("- " + i + "\n")
-with cc:
-    st.write('**Climate change**')
-    for i in plans_ts_dct['cc']:
-        st.markdown("- " + i + "\n")
+df_plans = pd.DataFrame(data={'Name': ['Observations','PreProject','Plan 2014', 'Combo A', 'Combo B', 'Combo C', 'Combo D'],
+                              'Historical':plans_ts_dct['hist'],
+                              'Stochastic':plans_ts_dct['sto'],
+                              'Climate change':plans_ts_dct['cc']})
+st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.subheader('Sections')
 st.write('Note that the sections available per PI may vary. See below.')
@@ -90,3 +81,6 @@ df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'L
                         'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                            'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
 st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+
+st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
+                'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')

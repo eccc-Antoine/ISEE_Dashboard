@@ -93,7 +93,8 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
                       xaxis_title='Years',
                       yaxis_title=f'Difference in {diff_type}',
                       yaxis=dict(zeroline=True,zerolinecolor=ref_color,zerolinewidth=1),
-                      xaxis=dict(showgrid=True))
+                      xaxis=dict(showgrid=True),
+                      hovermode="x unified")
 
     return fig2, df_PI_plans
 
@@ -172,7 +173,14 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
         else:
             print('problem w. agg stat!!')
 
-    df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
+    if unique_PI_CFG.pi_code != 'CWRM_2D':
+        df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
+    else:
+        df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
+        if 'GERBL2_2014_ComboA_STO_330' in plans_selected :
+            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'].shift(1)
+        elif 'GERBL2_2014_ComboA_RCP45' in plans_selected :
+            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'].shift(1)
 
     multiplier = unique_PI_CFG.multiplier
 

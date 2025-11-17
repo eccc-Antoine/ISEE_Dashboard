@@ -343,6 +343,9 @@ except Exception as e:
         st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
         st.error(traceback.format_exc())
 
+st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
+                'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')
+
 print('Execution time :', dt.now()-start)
 print('----------------------------END----------------------------')
 

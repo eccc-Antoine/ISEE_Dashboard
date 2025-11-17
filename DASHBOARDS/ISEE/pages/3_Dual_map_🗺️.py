@@ -10,8 +10,7 @@ import sys
 import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
-from DASHBOARDS.UTILS.pages import Difference_maps_utils as UTILS
-import geopandas as gpd
+from DASHBOARDS.UTILS.pages import Dual_maps_utils as UTILS
 
 from datetime import datetime as dt
 from azure.storage.blob import BlobServiceClient
@@ -109,60 +108,54 @@ def prepare_html(m):
     map_html.seek(0)
     return(map_html.getvalue())
 
-st.title('Difference maps 🌎')
+st.title('Dual Maps 🗺️')
 st.subheader('Select what you want to see on the left, select which plan you want to compare and display the maps on the right.', divider="gray")
 
 st.session_state.gdf_grille_plan = None
 
-def function_for_tab4():
+def function_for_tab3():
     Col1, Col2 = st.columns([0.2, 0.8], gap='large')
     with Col1:
         st.subheader('**Parameters**')
         old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code=render_column1_simple()
         var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
+
         if unique_PI_CFG.var_agg_stat[var][0]=='sum':
             stat_list = unique_PI_CFG.var_agg_stat[var] + ['mean', 'min', 'max']
             stat = st.selectbox("Select a way to aggregate values for the selected period",
-                         stat_list, index=stat_list.index(st.session_state['selected_stat']),
-                         key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
-            print('Widget',stat)
+                                     stat_list, index=stat_list.index(st.session_state['selected_stat']),
+                                     key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
         else:
             stat_list = unique_PI_CFG.var_agg_stat[var] + ['min', 'max']
             stat = st.selectbox("Select a way to aggregate values for the selected period",
                                 stat_list, index=stat_list.index(st.session_state['selected_stat']),
                                 key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
 
-        diff_type = st.selectbox("Select a type of difference to compute",
-                                      [f'Values ({unique_PI_CFG.units})', 'Proportion of reference value (%)'],
-                                      key='_diff_type', on_change=UTILS.update_session_state, args=('diff_type', ))
-
         if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
             division = 'TILE'
         else:
             division = 'SECTION'
 
-        if 'df_PI_diffmaps' not in st.session_state:
-            st.session_state['df_PI_diffmaps'] = UTILS.create_timeseries_database(f'test', PI_code, st.session_state['azure_container'],division)
+        if 'df_PI_dualmaps' not in st.session_state:
+            st.session_state['df_PI_dualmaps'] = UTILS.create_timeseries_database(f'test', PI_code, st.session_state['azure_container'],division)
         if (old_PI_code != PI_code):
-            st.session_state['df_PI_diffmaps'] = UTILS.create_timeseries_database(f'test', PI_code, st.session_state['azure_container'],division)
+            st.session_state['df_PI_dualmaps'] = UTILS.create_timeseries_database(f'test', PI_code, st.session_state['azure_container'],division)
 
-        df_PI = st.session_state['df_PI_diffmaps']
+        df_PI = st.session_state['df_PI_dualmaps']
 
     with Col2:
         st.subheader('**Plot**')
         # Compare with dual Maps
         available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
         baseline, candidate = st.columns(2)
-        baselines=unique_PI_CFG.baseline_ts_dct[ts_code]
+        baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
         if len(baselines)==0 or len(available_plans)==0:
-            st.write(
-                ':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
-
+            st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
         else:
             with baseline:
                 Baseline = st.selectbox("Select a reference plan to display", baselines,
-                                        index=baselines.index(st.session_state['Baseline']),
-                                        key='_Baseline',on_change=UTILS.update_session_state, args=('Baseline',))
+                                            index=baselines.index(st.session_state['Baseline']),
+                                            key='_Baseline',on_change=UTILS.update_session_state, args=('Baseline',))
             with candidate:
                 ze_plan = st.selectbox("Select a regulation plan to compare with reference plan", available_plans,
                                        index=available_plans.index(st.session_state['ze_plan']),
@@ -170,11 +163,6 @@ def function_for_tab4():
 
             baseline_code = unique_PI_CFG.baseline_dct[Baseline]
             ze_plan_code = unique_PI_CFG.plan_dct[ze_plan]
-
-            if ts_code=='hist':
-                years_list=unique_PI_CFG.available_years_hist
-            else:
-                years_list = unique_PI_CFG.available_years_future
 
             if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
 
@@ -185,39 +173,7 @@ def function_for_tab4():
                 gdf_grille_plan = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, ze_plan_code, stat, var,
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
 
-                # Compute difference between both plans
-                division_col = 'TILE'
-                gdf_both = gdf_grille_base.merge(gdf_grille_plan, on=['TILE'], how='outer', suffixes=('_base', '_plan'))
-                gdf_both['geometry'] = np.where(gdf_both['geometry_base'] == None, gdf_both['geometry_plan'],
-                                                gdf_both['geometry_base'])
-                gdf_both = gdf_both[['TILE', 'VAL_base', 'VAL_plan', 'geometry']]
-                gdf_both = gdf_both.fillna(0)
-
-                if diff_type == f'Values ({unique_PI_CFG.units})':
-                    gdf_both['DIFF'] = gdf_both['VAL_plan'] - gdf_both['VAL_base']
-                    gdf_both = gdf_both[['TILE', 'DIFF', 'geometry']]
-                    gdf_both = gpd.GeoDataFrame(gdf_both, crs=4326, geometry=gdf_both['geometry'])
-                    folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF', 1200, 700, Variable, unique_PI_CFG, division_col)
-                else:
-                    print(gdf_both[['VAL_plan','VAL_base']].tail(20))
-
-                    gdf_both['DIFF_PROP'] = (
-                        ((gdf_both['VAL_plan'] - gdf_both['VAL_base']) / gdf_both['VAL_base']) * 100).round(3)
-                    gdf_both = gdf_both[['TILE', 'DIFF_PROP', 'geometry']]
-                    gdf_both = gpd.GeoDataFrame(gdf_both, crs=4326, geometry=gdf_both['geometry'])
-                    # remove infinite difference (when division per 0)
-                    gdf_both['DIFF_PROP'] = gdf_both['DIFF_PROP'].replace([np.inf, -np.inf], np.nan)
-                    gdf_both.dropna(subset='DIFF_PROP', inplace=True)
-                    folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF_PROP', 1200, 700, Variable,unique_PI_CFG, division_col)
-
-                if empty_map:
-                    st.write(':red[There is no differences between those 2 plans with the selected parameters, hence no map can be displayed]')
-                else:
-                    placeholder1 = st.empty()
-                    with placeholder1.container():
-                        st.subheader(
-                           f'Difference (candidate minus reference plan) between the :blue[{stat}] of :blue[{unique_PI_CFG.name} ({Variable}])  from :blue[{start_year} to {end_year}] in :blue[{diff_type}]')
-
+                m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'TILE')
             else:
                 if unique_PI_CFG.divided_by_country:
                     sct_shp = sct_poly_country
@@ -234,96 +190,47 @@ def function_for_tab4():
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
 
+                if baseline_code=='PreProjectHistorical':
+                    st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
-                division_col = 'SECTION'
+                m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'SECTION')
 
-                if unique_PI_CFG.type=='1D' and 'PreProject' in Baseline:
-                    gdf_grille_plan=gdf_grille_plan.loc[gdf_grille_plan['SECTION']!='Lake St.Lawrence']
-                    st.write(':red[It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
+            col_shape, col_html = st.columns(2,gap='small',width=600)
+            with col_shape:
+                st.write('Download as shapefile')
+                col_map1, col_map2 = st.columns(2,gap=None,width=260)
+                with col_map1:
+                    baseline_button = st.container()
 
-                if diff_type == f'Values ({unique_PI_CFG.units})':
-                    gdf_grille_plan['DIFF'] = (gdf_grille_plan['VAL'] - gdf_grille_base['VAL']).round(3)
-                    gdf_grille_plan.dropna(inplace=True)
-                    folium_map, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF', 1200, 700, Variable,
-                                                   unique_PI_CFG, division_col)
+                with col_map2:
+                    plan_button = st.container()
+            with col_html:
+                st.write('Download as HTML')
+                maps_button = st.container()
 
-                else:
-                    gdf_grille_plan['DIFF_PROP'] = (
-                                ((gdf_grille_plan['VAL'] - gdf_grille_base['VAL']) / gdf_grille_base['VAL']) * 100).round(3)
-                    gdf_grille_plan.dropna(inplace=True)
-                    folium_map, empty_map = UTILS.create_folium_map(gdf_grille_plan, 'DIFF_PROP', 1200, 700, Variable,
-                                                   unique_PI_CFG, division_col)
-                gdf_both = gdf_grille_plan
+            UTILS.folium_static(m, 1200, 700)
 
-                if empty_map:
-                    st.write(':red[There is no differences between those 2 plans with the selected parameters, hence no map can be displayed]')
+        with baseline_button:                # Add the download button
+            st.download_button(
+                    label="Baseline Map",
+                    data=prepare_shapefile(gdf_grille_base,f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ts_code}_{baseline_code}.shp'),
+                    file_name="Baseline_map.zip",
+                    mime="application/zip")
+        with plan_button:
+            # Add the download button
+            st.download_button(
+                        label="Candidate Map",
+                        data=prepare_shapefile(gdf_grille_plan,f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}.shp'),
+                        file_name="Plan_map.zip",
+                        mime="application/zip")
 
-                else:
-                    placeholder1 = st.empty()
-                    with placeholder1.container():
-                        st.subheader(
-                            f'Difference (candidate minus reference plan) between the :blue[{stat}] of :blue[{unique_PI_CFG.name} {Variable}]  from :blue[{start_year} to {end_year}] in :blue[{diff_type}]')
-
-            if not empty_map:
-                col_shape, col_html=st.columns(2,gap='small',width=450)
-
-                with col_shape:
-                    shape_button = st.container()
-
-                with col_html:
-                    html_button = st.container()
-
-                UTILS.folium_static(folium_map, height=700, width=1200)
-
-                with shape_button:
-                    st.download_button(
-                                label="Download map as shapefile",
-                                data=prepare_shapefile(gdf_both,f'{PI_code}_{stat}_{var}_{start_year}_{end_year}_{ts_code}_{ze_plan_code}_minus_{baseline_code}.shp'),
-                                file_name="difference_plan_minus_baseline.zip",
-                                mime="application/zip")
-                with html_button:
-                    st.download_button(
-                            label="Download Map as HTML",
-                            data=prepare_html(folium_map),
-                            file_name="map.html",
-                            mime="text/html",
-                            key='db_4', type='primary')
-
-                with Col1:
-                    if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
-                        st.divider()
-                        st.subheader("Full resolution map")
-                        st.write('Choose a tile to see it in full resolution')
-                        # Show a full resolution map
-                        tile_selected = st.selectbox(label='Choose a tile',label_visibility='collapsed',width=100,
-                                                     options=np.sort(gdf_both['TILE'].astype(int).unique()),
-                                                     key='_selected_tile',on_change=UTILS.update_session_state, args=('selected_tile', ))
-
-                        # Est-ce que tout ça c'est nécessaire?
-                        st.session_state.data = tile_selected
-                        pi_type=unique_PI_CFG.type
-                        st.session_state.pi_type = pi_type
-                        st.session_state.folder = folder
-                        st.session_state.baseline_code = baseline_code
-                        st.session_state.var = var
-                        st.session_state.years = years_list
-                        st.session_state.ext = CFG_DASHBOARD.file_ext
-                        st.session_state.start_year = start_year
-                        st.session_state.end_year = end_year
-                        st.session_state.stat = stat
-                        st.session_state.Variable = Variable
-                        st.session_state.unique_pi_module_name = unique_PI_CFG.pi_code
-                        st.session_state.ze_plan_code = ze_plan_code
-                        st.session_state.unit = unique_PI_CFG.units
-                        st.session_state.diff_type = diff_type
-                        st.session_state.PI_code = PI_code
-                        st.session_state.ze_plan = ze_plan
-                        st.session_state.Baseline = Baseline
-
-                        st.link_button(url=f'./Full_resolution_map_🔍?pi_code={PI_code}&data={tile_selected}&folder={folder}&baseline_code={baseline_code}&var={var}&years={years_list}&ext={CFG_DASHBOARD.file_ext}&start_year={start_year}&end_year={end_year}&stat={stat}&Variable={Variable}&unique_pi_module_name={unique_PI_CFG.pi_code}&ze_plan_code={ze_plan_code}&unit={unique_PI_CFG.units}&diff_type={diff_type}&PI_code={PI_code}&ze_plan={ze_plan}&Baseline={Baseline}&pi_type={pi_type}',
-                                       label=f"👉 See tile {tile_selected} in full resolution",
-                                       type='primary',width='stretch')
-
+        with maps_button:
+            st.download_button(
+                    label="Both Maps",
+                    data=prepare_html(m),
+                    file_name="map.html",
+                    mime="text/html",
+                    key='db_3', type='primary')
 
 def render_column1_simple():
 
@@ -354,7 +261,7 @@ def render_column1_simple():
     return old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
 
 try:
-    function_for_tab4()
+    function_for_tab3()
     st.session_state['has_resetted'] = False
 except Exception as e:
     if not st.session_state['has_resetted']:
@@ -372,6 +279,9 @@ except Exception as e:
     else:
         st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
         st.error(traceback.format_exc())
+
+st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
+                'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')
 
 print('Execution time :', dt.now()-start)
 print('----------------------------END----------------------------')

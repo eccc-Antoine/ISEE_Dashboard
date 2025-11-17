@@ -83,7 +83,8 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
     fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
                       xaxis_title='Years',
                       yaxis_title=f'{unit}',
-                      legend=dict(groupclick='toggleitem'))
+                      legend=dict(groupclick='toggleitem'),
+                      hovermode="x unified")
     #fig.update_yaxes(range=[full_min, full_max])
 
     return fig, df_PI_plans
@@ -164,7 +165,14 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
         else:
             print('problem w. agg stat!!')
 
-    df_PI[Variable] = df_PI[f'{var}_{stats[0]}'].fillna(0)
+    if unique_PI_CFG.pi_code != 'CWRM_2D':
+        df_PI[Variable] = df_PI[f'{var}_{stats[0]}'].fillna(0)
+    else:
+        df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
+        if 'GERBL2_2014_ComboA_STO_330' in plans_selected :
+            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'].shift(1)
+        elif 'GERBL2_2014_ComboA_RCP45' in plans_selected :
+            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'].shift(1)
 
     multiplier = unique_PI_CFG.multiplier
 
