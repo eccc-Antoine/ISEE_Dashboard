@@ -7,9 +7,9 @@ pis_2D_tiled=['CWRM_2D']
 #=['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D']
 #=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D']
 
-pis_2D_not_tiled=[]
+pis_2D_not_tiled=['NFB_2D']
 
-pis_1D=['TURTLE_1D']
+pis_1D=[]
 #=['SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D']
 
 ISEE_RES=fr'\\131.235.232.204\prod2\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'

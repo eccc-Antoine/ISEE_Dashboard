@@ -65,8 +65,8 @@ available_years_future=list(range(2011, 2071))
 
 divided_by_country=False
 
-available_sections=['SLR_DS_CAN', 'SLR_US_CAN', 'USL_DS_US', 'USL_DS_CAN', 'USL_US_US',
- 'USL_US_CAN', 'LKO_US', 'LKO_CAN']
+available_sections=['SLR_DS_CAN', 'USL_DS_US', 'USL_DS_CAN', 'USL_US_US',
+ 'USL_US_CAN', 'LKO_US', 'LKO_CAN'] #'SLR_US_CAN',
 
 sect_dct={'Lake Ontario Canada':['LKO_CAN'],
     'Lake Ontario United States':['LKO_US'],
@@ -74,17 +74,23 @@ sect_dct={'Lake Ontario Canada':['LKO_CAN'],
     'Upper St.Lawrence upstream United States ':['USL_US_US'],
     'Lake St.Lawrence Canada':['USL_DS_CAN'],
     'Lake St.Lawrence United States':['USL_DS_US'],
-    'St.Lawrence River downstream Canada': ['SLR_DS_CAN'],
-    'St.Lawrence River upstream Canada': ['SLR_US_CAN']}
+    'St.Lawrence River downstream Canada': ['SLR_DS_CAN']}
+    #'St.Lawrence River upstream Canada': ['SLR_US_CAN']}
 
 
-available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD', 'GERBL2_2014_ComboD_RCP45', 'GERBL2_2014_ComboD_STO_330']
+available_plans=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_STO_330',
+                 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD', 'GERBL2_2014_ComboD_RCP45', 'GERBL2_2014_ComboD_STO_330',
+                 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboB_STO_330']
 
-plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'], 'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330'], 'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
+plans_ts_dct={'hist':['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB'],
+              'sto':['GERBL2_2014_STO_330', 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330'],
+              'cc':['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45']}
 
-plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD']
+plans_hist=['PreProjectHistorical', 'OBS', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB']
 
-plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330', 'GERBL2_2014_ComboC_RCP45':'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboC_STO_330':'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD':'GERBL2_2014_ComboD', 'GERBL2_2014_ComboD_RCP45':'GERBL2_2014_ComboD_RCP45', 'GERBL2_2014_ComboD_STO_330':'GERBL2_2014_ComboD_STO_330'}
+plan_dct={'PreProjectHistorical':'PreProjectHistorical', 'OBS':'OBS', 'Bv7_2014':'Bv7_2014', 'Bv7_2014_ComboC':'Bv7_2014_ComboC', 'GERBL2_2014_ComboD':'GERBL2_2014_ComboD', 'GERBL2_2014_ComboA':'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB':'GERBL2_2014_ComboB',
+          'GERBL2_2014BOC_RCP45':'GERBL2_2014BOC_RCP45', 'PreProject_RCP45':'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45':'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45':'GERBL2_2014_ComboD_RCP45', 'GERBL2_2014_ComboA_RCP45':'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45':'GERBL2_2014_ComboB_RCP45',
+          'GERBL2_2014_STO_330':'GERBL2_2014_STO_330', 'PreProject_STO_330': 'PreProject_STO_330', 'GERBL2_2014_ComboC_STO_330':'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330':'GERBL2_2014_ComboD_STO_330', 'GERBL2_2014_ComboA_STO_330':'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330':'GERBL2_2014_ComboB_STO_330'}
 
 available_baselines=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_STO_330', 'PreProject_RCP45', 'PreProject_STO_330']
 
