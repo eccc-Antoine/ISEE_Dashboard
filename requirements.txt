@@ -3,9 +3,7 @@ numpy
 pandas
 plotly
 pathlib
-paramiko
 geopandas
 folium
 shapely
 azure-storage-blob
-
