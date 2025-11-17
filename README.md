@@ -1,4 +1,8 @@
-# ISEE_Dashboard
-ISEE Dashboard repo
+# ISEE Dashboard for the GLAM Project
+One the requirements are installed, simply run this line in DASHBOARD\ISEE
+```
+streamlit run Home_🏠.py
+```
+Your browser will automatically open and you'll be able to use the Dashboard.
 
-![Preview](https://raw.githubusercontent.com/eccc-Antoine/ISEE_Dashboard/main/docs/assets/images/Repo_structure.png)
+**Note : You'll need access to our Azure storage to use the dashboard.**
