@@ -11,6 +11,8 @@ st.set_page_config(
     page_icon='🏞️',
     layout='wide',
     initial_sidebar_state='collapsed')
+st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
+                'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')
 
 # Import PI configuration
 pis_code = CFG_DASHBOARD.pi_list # PI list
@@ -81,6 +83,3 @@ df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'L
                         'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                            'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
 st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
-
-st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
-                'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')
