@@ -1,5 +1,5 @@
 # ISEE Dashboard for the GLAM Project
-One the requirements are installed, simply run this line in DASHBOARD\ISEE
+One the requirements are installed, simply run this line in DASHBOARDS\ISEE
 ```
 streamlit run Home_🏠.py
 ```
