@@ -10,7 +10,7 @@ version=1.0
 #          'WATER_INTAKES_2D', 'SAUV_2D', 'IERM_2D', 'CWRM_2D', 'ZIPA_1D']
 
 pi_list=['CHNI_2D',
-         'BIRDS_2D']
+         'BIRDS_2D', 'TURTLE_1D']
 
 ts_list=['hist', 'sto', 'cc']
 
