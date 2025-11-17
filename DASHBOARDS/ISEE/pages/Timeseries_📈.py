@@ -7,14 +7,14 @@ from pathlib import Path
 import traceback
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
-import CFG_ISEE_DUCK as CFG_DASHBOARD
+import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
 from DASHBOARDS.UTILS.pages import Timeseries_utils as UTILS
 from azure.storage.blob import BlobServiceClient
 from datetime import datetime as dt
 
 
 st.set_page_config(
-    page_title='ISEE Dashboard',
+    page_title='ISEE Dashboard - GLAM Project',
     page_icon='🏞️',
     layout='wide',
     initial_sidebar_state='collapsed')

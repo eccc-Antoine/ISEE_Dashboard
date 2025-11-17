@@ -1,0 +1,92 @@
+import streamlit as st
+import pandas as pd
+import importlib
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
+
+st.set_page_config(
+    page_title='ISEE Dashboard - GLAM Project',
+    page_icon='🏞️',
+    layout='wide',
+    initial_sidebar_state='collapsed')
+
+# Import PI configuration
+pis_code = CFG_DASHBOARD.pi_list # PI list
+pi_dct = {}
+pi_type = {}
+for pi in pis_code:
+    pi_module_name = f'CFG_{pi}'
+    PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
+    pi_dct[pi] = PI_CFG.name
+    pi_type[pi] = PI_CFG.type.replace('_',' ')
+del PI_CFG
+
+st.header('Welcome to the ISEE Dashboard for the GLAM project 👋', divider="grey")
+st.write('Choose what you want to see on the left panel. 👀')
+
+_, col = st.columns([0.01,0.99])
+with col:
+    st.write("-> Difference map 🌎 is a tiled map showing the difference between two plans.")
+    st.write("-> Difference maps ⚖️ compares annually aggregated values for multiple plans.")
+    st.write('-> Dual maps 🗺️ shows two tiled maps side to side to compare two plans.')
+    st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
+    st.write('-> Timeseries 📈 plots annually aggregated values for multiple plans.')
+
+
+plans_ts_dct={'hist':['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'OBS'],
+              'sto':['PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330'],
+              'cc':['PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
+
+
+st.subheader('Plans')
+st.write('Note that the plans available per PI may vary.')
+hist, sto, cc = st.columns(3,gap='small',width=900)
+with hist:
+    st.write('**Historical**')
+    for i in plans_ts_dct['hist']:
+        st.markdown("- " + i + "\n")
+with sto:
+    st.write('**Stochastic**')
+    for i in plans_ts_dct['sto']:
+        st.markdown("- " + i + "\n")
+with cc:
+    st.write('**Climate change**')
+    for i in plans_ts_dct['cc']:
+        st.markdown("- " + i + "\n")
+
+st.subheader('Sections')
+st.write('Note that the sections available per PI may vary. See below.')
+st.image('../../docs/domain/Domaine_GLAM.png', caption='Division du domaine en section',
+         width=800)
+# Pour docker
+# st.image('docs/domain/Domaine_GLAM.png', caption='Division du domaine en section',
+#          width=800)
+
+st.subheader('Available PIs')
+st.write('**Shoreline and Coastal impacts**')
+
+df = pd.DataFrame(data={'PI':
+                        ['Agriculture Yield Loss', 'Buildings at risk', 'Flooded roads', 'Marina functionality impacts', 'Shoreline protection structure',
+                                  'Water intakes', 'Waste water'],
+                        'Type':
+                        ['2D','2D','2D','2D','2D','2D','2D'],
+                        'SLR_DS':['✅','✅','✅','✅','❌','✅','✅'],
+                        'SLR_US':['✅','❌','✅','✅','❌','✅','❌'],
+                        'USL_DS':['❌','✅','✅','✅','❌','✅','❌'],
+                        'ULS_US':['❌','✅','✅','✅','❌','✅','✅'],
+                           'LKO':['❌','✅','✅','✅','✅','✅','✅']})
+st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+
+
+st.markdown("**Ecosystems**")
+df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'Least Bittern', 'Mash birds', 'Muskrat winter lodge viability and occupancy',
+                                  'Northern pike habitat', 'Turtle survival during winter', 'Water flow', 'Wetland class area', 'Wetland class area (LOSLR)', 'Wild Rice'],
+                        'Type':['2D','1D and 2D','2D','2D','1D','2D', '1D', '2D', '2D', '2D', '1D'],
+                        'SLR_DS':['✅','✅','✅','❌','✅','✅','✅','✅','❌','✅','✅'],
+                        'SLR_US':['✅','✅','✅','❌','✅','✅','✅','✅','❌','✅','✅'],
+                        'USL_DS':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
+                        'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
+                           'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
+st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
-import CFG_ISEE_DUCK as CFG_DASHBOARD
+import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
 from DASHBOARDS.UTILS import DASHBOARD_UTILS_DUCK as UTILS
 import ast
 import tempfile

@@ -13,7 +13,7 @@ import folium
 from folium import plugins
 import json
 import streamlit.components.v1 as components
-from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
+from DASHBOARDS.ISEE import CFG_DASHBOARD as CFG_DASHBOARD
 import numpy as np
 import tempfile
 #from streamlit_folium import st_folium

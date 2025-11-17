@@ -12,7 +12,7 @@ import geopandas as gpd
 import io
 import zipfile
 from shapely.geometry import Point
-from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
+from DASHBOARDS.ISEE import CFG_DASHBOARD as CFG_DASHBOARD
 
 def read_parquet_from_blob(container, blob_name):
     stream = io.BytesIO()

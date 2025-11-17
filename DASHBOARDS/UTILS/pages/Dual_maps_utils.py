@@ -9,7 +9,7 @@ import branca.colormap as cm
 import folium
 from folium import plugins
 import streamlit.components.v1 as components
-from DASHBOARDS.ISEE import CFG_ISEE_DUCK as CFG_DASHBOARD
+from DASHBOARDS.ISEE import CFG_DASHBOARD as CFG_DASHBOARD
 import importlib
 import tempfile
 import io

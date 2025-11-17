@@ -2,25 +2,16 @@ import streamlit as st  # web development
 import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
 pd.set_option('mode.chained_assignment', None)
-#import plotly.express as px  # interactive charts
 import os
 import importlib
 from pathlib import Path
 import sys
 import io
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-import CFG_ISEE_DUCK as CFG_DASHBOARD
+import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
 from DASHBOARDS.UTILS import DASHBOARD_UTILS_DUCK as UTILS
 import geopandas as gpd
-import tempfile
-import json
-#import folium as f
-#from folium import plugins
-#import branca.colormap as cm
-#import requests
 import sys
-import streamlit.components.v1 as components
-#from streamlit_folium import st_folium
 import warnings
 warnings.filterwarnings('ignore')
 
