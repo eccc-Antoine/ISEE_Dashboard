@@ -43,20 +43,23 @@ def convert_feather_to_parquet(src_root, dst_root):
 # PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
 #     'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
-PI=['NFB_2D']
-folder='SECTION' # SECTION, PLAN, PT_ID, TILE
-
+PI=['ERIW_MIN_2D']
+folder=['SECTION', 'PLAN', 'PT_ID', 'TILE']
+combo='B'
+print('Feathers to parquet for combo'+combo)
 for pi in PI:
     print(pi)
-    print('GERBL2_2014_ComboB_STO_330')
-    convert_feather_to_parquet(
-        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{folder}\GERBL2_2014_ComboB_STO_330",
-        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{folder}\GERBL2_2014_ComboB_STO_330")
-    print('GERBL2_2014_ComboB_RCP45')
-    convert_feather_to_parquet(
-        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{folder}\GERBL2_2014_ComboB_RCP45",
-        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{folder}\GERBL2_2014_ComboB_RCP45")
-    print('GERBL2_2014_ComboB')
-    convert_feather_to_parquet(
-        src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{folder}\GERBL2_2014_ComboB",
-        dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{folder}\GERBL2_2014_ComboB")
+    for f in folder:
+        print(f)
+        # print(f'GERBL2_2014_ComboB_STO_330')
+        convert_feather_to_parquet(
+            src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}_STO_330",
+            dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}_STO_330")
+        # print(f'GERBL2_2014_Combo{combo}_RCP45')
+        convert_feather_to_parquet(
+            src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}_RCP45",
+            dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}_RCP45")
+        # print(f'GERBL2_2014_Combo{combo}')
+        convert_feather_to_parquet(
+            src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}",
+            dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{f}\GERBL2_2014_Combo{combo}")

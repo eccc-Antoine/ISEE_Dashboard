@@ -33,7 +33,7 @@ container = blob_service_client.get_container_client('dukc-db')
 # PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
 #     'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
-PI=['NFB_2D']
+PI=['ERIW_MIN_2D']
 
 local_folder = fr"D:\GLAM_DASHBOARD\PARQUET_TEST"
 
