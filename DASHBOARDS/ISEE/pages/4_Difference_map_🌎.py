@@ -297,7 +297,7 @@ def function_for_tab4():
                         st.write('Choose a tile to see it in full resolution')
                         # Show a full resolution map
                         tile_selected = st.selectbox(label='Choose a tile',label_visibility='collapsed',width=100,
-                                                     options=np.sort(gdf_both['TILE'].astype(int).unique()),
+                                                     options=np.sort(gdf_both.dropna()['TILE'].astype(int).unique()),
                                                      key='_selected_tile',on_change=UTILS.update_session_state, args=('selected_tile', ))
 
                         # Est-ce que tout ça c'est nécessaire?
@@ -318,6 +318,7 @@ def function_for_tab4():
                         st.session_state.unit = unique_PI_CFG.units
                         st.session_state.diff_type = diff_type
                         st.session_state.PI_code = PI_code
+                        st.session_state.unique_PI_CFG = unique_PI_CFG
                         st.session_state.ze_plan = ze_plan
                         st.session_state.Baseline = Baseline
 
