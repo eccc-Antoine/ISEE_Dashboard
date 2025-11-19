@@ -33,7 +33,7 @@ container = blob_service_client.get_container_client('dukc-db')
 # PI=['AYL_2D','BIRDS_2D','CHNI_2D','CWRM_2D','ERIW_MIN_1D','ERIW_MIN_2D','IERM_2D','IXEX_RPI_2D','MFI_2D','NFB_2D','ONZI_OCCUPANCY_1D',
 #     'PIKE_2D','ROADS_2D','SAUV_2D','SHORE_PROT_STRUC_1D','TURTLE_1D','WASTE_WATER_2D','WATER_INTAKES_2D','ZIPA_1D']
 
-PI=['ERIW_MIN_2D']
+PI=['ERIW_MIN_2D','MFI_2D']
 
 local_folder = fr"D:\GLAM_DASHBOARD\PARQUET_TEST"
 
@@ -65,7 +65,7 @@ for pi in PI:
     unique_pi_module_name = pi
     unique_PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{unique_pi_module_name}')
 
-    pi_folder = os.path.join(local_folder,pi,'YEAR\PT_ID')
+    pi_folder = os.path.join(local_folder,pi,'YEAR\\PT_ID')
     file_list = list_files(pi_folder)
     # Only comboA and comboB
     file_list = [f for f in file_list if ('ComboA' in f) | ('ComboB' in f)]

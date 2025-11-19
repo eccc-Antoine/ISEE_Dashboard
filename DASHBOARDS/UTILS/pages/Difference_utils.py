@@ -173,14 +173,7 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
         else:
             print('problem w. agg stat!!')
 
-    if unique_PI_CFG.pi_code != 'CWRM_2D':
-        df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
-    else:
-        df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
-        if 'GERBL2_2014_ComboA_STO_330' in plans_selected :
-            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_STO_330'].shift(1)
-        elif 'GERBL2_2014_ComboA_RCP45' in plans_selected :
-            df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'] = df_PI[Variable].loc[df_PI['PLAN']=='GERBL2_2014_ComboA_RCP45'].shift(1)
+    df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier
 

@@ -41,6 +41,8 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
     # Filter for the right section and plan
     df_PI = df_PI.loc[(df_PI['PLAN'] == scen_code)]
     df_PI = df_PI.loc[(df_PI['YEAR']>= start_year) & (df_PI['YEAR'] <= end_year)]
+    # Only the section available
+    df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.available_sections)]
     colname = df_PI.columns[df_PI.columns.str.startswith(var)][0]
     start = dt.now()
 
@@ -54,6 +56,7 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
         df_stats = df_PI.groupby('TILE')[colname].max().reset_index()
     else:
         raise ValueError("Unsupported stat")
+
     df_stats['TILE'] = df_stats['TILE'].astype(int)
     df_stats['VAL'] = (df_stats[colname] * multiplier).round(3)
     # Merge with tile geometries

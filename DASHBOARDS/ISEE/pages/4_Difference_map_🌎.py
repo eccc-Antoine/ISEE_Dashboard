@@ -127,7 +127,7 @@ def function_for_tab4():
             stat = st.selectbox("Select a way to aggregate values for the selected period",
                          stat_list, index=stat_list.index(st.session_state['selected_stat']),
                          key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
-            print('Widget',stat)
+
         else:
             stat_list = unique_PI_CFG.var_agg_stat[var] + ['min', 'max']
             stat = st.selectbox("Select a way to aggregate values for the selected period",

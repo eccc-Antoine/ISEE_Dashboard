@@ -35,7 +35,7 @@ class POST_PROCESS_2D_tiled:
             for feather in liste_file_year:
                 df_temp=pd.read_feather(feather)
                 liste_df.append(df_temp)
-            print('concatenating....')
+            # print('concatenating....')
             df_year=pd.concat(liste_df, ignore_index=True)
             no_dat_year = 99999
         else:
@@ -111,7 +111,7 @@ class POST_PROCESS_2D_tiled:
                         df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                     else:
-                        print('fetching lat lon info from isee-tiles...', PI)
+                        # print('fetching lat lon info from isee-tiles...', PI)
                         t=feather.split('_')[-2]
                         df_t=pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
                         df_t=df_t[['PT_ID', 'LAT', 'LON']]
@@ -225,7 +225,7 @@ class POST_PROCESS_2D_tiled:
                             for s in PI_CFG.available_sections:
                                 path_sect=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                 if os.path.exists (path_sect):
-                                    print(fr'post_processed results for {PI}, {p}, {s} already exists... skipping... but carefull check if all the iles and variables where processed, if not delete de folder and run again')
+                                    print(fr'post_processed results for {PI}, {p}, {s} already exists... skipping... but carefull check if all the tiles and variables where processed, if not delete de folder and run again')
                                     continue
 
                                 for var in list(PI_CFG.dct_var.keys()):
@@ -356,7 +356,7 @@ class POST_PROCESS_2D_not_tiled:
                 if not os.path.exists(feather):
                     continue
                 else:
-                    print(fr'processing... plan {p} and section {s} and tile {t} for year {y}')
+                    # print(fr'processing... plan {p} and section {s} and tile {t} for year {y}')
                     count_y += 1
                     df_temp=pd.read_feather(feather)
                     df_temp=df_temp.loc[df_temp['SECTION']==s]
@@ -377,7 +377,7 @@ class POST_PROCESS_2D_not_tiled:
                         df_temp = df_temp[[PI_CFG.id_column_name, str(y), 'LAT', 'LON']]
 
                     else:
-                        print('fetching lat lon info from isee-tiles...', PI)
+                        # print('fetching lat lon info from isee-tiles...', PI)
                         df_t = pd.read_feather(fr"{self.ISEE_RES}\Tiles\GLAM_DEM_ISEE_TILE_{t}.feather")
                         df_t['TILE']=int(t)
                         df_t = df_t[['PT_ID', 'LAT', 'LON']]
@@ -668,16 +668,16 @@ not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST
 
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-for pi in not_tiled.pis:
-    print(pi)
-    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    #not_tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+# for pi in not_tiled.pis:
+#     print(pi)
+#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+#     # not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
 
 for pi in tiled.pis:
     print(pi)
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
-    #tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+    # tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['TILE','PT_ID'])
 
 
 # for pi in pi_1D.pis:

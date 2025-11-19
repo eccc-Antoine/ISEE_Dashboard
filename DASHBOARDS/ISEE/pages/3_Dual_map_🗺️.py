@@ -171,10 +171,8 @@ def function_for_tab3():
                 gdf_grille_base = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, baseline_code, stat, var,
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
                 st.session_state['gdf_grille_base'] = gdf_grille_base
-
                 gdf_grille_plan = UTILS.prep_for_prep_tiles_parquet(tiles_shp, df_PI, ze_plan_code, stat, var,
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
-
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'TILE')
             else:
                 if unique_PI_CFG.divided_by_country:

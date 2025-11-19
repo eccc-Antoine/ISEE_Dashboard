@@ -177,7 +177,7 @@ def function_for_tab5():
             ze_plan_code = unique_PI_CFG.plan_dct[ze_plan]
 
             # Find which tile is available
-            tiles_list = possible_tiles(baseline_code,ze_plan_code,PI_code,folder).tolist()
+            tiles_list = possible_tiles(baseline_code,ze_plan_code,PI_code,unique_PI_CFG,folder)
             # Happens when we change the PI or the ts_code
             if st.session_state['selected_tile'] == None:
                 st.session_state['selected_tile'] = tiles_list[0]
@@ -312,7 +312,7 @@ def render_column1_tile():
 
     return old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
 
-def possible_tiles(baseline_code, ze_plan_code, PI_code, folder):
+def possible_tiles(baseline_code, ze_plan_code, PI_code, unique_PI_CFG, folder):
     container = st.session_state['azure_container']
     pi_folder = os.path.join(folder,PI_code,'YEAR\PT_ID').replace('\\','/')
     # Baseline tiles
@@ -323,7 +323,18 @@ def possible_tiles(baseline_code, ze_plan_code, PI_code, folder):
     ze_plan_parquets = container.list_blob_names(name_starts_with = os.path.join(pi_folder,ze_plan_code).replace('\\','/'))
     ze_plan_parquets = [f.split('/')[-1] for f in ze_plan_parquets]
     ze_plan_tiles = [int(f.split('_')[-3]) for f in ze_plan_parquets]
-    return(np.intersect1d(baseline_tiles,ze_plan_tiles))
+    # Select tiles only in available sections
+    dct_tile_sect = CFG_DASHBOARD.dct_tile_sect
+    tile_inventory = []
+    for section, tiles in dct_tile_sect.items():
+        if section in unique_PI_CFG.available_sections:
+            tile_inventory.append(tiles)
+    tile_inventory = np.concatenate(tile_inventory)
+    # Tiles choices
+    tiles_list = np.intersect1d(baseline_tiles,ze_plan_tiles)
+    tiles_list = [t for t in tiles_list if t in tile_inventory]
+
+    return(tiles_list)
 
 try:
     function_for_tab5()

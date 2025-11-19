@@ -74,7 +74,7 @@ st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
 
 
 st.markdown("**Ecosystems**")
-df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'Least Bittern', 'Mash birds', 'Muskrat winter lodge viability and occupancy',
+df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'Least Bittern', 'Marsh birds', 'Muskrat winter lodge viability and occupancy',
                                   'Northern pike habitat', 'Turtle survival during winter', 'Water flow', 'Wetland class area', 'Wetland class area (LOSLR)', 'Wild Rice'],
                         'Type':['2D','1D and 2D','2D','2D','1D','2D', '1D', '2D', '2D', '2D', '1D'],
                         'SLR_DS':['✅','✅','✅','❌','✅','✅','✅','✅','❌','✅','✅'],
