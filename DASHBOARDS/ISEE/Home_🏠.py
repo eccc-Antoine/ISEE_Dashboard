@@ -56,7 +56,6 @@ st.subheader('Sections')
 st.write('Note that the sections available per PI may vary. See below.')
 
 img_path = os.path.join(os.path.dirname(__file__), '..', '..', 'docs', 'domain', 'Domaine_GLAM.png')
-
 st.image(img_path, caption='Division du domaine en section',
          width=800)
 
