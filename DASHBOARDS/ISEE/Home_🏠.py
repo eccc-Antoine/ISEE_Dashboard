@@ -6,6 +6,9 @@ import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
 
+import os
+print(os.getcwd())
+
 st.set_page_config(
     page_title='ISEE Dashboard - GLAM Project',
     page_icon='🏞️',
@@ -51,11 +54,11 @@ st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.subheader('Sections')
 st.write('Note that the sections available per PI may vary. See below.')
-st.image('../../docs/domain/Domaine_GLAM.png', caption='Division du domaine en section',
+
+img_path = os.path.join(os.path.dirname(__file__), '..', '..', 'docs', 'domain', 'Domaine_GLAM.png')
+
+st.image(img_path, caption='Division du domaine en section',
          width=800)
-# Pour docker
-# st.image('docs/domain/Domaine_GLAM.png', caption='Division du domaine en section',
-#          width=800)
 
 st.subheader('Available PIs')
 st.write('**Shoreline and Coastal impacts**')
