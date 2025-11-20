@@ -8,7 +8,7 @@ Your browser will automatically open and you'll be able to use the Dashboard.
 **Note : You'll need access to our Azure storage to use the dashboard.**
 
 
-convention pour nommer les branch:
+Convention pour nommer les branch:
 
 feature/ → nouvelle fonctionnalité
 
