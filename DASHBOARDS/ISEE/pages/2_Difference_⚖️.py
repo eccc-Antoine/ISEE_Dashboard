@@ -102,6 +102,8 @@ def function_for_tab2():
         diff_type = st.selectbox("Select a type of difference to compute",
                                      [f'Values ({unique_PI_CFG.units})', 'Proportion of reference value (%)'], key='select3')
 
+
+
         if no_plans_for_ts==True:
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
