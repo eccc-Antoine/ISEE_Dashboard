@@ -102,6 +102,8 @@ def function_for_tab2():
         diff_type = st.selectbox("Select a type of difference to compute",
                                      [f'Values ({unique_PI_CFG.units})', 'Proportion of reference value (%)'], key='select3')
 
+
+
         if no_plans_for_ts==True:
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
 
@@ -109,7 +111,7 @@ def function_for_tab2():
             unique_PI_CFG = st.session_state['unique_PI_CFG']
 
             UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
-                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
+                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D, Variable)
 
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')

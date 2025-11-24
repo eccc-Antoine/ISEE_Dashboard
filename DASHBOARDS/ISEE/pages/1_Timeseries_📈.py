@@ -107,7 +107,7 @@ def function_for_tab1():
             unique_PI_CFG = st.session_state['unique_PI_CFG']
 
             UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
-                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
+                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D, Variable)
 
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
