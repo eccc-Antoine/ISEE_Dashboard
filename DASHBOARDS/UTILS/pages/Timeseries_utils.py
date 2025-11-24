@@ -20,7 +20,7 @@ def read_parquet_from_blob(container, blob_name):
     return df
 
 def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values, baseline_value,
-           unit, var_direction, LakeSL_prob_1D):
+           unit, var_direction, LakeSL_prob_1D, Variable):
     print('HEADER')
     if var_direction == 'inverse':
         delta_color = 'inverse'
@@ -31,9 +31,17 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
     baseline_value = float(baseline_value)
 
     placeholder1 = st.empty()
+
+    if len(plans_selected) > 1:
+        is_are='are'
+    else:
+        is_are='is'
+
+    Stats_cap=Stats[0].upper() + Stats[1:]
+
     with placeholder1.container():
         st.subheader(
-            f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
+            f':blue[{Stats_cap}] of :blue[{selected_pi} ({Variable})] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] {is_are} compared to :blue[{Baseline}]')
     placeholder2 = st.empty()
     with placeholder2.container():
         kpis = st.columns(len(plans_selected) + 1)
@@ -80,7 +88,7 @@ def plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline, start
         fig.add_trace(go.Scatter(x=data_plan["YEAR"], y=data_plan[Variable], mode='lines',
                                     name=p,legendgroup='Others',legendgrouptitle_text='Plans'))
 
-    fig.update_layout(title=f'Values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
+    fig.update_layout(title=f'Annual values of {plans_selected} compared to {Baseline} from {start_year} to {end_year}',
                       xaxis_title='Years',
                       yaxis_title=f'{unit}',
                       legend=dict(groupclick='toggleitem'),
