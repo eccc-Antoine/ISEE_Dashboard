@@ -18,9 +18,11 @@ def read_parquet_from_blob(container, blob_name):
         df.set_index('index',inplace=True)
     return df
 
-def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values, baseline_value,
+def header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values, baseline_value,
            unit, var_direction, LakeSL_prob_1D):
     print('HEADER')
+    plans_selected_names = [unique_PI_CFG.plan_dct[p] for p in plans_selected]
+
     if var_direction == 'inverse':
         delta_color = 'inverse'
     else:
@@ -32,7 +34,7 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
     placeholder1 = st.empty()
     with placeholder1.container():
         st.subheader(
-            f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected}] are compared to :blue[{Baseline}]')
+            f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected_names}] are compared to :blue[{unique_PI_CFG.baseline_dct[Baseline]}]')
     placeholder2 = st.empty()
     with placeholder2.container():
         kpis = st.columns(len(plans_selected) + 1)
@@ -41,10 +43,10 @@ def header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Bas
             d = count_kpi - 1
             if count_kpi != len(plans_selected) + 1:
                 if LakeSL_prob_1D:
-                    kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit})',
+                    kpis[d].metric(label=fr'{unique_PI_CFG.plan_dct[plans_selected[d]]} {Stats} ({unit})',
                                    value=round(plan_values[d], 2), delta=0)
                 else:
-                    kpis[d].metric(label=fr'{plans_selected[d]} {Stats} ({unit})',
+                    kpis[d].metric(label=fr'{unique_PI_CFG.plan_dct[plans_selected[d]]} {Stats} ({unit})',
                                    value=round(plan_values[d], 2),
                                    delta=round(round(plan_values[d], 2) - round(baseline_value, 2), 2),
                                    delta_color=delta_color)
@@ -61,7 +63,7 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     df_PI_plans = df_PI
     df_PI_plans['BASELINE_VALUE'] = np.nan
     for y in list(range(start_year, end_year+1)):
-        df_PI_plans['BASELINE_VALUE'].loc[df_PI_plans['YEAR']==y] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == unique_PI_CFG.baseline_dct[Baseline])].iloc[0]
+        df_PI_plans['BASELINE_VALUE'].loc[df_PI_plans['YEAR']==y] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == Baseline)].iloc[0]
 
     if diff_dct[diff_type] == 'DIFF':
         df_PI_plans['DIFF'] = df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']
@@ -87,7 +89,7 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     plans_to_plot.remove(Baseline)
     fig2 = go.Figure(data=[go.Bar(x=df_PI_plans["YEAR"].loc[df_PI_plans['PLAN']==p],
                            y=df_PI_plans[diff_dct[diff_type]].loc[df_PI_plans['PLAN']==p],
-                           name=p) for p in plans_to_plot])
+                           name=unique_PI_CFG.plan_dct[p]) for p in plans_to_plot])
     fig2.add_hline(y=0, line=dict(color=ref_color, width=1))
     fig2.update_layout(title=f'Difference between each selected plans and the reference for each year of the selected time period',
                       xaxis_title='Years',
@@ -108,29 +110,29 @@ def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, uni
         if Stats == 'mean':
             plan_values = []
             for c in range(len(plans_selected)):
-                plan_value = np.nanmean(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]])
+                plan_value = np.nanmean(df_PI[Variable].loc[df_PI['PLAN'] == plans_selected[c]])
                 plan_values.append(plan_value)
 
         if Stats == 'sum':
             plan_values = []
             for c in range(len(plans_selected)):
-                plan_value = np.sum(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]])
+                plan_value = np.sum(df_PI[Variable].loc[df_PI['PLAN'] == plans_selected[c]])
                 plan_values.append(plan_value)
 
     else:
         if Stats == 'mean':
             plan_values = []
-            baseline_value = np.round(np.mean(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.baseline_dct[Baseline]]), 3)
+            baseline_value = np.round(np.mean(df_PI[Variable].loc[df_PI['PLAN'] == Baseline]), 3)
             for c in range(len(plans_selected)):
-                plan_value = np.nanmean(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]])
+                plan_value = np.nanmean(df_PI[Variable].loc[df_PI['PLAN'] == plans_selected[c]])
                 plan_values.append(plan_value)
 
 
         if Stats == 'sum':
             plan_values = []
-            baseline_value = np.round(np.sum(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.baseline_dct[Baseline]]), 3)
+            baseline_value = np.round(np.sum(df_PI[Variable].loc[df_PI['PLAN'] == Baseline]), 3)
             for c in range(len(plans_selected)):
-                plan_value = np.sum(df_PI[Variable].loc[df_PI['PLAN'] == unique_PI_CFG.plan_dct[plans_selected[c]]])
+                plan_value = np.sum(df_PI[Variable].loc[df_PI['PLAN'] == plans_selected[c]])
                 plan_values.append(plan_value)
 
     return baseline_value, np.round(plan_values,3)
@@ -227,22 +229,29 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
     if Plans:
         # available_plans=list(unique_PI_CFG.plan_dct.keys())
         available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
+        available_plans_name = [unique_PI_CFG.plan_dct[p] for p in available_plans]
         no_plans_for_ts = False
         if len(available_plans) == 0:
             no_plans_for_ts = True
-        plans_selected = st.multiselect('Regulation plans to compare', available_plans,
-                                        max_selections=10, key='_ze_plans_multiple',
-                                        default=st.session_state['ze_plans_multiple'],
-                                        on_change=update_session_state, args=('ze_plans_multiple', ))
+        plans_selected_name = st.multiselect('Regulation plans to compare', available_plans_name,
+                                        max_selections=10, key='_ze_plans_multiple_name',
+                                        default=st.session_state['ze_plans_multiple_name'],
+                                        on_change=update_session_state,args=('ze_plans_multiple_name', ))
+        plans_selected = [k for k in unique_PI_CFG.plan_dct.keys() if unique_PI_CFG.plan_dct[k] in plans_selected_name]
+        st.session_state['ze_plans_multiple'] = plans_selected
     else:
         plans_selected = 'N/A'
 
     if Baselines:
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
+        baselines_name = [unique_PI_CFG.baseline_dct[b] for b in baselines]
 
-        Baseline = st.selectbox("Select a reference plan", baselines,
+        Baseline_name = st.selectbox("Select a reference plan", baselines_name,
                                 index=baselines.index(st.session_state['Baseline']),
-                                key='_Baseline',on_change=update_session_state, args=('Baseline',))
+                                key='_Baseline_name',
+                                on_change=update_session_state, args=('Baseline_name',))
+        Baseline = [k for k in unique_PI_CFG.baseline_dct.keys() if unique_PI_CFG.baseline_dct[k] == Baseline_name][0]
+        st.session_state['Baseline'] = Baseline
     else:
         Baseline = 'N/A'
 
@@ -284,14 +293,17 @@ def initialize_session_state():
     # ze_plans_multipe (plans selected to compare)
     available_plans = st.session_state['unique_PI_CFG'].plans_ts_dct[st.session_state['ts_code']]
     st.session_state['ze_plans_multiple'] = available_plans[0]
+    st.session_state['ze_plans_multiple_name'] = st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
 
     # Baseline
     baselines=st.session_state['unique_PI_CFG'].baseline_ts_dct[st.session_state['ts_code']]
     st.session_state['Baseline']=baselines[0]
+    st.session_state['Baseline_name']=st.session_state['unique_PI_CFG'].baseline_dct[baselines[0]]
 
     # ze_plan
     available_plans = st.session_state['unique_PI_CFG'].plans_ts_dct[st.session_state['ts_code']]
     st.session_state['ze_plan']=available_plans[0]
+    st.session_state['ze_plan_name']=st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
 
     # tile_selected
     st.session_state['selected_tile'] = None

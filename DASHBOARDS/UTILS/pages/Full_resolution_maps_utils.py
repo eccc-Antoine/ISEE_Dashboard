@@ -440,14 +440,17 @@ def initialize_session_state():
     # ze_plans_multipe (plans selected to compare)
     available_plans = st.session_state['unique_PI_CFG'].plans_ts_dct[st.session_state['ts_code']]
     st.session_state['ze_plans_multiple'] = available_plans[0]
+    st.session_state['ze_plans_multiple_name'] = st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
 
     # Baseline
     baselines=st.session_state['unique_PI_CFG'].baseline_ts_dct[st.session_state['ts_code']]
     st.session_state['Baseline']=baselines[0]
+    st.session_state['Baseline_name']=st.session_state['unique_PI_CFG'].baseline_dct[baselines[0]]
 
     # ze_plan
     available_plans = st.session_state['unique_PI_CFG'].plans_ts_dct[st.session_state['ts_code']]
     st.session_state['ze_plan']=available_plans[0]
+    st.session_state['ze_plan_name']=st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
 
     # tile_selected
     st.session_state['selected_tile'] = None

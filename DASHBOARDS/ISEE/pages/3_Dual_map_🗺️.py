@@ -149,22 +149,32 @@ def function_for_tab3():
         st.subheader('**Plot**')
         # Compare with dual Maps
         available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
+        available_plans_name = [unique_PI_CFG.plan_dct[p] for p in available_plans]
+
         baseline, candidate = st.columns(2)
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
+        baselines_name = [unique_PI_CFG.baseline_dct[b] for b in baselines]
+
         if len(baselines)==0 or len(available_plans)==0:
             st.write(':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
         else:
             with baseline:
-                Baseline = st.selectbox("Select a reference plan to display", baselines,
+                Baseline_name = st.selectbox("Select a reference plan to display", baselines_name,
                                             index=baselines.index(st.session_state['Baseline']),
-                                            key='_Baseline',on_change=UTILS.update_session_state, args=('Baseline',))
-            with candidate:
-                ze_plan = st.selectbox("Select a regulation plan to compare with reference plan", available_plans,
-                                       index=available_plans.index(st.session_state['ze_plan']),
-                                       key='_ze_plan',on_change=UTILS.update_session_state, args=('ze_plan', ))
+                                            key='_Baseline_name',
+                                            on_change=UTILS.update_session_state, args=('Baseline_name',))
+                Baseline = [k for k in unique_PI_CFG.baseline_dct.keys() if unique_PI_CFG.baseline_dct[k] == Baseline_name][0]
+                st.session_state['Baseline'] = Baseline
 
-            baseline_code = unique_PI_CFG.baseline_dct[Baseline]
-            ze_plan_code = unique_PI_CFG.plan_dct[ze_plan]
+            with candidate:
+                ze_plan_name = st.selectbox("Select a regulation plan to compare with reference plan", available_plans_name,
+                                       index=available_plans.index(st.session_state['ze_plan']),
+                                       key='_ze_plan_name',on_change=UTILS.update_session_state, args=('ze_plan_name', ))
+                ze_plan = [k for k in unique_PI_CFG.plan_dct.keys() if unique_PI_CFG.plan_dct[k] == ze_plan_name][0]
+                st.session_state['ze_plan'] = ze_plan
+
+            baseline_code = Baseline
+            ze_plan_code = ze_plan
 
             if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
 
