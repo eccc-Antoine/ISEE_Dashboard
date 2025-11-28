@@ -163,6 +163,41 @@ def function_for_tab5():
         baseline, candidate = st.columns(2)
         baselines = unique_PI_CFG.baseline_ts_dct[ts_code]
         baselines_name = [unique_PI_CFG.baseline_dct[b] for b in baselines]
+
+        # Help table for plan selection
+        if ts_code == 'hist':
+            help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                        "| Short name | Full name | \n" \
+                        "| ---------- | --------- | \n" \
+                        "| PreProject | PreProject_historical_1961_2020                | \n" \
+                        "| 2014       | GERBL2_2014BOC_def_hist_phase2_1961_2020       | \n" \
+                        "| ComboA     | GERBL2_P2014BOC_ComboA_hist_phase2_1961_2020   | \n" \
+                        "| ComboB     | GERBL2_P2014BOC_ComboB_hist_phase2_1961_2020   | \n" \
+                        "| ComboC     | GERBL2_P2014BOC_ComboCv2_hist_phase2_1961_2020 | \n" \
+                        "| ComboD     | GERBL2_P2014BOC_ComboD_hist_phase2_1961_2020   | \n" \
+                        "| OBS        | obs_20241106                                   | \n"
+        elif ts_code == 'cc':
+            help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                        "|   Short name  | Full name | \n" \
+                        "| ------------- | --------- | \n" \
+                        "| PreProject_CC | PreProject_default_RCA4_EARTH_rcp45_2011_2070      | \n" \
+                        "| 2014_CC       | GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070   | \n" \
+                        "| ComboA_CC     | GERBL2_2014BOC_ComboA_RCA4_EARTH_rcp45_2011_2070   | \n" \
+                        "| ComboB_CC     | GERBL2_2014BOC_ComboB_RCA4_EARTH_rcp45_2011_2070   | \n" \
+                        "| ComboC_CC     | GERBL2_2014BOC_ComboCv2_RCA4_EARTH_rcp45_2011_2070 | \n" \
+                        "| ComboD_CC     | GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070   | \n"
+        elif ts_code == 'sto':
+            help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                        "|   Short name  | Full name | \n" \
+                        "| ------------- | --------- | \n" \
+                        "| PreProject_STO | PreProject_default_stochastic_330_2011_2070      | \n" \
+                        "| 2014_STO       | GERBL2_2014BOC_def_stochastic_330_2011_2070      | \n" \
+                        "| ComboA_STO     | GERBL2_2014BOC_ComboA_stochastic_330_2011_2070   | \n" \
+                        "| ComboB_STO     | GERBL2_2014BOC_ComboB_stochastic_330_2011_2070   | \n" \
+                        "| ComboC_STO     | GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070 | \n" \
+                        "| ComboD_STO     | GERBL2_2014BOC_ComboD_stochastic_330_2011_2070   | \n"
+        else: help_table = None
+
         if len(baselines)==0 or len(available_plans)==0:
             st.write(
                 ':red[There is no plan available yet for this PI with the supply that is selected, please select another supply]')
@@ -176,7 +211,7 @@ def function_for_tab5():
                 st.session_state['Baseline'] = Baseline
 
             with candidate:
-                ze_plan_name = st.selectbox("Select a regulation plan to compare with reference plan", available_plans_name,
+                ze_plan_name = st.selectbox("Select a regulation plan to compare with reference plan", available_plans_name, help=help_table,
                                        index=available_plans.index(st.session_state['ze_plan']),
                                        key='_ze_plan_name',on_change=UTILS.update_session_state, args=('ze_plan_name', ))
                 ze_plan = [k for k in unique_PI_CFG.plan_dct.keys() if unique_PI_CFG.plan_dct[k] == ze_plan_name][0]

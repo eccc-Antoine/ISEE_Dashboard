@@ -226,6 +226,40 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
     else:
         Regions = 'N/A'
 
+    # Help table for plan selection
+    if ts_code == 'hist':
+        help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                    "| Short name | Full name | \n" \
+                    "| ---------- | --------- | \n" \
+                    "| PreProject | PreProject_historical_1961_2020                | \n" \
+                    "| 2014       | GERBL2_2014BOC_def_hist_phase2_1961_2020       | \n" \
+                    "| ComboA     | GERBL2_P2014BOC_ComboA_hist_phase2_1961_2020   | \n" \
+                    "| ComboB     | GERBL2_P2014BOC_ComboB_hist_phase2_1961_2020   | \n" \
+                    "| ComboC     | GERBL2_P2014BOC_ComboCv2_hist_phase2_1961_2020 | \n" \
+                    "| ComboD     | GERBL2_P2014BOC_ComboD_hist_phase2_1961_2020   | \n" \
+                    "| OBS        | obs_20241106                                   | \n"
+    elif ts_code == 'cc':
+        help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                    "|   Short name  | Full name | \n" \
+                    "| ------------- | --------- | \n" \
+                    "| PreProject_CC | PreProject_default_RCA4_EARTH_rcp45_2011_2070      | \n" \
+                    "| 2014_CC       | GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070   | \n" \
+                    "| ComboA_CC     | GERBL2_2014BOC_ComboA_RCA4_EARTH_rcp45_2011_2070   | \n" \
+                    "| ComboB_CC     | GERBL2_2014BOC_ComboB_RCA4_EARTH_rcp45_2011_2070   | \n" \
+                    "| ComboC_CC     | GERBL2_2014BOC_ComboCv2_RCA4_EARTH_rcp45_2011_2070 | \n" \
+                    "| ComboD_CC     | GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070   | \n"
+    elif ts_code == 'sto':
+        help_table ="The plan names were shortened for better vizualisation. Here's the full names of the plans : \n" \
+                    "|   Short name  | Full name | \n" \
+                    "| ------------- | --------- | \n" \
+                    "| PreProject_STO | PreProject_default_stochastic_330_2011_2070      | \n" \
+                    "| 2014_STO       | GERBL2_2014BOC_def_stochastic_330_2011_2070      | \n" \
+                    "| ComboA_STO     | GERBL2_2014BOC_ComboA_stochastic_330_2011_2070   | \n" \
+                    "| ComboB_STO     | GERBL2_2014BOC_ComboB_stochastic_330_2011_2070   | \n" \
+                    "| ComboC_STO     | GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070 | \n" \
+                    "| ComboD_STO     | GERBL2_2014BOC_ComboD_stochastic_330_2011_2070   | \n"
+    else: help_table = None
+
     if Plans:
         # available_plans=list(unique_PI_CFG.plan_dct.keys())
         available_plans = unique_PI_CFG.plans_ts_dct[ts_code]
@@ -233,7 +267,7 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
         no_plans_for_ts = False
         if len(available_plans) == 0:
             no_plans_for_ts = True
-        plans_selected_name = st.multiselect('Regulation plans to compare', available_plans_name,
+        plans_selected_name = st.multiselect('Regulation plans to compare', available_plans_name, help=help_table,
                                         max_selections=10, key='_ze_plans_multiple_name',
                                         default=st.session_state['ze_plans_multiple_name'],
                                         on_change=update_session_state,args=('ze_plans_multiple_name', ))

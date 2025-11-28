@@ -38,27 +38,27 @@ with col:
 
 st.subheader('Plans and water supplies')
 st.write('Note that the plans available per PI may vary.')
-st.write('**Historic**')
-df_plans = pd.DataFrame(data={'Full name': ['obs_20241106',
-                                            'GERBL2_2014BOC_def_hist_phase2_1961_2020','GERBL2_P2014BOC_ComboA_hist_phase2_1961_2020',
-                                            'GERBL2_P2014BOC_ComboB_hist_phase2_1961_2020','GERBL2_P2014BOC_ComboCv2_hist_phase2_1961_2020',
-                                            'GERBL2_P2014BOC_ComboD_hist_phase2_1961_2020','PreProject_historical_1961_2020'],
-                              'Name used in dashboard': ['OBS','2014','ComboA','ComboB','ComboC','ComboD','PreProject']})
-st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write('**Historical**')
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_historical_1961_2020','GERBL2_2014BOC_def_hist_phase2_1961_2020',
+                                            'GERBL2_P2014BOC_ComboA_hist_phase2_1961_2020','GERBL2_P2014BOC_ComboB_hist_phase2_1961_2020',
+                                            'GERBL2_P2014BOC_ComboCv2_hist_phase2_1961_2020            ','GERBL2_P2014BOC_ComboD_hist_phase2_1961_2020',
+                                            'obs_20241106'],
+                              'Name used in dashboard': ['PreProject','2014','ComboA','ComboB','ComboC','ComboD','OBS']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.write('**Climate change**')
-df_plans = pd.DataFrame(data={'Full name': ['GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070','GERBL2_2014BOC_ComboA_RCA4_EARTH_rcp45_2011_2070',
-                                            'GERBL2_2014BOC_ComboB_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_ComboCv2_RCA4_EARTH_rcp45_2011_2070',
-                                            'GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070','PreProject_default_RCA4_EARTH_rcp45_2011_2070'],
-                              'Name used in dashboard': ['2014_CC','ComboA_CC','ComboB_CC','ComboC_CC','ComboD_CC','PreProject_CC']})
-st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_default_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070',
+                                            'GERBL2_2014BOC_ComboA_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_ComboB_RCA4_EARTH_rcp45_2011_2070',
+                                            'GERBL2_2014BOC_ComboCv2_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070'],
+                              'Name used in dashboard': ['PreProject_CC','2014_CC','ComboA_CC','ComboB_CC','ComboC_CC','ComboD_CC']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.write('**Stochastic**')
-df_plans = pd.DataFrame(data={'Full name': ['GERBL2_2014BOC_def_stochastic_330_2011_2070','GERBL2_2014BOC_ComboA_stochastic_330_2011_2070',
-                                            'GERBL2_2014BOC_ComboB_stochastic_330_2011_2070','GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070',
-                                            'GERBL2_2014BOC_ComboD_stochastic_330_2011_2070','PreProject_default_stochastic_330_2011_2070'],
-                              'Name used in dashboard': ['2014_STO','ComboA_STO','ComboB_STO','ComboC_STO','ComboD_STO','PreProject_STO']})
-st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_default_stochastic_330_2011_2070','GERBL2_2014BOC_def_stochastic_330_2011_2070',
+                                            'GERBL2_2014BOC_ComboA_stochastic_330_2011_2070','GERBL2_2014BOC_ComboB_stochastic_330_2011_2070',
+                                            'GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070','GERBL2_2014BOC_ComboD_stochastic_330_2011_2070'],
+                              'Name used in dashboard': ['PreProject_STO','2014_STO','ComboA_STO','ComboB_STO','ComboC_STO','ComboD_STO']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.subheader('Sections')
 st.write('Note that the sections available per PI may vary. See below.')
@@ -81,7 +81,7 @@ df = pd.DataFrame(data={'PI':
                         'USL_DS':['❌','✅','✅','✅','❌','✅','❌'],
                         'ULS_US':['❌','✅','✅','✅','❌','✅','✅'],
                            'LKO':['❌','✅','✅','✅','✅','✅','✅']})
-st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 
 st.markdown("**Ecosystems**")
@@ -93,4 +93,4 @@ df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'L
                         'USL_DS':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                         'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                            'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
-st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
