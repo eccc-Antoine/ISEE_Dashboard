@@ -668,16 +668,16 @@ not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST
 
 pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 
-# for pi in not_tiled.pis:
-#     print(pi)
-#     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     # not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
-
-for pi in tiled.pis:
+for pi in not_tiled.pis:
     print(pi)
-    # tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    # not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
+
+# for pi in tiled.pis:
+#     print(pi)
+#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
     # tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
-    tiled.agg_2D_space(pi, ['YEAR'], ['PT_ID'])
+    # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
 
 
 # for pi in pi_1D.pis:
