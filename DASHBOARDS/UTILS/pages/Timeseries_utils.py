@@ -33,6 +33,14 @@ def header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plan
     baseline_value = float(baseline_value)
 
     placeholder1 = st.empty()
+
+    if len(plans_selected) > 1:
+        is_are='are'
+    else:
+        is_are='is'
+
+    Stats_cap=Stats[0].upper() + Stats[1:]
+
     with placeholder1.container():
         st.subheader(
             f':blue[{Stats}] of :blue[{selected_pi}] from :blue[{start_year} to {end_year}], in :blue[{Region}] where :blue[{plans_selected_names}] are compared to :blue[{unique_PI_CFG.baseline_dct[Baseline]}]')

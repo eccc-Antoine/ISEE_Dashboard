@@ -9,6 +9,8 @@ pi_list=['AYL_2D','CHNI_2D','NFB_2D','ERIW_MIN_1D','ERIW_MIN_2D','ROADS_2D',
          'SAUV_2D','CWRM_2D','IERM_2D','ZIPA_1D']
 
 ts_list=['hist', 'sto', 'cc']
+#ts_list=['cc']
+
 
 title=f'{name} DASHBOARD {version}'
 
