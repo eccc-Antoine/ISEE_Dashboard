@@ -39,18 +39,29 @@ with col:
     st.write("-> Difference map 🌎 is a map aggregated per tile showing the difference between two plans.")
     st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
 
-plans_ts_dct={'hist':['OBS','PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'],
-              'sto':['-','PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330'],
-              'cc':['-','PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45']}
-
-
 st.subheader('Plans and water supplies')
 st.write('Note that the plans available per PI may vary.')
-df_plans = pd.DataFrame(data={'Name': ['Observations','PreProject','Plan 2014', 'Combo A', 'Combo B', 'Combo C', 'Combo D'],
-                              'Historical':plans_ts_dct['hist'],
-                              'Stochastic':plans_ts_dct['sto'],
-                              'Climate change':plans_ts_dct['cc']})
-st.write(df_plans.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write('**Historical**')
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_historical_1961_2020','GERBL2_2014BOC_def_hist_phase2_1961_2020',
+                                            'GERBL2_P2014BOC_ComboA_hist_phase2_1961_2020','GERBL2_P2014BOC_ComboB_hist_phase2_1961_2020',
+                                            'GERBL2_P2014BOC_ComboCv2_hist_phase2_1961_2020            ','GERBL2_P2014BOC_ComboD_hist_phase2_1961_2020',
+                                            'obs_20241106'],
+                              'Name used in dashboard': ['PreProject','2014','ComboA','ComboB','ComboC','ComboD','OBS']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
+
+st.write('**Climate change**')
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_default_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070',
+                                            'GERBL2_2014BOC_ComboA_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_ComboB_RCA4_EARTH_rcp45_2011_2070',
+                                            'GERBL2_2014BOC_ComboCv2_RCA4_EARTH_rcp45_2011_2070','GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070'],
+                              'Name used in dashboard': ['PreProject_CC','2014_CC','ComboA_CC','ComboB_CC','ComboC_CC','ComboD_CC']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
+
+st.write('**Stochastic**')
+df_plans = pd.DataFrame(data={'Full name': ['PreProject_default_stochastic_330_2011_2070','GERBL2_2014BOC_def_stochastic_330_2011_2070',
+                                            'GERBL2_2014BOC_ComboA_stochastic_330_2011_2070','GERBL2_2014BOC_ComboB_stochastic_330_2011_2070',
+                                            'GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070','GERBL2_2014BOC_ComboD_stochastic_330_2011_2070'],
+                              'Name used in dashboard': ['PreProject_STO','2014_STO','ComboA_STO','ComboB_STO','ComboC_STO','ComboD_STO']})
+st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 st.subheader('Sections')
 st.write('Note that the sections available per PI may vary. See below.')
@@ -72,7 +83,7 @@ df = pd.DataFrame(data={'PI':
                         'USL_DS':['❌','✅','✅','✅','❌','✅','❌'],
                         'ULS_US':['❌','✅','✅','✅','❌','✅','✅'],
                            'LKO':['❌','✅','✅','✅','✅','✅','✅']})
-st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
 
 
 st.markdown("**Ecosystems**")
@@ -84,4 +95,4 @@ df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'L
                         'USL_DS':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                         'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                            'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
-st.write(df.style.hide(axis='index').to_html(), unsafe_allow_html=True)
+st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)

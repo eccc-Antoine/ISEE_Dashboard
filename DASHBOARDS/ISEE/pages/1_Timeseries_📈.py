@@ -106,13 +106,13 @@ def function_for_tab1():
         else:
             unique_PI_CFG = st.session_state['unique_PI_CFG']
 
-            UTILS.header(selected_pi, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
-                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D, Variable)
+            UTILS.header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
+                                baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
 
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
-            fig, df_PI_plans = UTILS.plot_timeseries(df_PI, list_plans, Variable, plans_selected, Baseline,
+            fig, df_PI_plans = UTILS.plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline,
                                                      start_year, end_year, unique_PI_CFG.units)
             csv_data=df_PI_plans.to_csv(index=False, sep=';')
             st.download_button(
@@ -164,18 +164,14 @@ def render_column1():
         LakeSL_prob_1D=True
 
     var_direction = unique_PI_CFG.var_direction[Variable]
-    print(Region)
     df_PI = UTILS.select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline)
-    print(df_PI)
+
     baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
 
-    list_plans = []
-    for p in plans_selected:
-        pp = unique_PI_CFG.plan_dct[p]
-        list_plans.append(pp)
-    if unique_PI_CFG.baseline_dct[Baseline] not in list_plans:
-        list_plans.append(unique_PI_CFG.baseline_dct[Baseline])
+    list_plans = plans_selected.copy()
+    if Baseline not in list_plans:
+        list_plans.append(Baseline)
 
     return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
