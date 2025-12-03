@@ -81,7 +81,7 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
     sect_dct = unique_PI_CFG.sect_dct
     sect_dct = {Region : section for Region, section in sect_dct.items() if Region not in ['Upstream','Downstream']}
     reg_dct = {section[0] : Region for Region, section in sect_dct.items()}
-    plans_selected = [key for key, value in unique_PI_CFG.plan_dct.items() if value == scen_code]
+    plans_selected = [key for key in unique_PI_CFG.plan_dct.keys() if key == scen_code]
 
     df_PI = select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year,
                                    Variable, plans_selected)
