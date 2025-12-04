@@ -12,6 +12,7 @@ def convert_feather_to_parquet(src_root, dst_root):
         dst_root (str): Destination root directory for parquet files.
     """
     for subdir, _, files in os.walk(src_root):
+        print(subdir)
         for file in files:
 
             feather_path = os.path.join(subdir, file)
@@ -47,8 +48,13 @@ PI=['TURTLE_1D']
 folder=['PT_ID', 'SECTION', 'PLAN', 'TILE']
 combo='A'
 print('Feathers to parquet for combo'+combo)
+
 for pi in PI:
     print(pi)
+    # for f in folder:
+    #     convert_feather_to_parquet(
+    #         src_root=fr"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\{pi}\YEAR\{f}",
+    #         dst_root=fr"D:\GLAM_DASHBOARD\PARQUET_TEST\{pi}\YEAR\{f}")
     for f in folder:
         print(f)
         print(f'GERBL2_2014_Combo{combo}_STO_330')
