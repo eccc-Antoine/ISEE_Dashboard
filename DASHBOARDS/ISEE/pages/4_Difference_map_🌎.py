@@ -285,6 +285,10 @@ def function_for_tab4():
                     gdf_grille_plan=gdf_grille_plan.loc[gdf_grille_plan['SECTION']!='Lake St.Lawrence']
                     st.write(':red[It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
+                if unique_PI_CFG.type=='1D' and 'PreProject' in ze_plan_code:
+                    gdf_grille_plan=gdf_grille_plan.loc[gdf_grille_plan['SECTION']!='Lake St.Lawrence']
+                    st.write(':red[It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
+
                 if diff_type == f'Values ({unique_PI_CFG.units})':
                     gdf_grille_plan['DIFF'] = (gdf_grille_plan['VAL'] - gdf_grille_base['VAL']).round(3)
                     gdf_grille_plan.dropna(inplace=True)

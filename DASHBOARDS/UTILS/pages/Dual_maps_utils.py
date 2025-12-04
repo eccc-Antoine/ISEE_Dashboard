@@ -81,12 +81,13 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
     sect_dct = unique_PI_CFG.sect_dct
     sect_dct = {Region : section for Region, section in sect_dct.items() if Region not in ['Upstream','Downstream']}
     reg_dct = {section[0] : Region for Region, section in sect_dct.items()}
-    plans_selected = [key for key, value in unique_PI_CFG.plan_dct.items() if value == scen_code]
+    plans_selected = [key for key in unique_PI_CFG.plan_dct.keys() if key == scen_code]
 
     df_PI = select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year,
                                    Variable, plans_selected)
     df_PI['SECTION'] = [reg_dct[section] for section in df_PI['SECTION']]
     gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable, multiplier)
+    print(plans_selected)
     if unique_PI_CFG.type == '1D' and 'PreProject' in plans_selected[0]:
         # Remove Lake St.Lawrence
         gdf_grille_all['VAL'].loc[gdf_grille_all['SECTION']=='Lake St.Lawrence'] = np.nan
