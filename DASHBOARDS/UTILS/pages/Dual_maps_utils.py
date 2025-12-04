@@ -87,6 +87,7 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
                                    Variable, plans_selected)
     df_PI['SECTION'] = [reg_dct[section] for section in df_PI['SECTION']]
     gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable, multiplier)
+    print(plans_selected)
     if unique_PI_CFG.type == '1D' and 'PreProject' in plans_selected[0]:
         # Remove Lake St.Lawrence
         gdf_grille_all['VAL'].loc[gdf_grille_all['SECTION']=='Lake St.Lawrence'] = np.nan

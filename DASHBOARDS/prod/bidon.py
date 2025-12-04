@@ -1,8 +1,10 @@
 import pandas as pd
 
-df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\BIRDS_2D\YEAR\TILE\PreProjectHistorical\LKO\420\BIRDS_2D_YEAR_PreProjectHistorical_LKO_420_1962_2020.feather")
+df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_GLRRM_1D\YEAR\SECTION\GERBL2_2014_ComboA\LKO\WL_GLRRM_1D_YEAR_GERBL2_2014_ComboA_LKO_1962_2020.feather")
 
 print(df.head())
+
+print(list(df))
 
 quit()
 

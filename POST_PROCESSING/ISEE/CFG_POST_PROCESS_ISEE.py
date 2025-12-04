@@ -9,14 +9,14 @@ pis_2D_tiled=[]
 pis_2D_not_tiled=[]
 #=['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D']
 
-pis_1D=['TURTLE_1D']
+pis_1D=['WL_GLRRM_1D', 'WL_ISEE_1D']
 #=['SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D', 'ONZI_1D', 'TURTLE_1D', 'ZIPA_1D']
 
-ISEE_RES=fr'\\131.235.232.204\prod2\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'
+ISEE_RES=fr'T:\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW'
 
-POST_PROCESS_RES=fr'\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
+POST_PROCESS_RES=fr'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3'
 
-tiles_folder='P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
+tiles_folder=r'P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_RAW_DATA\Tiles'
 
 sep=';'
 

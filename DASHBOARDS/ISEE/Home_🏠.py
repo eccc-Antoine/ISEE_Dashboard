@@ -71,6 +71,19 @@ st.image(img_path, caption='Division du domaine en section',
          width=800)
 
 st.subheader('Available PIs')
+
+st.markdown("**Water Levels**")
+df = pd.DataFrame(data={'PI':['Water Levels 1D (GLRRM)', 'Water Levels 1D (ISEE)'],
+                        'Type':['1D','1D'],
+                        'SLR_DS \n (Sorel)':['✅','✅'],
+                        'SLR_US \n (Pte. Claire)':['✅','✅'],
+                        'USL_DS \n (Long Sault)':['✅','✅'],
+                        'ULS_US \n (Ogdensburg)':['✅','✅'],
+                           'LKO \n (Kingston)':['✅','✅']})
+st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
+
+
+
 st.write('**Shoreline and Coastal impacts**')
 
 df = pd.DataFrame(data={'PI':
@@ -96,3 +109,4 @@ df = pd.DataFrame(data={'PI':['Black tern', 'Exposed riverbed during winter', 'L
                         'ULS_US':['❌','✅','❌','❌','✅','✅','✅','❌','✅','❌','✅'],
                            'LKO':['❌','✅','❌','✅','✅','✅','✅','❌','✅','❌','✅']})
 st.write(df.style.set_properties(subset=['PI'],**{'width': '330px'}).set_properties(subset=['Type'],**{'width': '100px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
+
