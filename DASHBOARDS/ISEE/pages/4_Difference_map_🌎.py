@@ -272,12 +272,10 @@ def function_for_tab4():
                                                              var, unique_PI_CFG,
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
-
                 gdf_grille_plan = UTILS.prep_for_prep_1d(sct_shp, df_PI, ze_plan_code, stat,
                                                              var, unique_PI_CFG,
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
-
 
                 division_col = 'SECTION'
 

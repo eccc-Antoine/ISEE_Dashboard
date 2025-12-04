@@ -41,6 +41,7 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
     # Filter for the right section and plan
     df_PI = df_PI.loc[(df_PI['PLAN'] == scen_code)]
     df_PI = df_PI.loc[(df_PI['YEAR']>= start_year) & (df_PI['YEAR'] <= end_year)]
+    # Only the section available
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.available_sections)]
     colname = df_PI.columns[df_PI.columns.str.startswith(var)][0]
 
@@ -261,7 +262,7 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
         # Remove Lake St.Lawrence
         gdf_grille_all['VAL'].loc[gdf_grille_all['SECTION']=='Lake St.Lawrence'] = np.nan
 
-    #gdf_grille_all = gdf_grille_all.dropna(subset='VAL') # Retirer le Lac St-Laurent
+    # gdf_grille_all = gdf_grille_all.dropna(subset='VAL') # Retirer le Lac St-Laurent
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION').reset_index()
     print('prep_for_prep_1d :', dt.now()-start)
     return gdf_grille_all
