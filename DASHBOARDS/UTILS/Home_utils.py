@@ -29,7 +29,7 @@ def start_session_logger():
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
     # Compose the log filename with timestamp, session ID
-    log_filename = f"sessionlog_{timestamp}_{session_id}.log"
+    log_filename = f"homepage_log_{timestamp}_{session_id}.log"
 
     # Create the full path for the log file in the logs directory
     log_path = os.path.join(logs_dir, log_filename)
@@ -48,6 +48,13 @@ def start_session_logger():
 
     # Attach the handler to the logger
     logger.addHandler(file_handler)
+
+    # Add console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)  # or lower
+
+    logger.addHandler(console_handler)
 
     return(logger, log_filename, log_path)
 
