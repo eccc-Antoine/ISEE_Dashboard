@@ -234,7 +234,7 @@ def function_for_tab3():
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
 
-                if baseline_code=='PreProjectHistorical':
+                if baseline_code=='PreProjectHistorical' or ze_plan_code=='PreProjectHistorical':
                     st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'SECTION')

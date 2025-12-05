@@ -71,7 +71,8 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
     df_PI_plans = df_PI
     df_PI_plans['BASELINE_VALUE'] = np.nan
     for y in list(range(start_year, end_year+1)):
-        df_PI_plans['BASELINE_VALUE'].loc[df_PI_plans['YEAR']==y] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == Baseline)].iloc[0]
+        if len(df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == Baseline)])>0:
+            df_PI_plans['BASELINE_VALUE'].loc[df_PI_plans['YEAR']==y] = df_PI_plans[Variable].loc[(df_PI_plans['YEAR']==y) & (df_PI_plans['PLAN'] == Baseline)].iloc[0]
 
     if diff_dct[diff_type] == 'DIFF':
         df_PI_plans['DIFF'] = df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']
