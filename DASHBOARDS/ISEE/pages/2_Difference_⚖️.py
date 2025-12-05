@@ -95,7 +95,7 @@ def function_for_tab2():
     with Col1:
         st.subheader('**Parameters**')
         # Afficher la colonne 1 (gauche)
-        LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+        MINOR_LakeSL_prob_1D, LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
 
     with Col2:
         st.subheader('**Plot**')
@@ -116,20 +116,25 @@ def function_for_tab2():
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
+            if not LakeSL_prob_1D:
 
-            fig2, df_PI_plans = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
-                                                                 unique_PI_CFG.units, unique_PI_CFG, diff_type)
+                if MINOR_LakeSL_prob_1D:
+                    st.write(
+                        ':red[For 1D PIs, It is not possible to compare velues to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values is equal to NaN and why the PreProjectHistorical values do not appear on the plot below.]')
 
-            csv_data = df_PI_plans.to_csv(index=False, sep=';')
+                fig2, df_PI_plans = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
+                                                                     unique_PI_CFG.units, unique_PI_CFG, diff_type)
 
-            st.download_button(
-                    label="Download displayed data in CSV format",
-                    data=csv_data,
-                    file_name="dataframe.csv",
-                    mime="text/csv",
-                    key='db_2')
+                csv_data = df_PI_plans.to_csv(index=False, sep=';')
 
-            st.plotly_chart(fig2, use_container_width=True)
+                st.download_button(
+                        label="Download displayed data in CSV format",
+                        data=csv_data,
+                        file_name="dataframe.csv",
+                        mime="text/csv",
+                        key='db_2')
+
+                st.plotly_chart(fig2, use_container_width=True)
 
 def render_column1():
 
@@ -166,8 +171,15 @@ def render_column1():
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
 
     LakeSL_prob_1D =False
+    MINOR_LakeSL_prob_1D = False
     if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
         LakeSL_prob_1D=True
+
+    if any('PreProject' in s for s in plans_selected):
+        pre_proj_in_plan=True
+
+    if unique_PI_CFG.type == '1D' and Region == 'Lake St.Lawrence' and pre_proj_in_plan:
+        MINOR_LakeSL_prob_1D = True
 
     var_direction = unique_PI_CFG.var_direction[Variable]
     df_PI = UTILS.select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline)
@@ -179,7 +191,7 @@ def render_column1():
     if Baseline not in list_plans:
         list_plans.append(Baseline)
 
-    return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
+    return MINOR_LakeSL_prob_1D, LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
 
 try:
     function_for_tab2()
