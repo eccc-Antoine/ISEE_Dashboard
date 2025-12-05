@@ -1,0 +1,11 @@
+div[data-testid="stExpander"] details summary p{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+div[data-testid="stExpander"] svg[data-testid="stExpanderToggleIcon"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+    margin: auto;
+}

@@ -8,15 +8,20 @@ import DASHBOARDS.UTILS.Home_utils as UTILS
 import os
 from io import BytesIO
 import zipfile
+import streamlit as st
+
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# local_css("style.css")
 
 # Will reset everytime you go back to Home page
 # I want to create it before importing the streamlit package
-logger, log_filename, log_path = UTILS.start_session_logger()
-logger.info('The log file was created')
-UTILS.upload_log_to_blob(log_path,'session-logs',log_filename)
+# logger, log_filename, log_path = UTILS.start_session_logger()
+# logger.info('The log file was created')
+# UTILS.upload_log_to_blob(log_path,'session-logs',log_filename)
 
-
-import streamlit as st
 # st.session_state.logger = logger
 # st.session_state.logger.info('Streamlit was imported')
 st.set_page_config(
@@ -38,7 +43,7 @@ with col:
     st.write("-> Difference map 🌎 is a map aggregated per tile showing the difference between two plans.")
     st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
 
-st.subheader("ℹ️ Addtionnal information ℹ️")
+st.subheader("ℹ️ Additionnal information ℹ️")
 
 with st.expander("📈 Available PIs"):
 
