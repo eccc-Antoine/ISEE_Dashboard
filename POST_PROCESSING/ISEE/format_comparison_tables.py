@@ -281,13 +281,14 @@ csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20250212.csv')
 #     ("RCP45", "SLR_US", "PreProject"): ("G", 12),
 #     ("RCP45", "SLR_DS", "PreProject"): ("H", 12),
 # }
-
+# todo: modifier pour ajouter ComboA et ComboB
 list_section = ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
 list_plan = ["GERBL2_2014", "GERBL2_2014_ComboC", "GERBL2_2014_ComboD", "PreProject"]
 list_supply = ['Historical', 'STO330', 'RCP45']
 
 
-
+# todo: modifier pour ajouter ComboA et ComboB
+# Mapping rules 3 = mapping rules pour l'ensemble des PIs sauf NFB (qui sépare par pays)
 cols = 'DEFGH'
 start_line = 3
 mapping_rules_3 = {}
@@ -310,6 +311,8 @@ for i in range(len(list_supply)):
 list_section = ['LKO_CAN', 'LKO_US', 'USL_US_CAN', 'USL_US_US', 'USL_DS_CAN', 'USL_DS_US' , 'SLR_US_CAN', 'SLR_DS_CAN']
 list_plan = ["GERBL2_2014", "GERBL2_2014_ComboC", "GERBL2_2014_ComboD", "PreProject"]
 list_supply = ['Historical', 'STO330', 'RCP45']
+
+# Mapping rules_country = mapping rules pour  NFB
 
 mapping_country = {}
 
