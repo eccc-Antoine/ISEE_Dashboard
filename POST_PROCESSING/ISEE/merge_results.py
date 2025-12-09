@@ -5,6 +5,7 @@ import glob
 import CFG_POST_PROCESS_ISEE as cfg
 
 
+# TODO: ajouter comboA et comboA dans les différents plans ici et pour les séries de supplies
 
 dict_supply_plan = {'Historical': ['OBS', 'Bv7_2014', 'PreProjectHistorical', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD'],
                     'RCP45': ['GERBL2_2014BOC_RCP45', 'PreProject_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45'],
@@ -16,6 +17,7 @@ plan_rename_dict = {'OBS': 'OBS', 'Bv7_2014': 'GERBL2_2014', 'PreProjectHistoric
                     'GERBL2_2014_ComboC_RCP45': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_RCP45': 'GERBL2_2014_ComboD',
                     'GERBL2_2014_STO_330': 'GERBL2_2014', 'PreProject_STO_330': 'PreProject', 'GERBL2_2014_ComboC_STO_330': 'GERBL2_2014_ComboC', 'GERBL2_2014_ComboD_STO_330': 'GERBL2_2014_ComboD',}
 
+#TODO: Prendre le nom de variables du fichier config du PI correspondant
 
 dict_variables = {'ERIW_MIN_1D': {'VAR1_mean': 'Exposed Riverbed Index'},
 
