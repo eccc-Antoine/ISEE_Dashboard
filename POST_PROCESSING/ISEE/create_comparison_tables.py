@@ -605,8 +605,7 @@ dict_thresholds = {
 dict_pi_scores = {
     'CHNI_2D': {'N breeding pairs':
                  {#'SLR_US': {'p10': 2, 'p20': 1},
-                  'SLR_DS': {'p10': 2, 'p20': 1}}
-                              },
+                  'SLR_DS': {'p10': 2, 'p20': 1}}},
 
     'IXEX_RPI_2D': {'Weighted usable area (ha)':
                 {#'SLR_US': {'p5': 3, 'p10': 2, 'p20': 1},
@@ -882,8 +881,8 @@ for pi, list_var in dict_pi_var.items():
                                                             'MEAN (RESIDUALS)': [diff_mean],
                                                             'DIFF MEAN 2014BOC (%)': [pct_change_mean],
                                                             'SUM': [sum_plan],
-                                                            'DIFF SUM (2014BOC)': [diff_sum]
-                                                            })
+                                                            'DIFF SUM (2014BOC)': [diff_sum]})
+
                             if pi in list_pi_test:
                                 if plan != ref_plan:
                                     df_res_agg_plan = run_stat_tests_mean(residuals, df_res_agg_plan, alpha=alpha)
