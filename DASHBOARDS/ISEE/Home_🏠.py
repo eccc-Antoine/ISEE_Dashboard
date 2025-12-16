@@ -14,7 +14,7 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-local_css("style.css")
+local_css(os.path.join(os.path.dirname(__file__), 'style.css'))
 
 # Will reset everytime you go back to Home page
 # I want to create it before importing the streamlit package
