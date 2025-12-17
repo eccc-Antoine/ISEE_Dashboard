@@ -63,15 +63,15 @@ multiplier=1
 available_years_hist=list(range(1962, 2021))
 available_years_future=list(range(2011, 2071))
 
-divided_by_country=False
+divided_by_country=True
 
 available_sections=['SLR_DS_CAN', 'USL_DS_US', 'USL_DS_CAN', 'USL_US_US',
  'USL_US_CAN', 'LKO_US', 'LKO_CAN'] #'SLR_US_CAN',
 
 sect_dct={'Lake Ontario Canada':['LKO_CAN'],
     'Lake Ontario United States':['LKO_US'],
-    'Upper St.Lawrence upstream Canada ':['USL_US_CAN'],
-    'Upper St.Lawrence upstream United States ':['USL_US_US'],
+    'Upper St.Lawrence upstream Canada':['USL_US_CAN'],
+    'Upper St.Lawrence upstream United States':['USL_US_US'],
     'Lake St.Lawrence Canada':['USL_DS_CAN'],
     'Lake St.Lawrence United States':['USL_DS_US'],
     'St.Lawrence River downstream Canada': ['SLR_DS_CAN']}

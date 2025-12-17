@@ -23,8 +23,6 @@ divided_by_country=False
 
 available_sections = ['SLR_DS', 'SLR_US']
 
-sect_dct={'Lake Ontario':['LKO'], 'Upper St.Lawrence upstream':['USL_US'], 'Lake St.Lawrence':['USL_DS']}
-
 sect_dct = {'St.Lawrence River downstream': ['SLR_DS'], 'St.Lawrence River upstream': ['SLR_US'] }
 
 available_plans=['PreProjectHistorical', 'Bv7_2014', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'OBS',
