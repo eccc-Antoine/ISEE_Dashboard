@@ -1,14 +1,29 @@
-import streamlit as st
 import pandas as pd
 import importlib
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 import DASHBOARDS.ISEE.CFG_DASHBOARD as CFG_DASHBOARD
-
+import DASHBOARDS.UTILS.Home_utils as UTILS
 import os
-print(os.getcwd())
+from io import BytesIO
+import zipfile
+import streamlit as st
 
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+local_css(os.path.join(os.path.dirname(__file__), 'style.css'))
+
+# Will reset everytime you go back to Home page
+# I want to create it before importing the streamlit package
+# logger, log_filename, log_path = UTILS.start_session_logger()
+# logger.info('The log file was created')
+# UTILS.upload_log_to_blob(log_path,'session-logs',log_filename)
+
+# st.session_state.logger = logger
+# st.session_state.logger.info('Streamlit was imported')
 st.set_page_config(
     page_title='ISEE Dashboard - GLAM Project',
     page_icon='🏞️',
@@ -16,18 +31,7 @@ st.set_page_config(
     initial_sidebar_state='collapsed')
 st.sidebar.caption('This app was developed by the Hydrodynamic and Ecohydraulic Services of the National Hydrological Service ' \
                 'at Environment and Climate Change Canada, based on results from the Integrated Social, Economic, and Environmental System (ISEE).')
-
-# Import PI configuration
-pis_code = CFG_DASHBOARD.pi_list # PI list
-pi_dct = {}
-pi_type = {}
-for pi in pis_code:
-    pi_module_name = f'CFG_{pi}'
-    PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
-    pi_dct[pi] = PI_CFG.name
-    pi_type[pi] = PI_CFG.type.replace('_',' ')
-del PI_CFG
-
+# st.session_state.logger.info('Setup page config')
 st.header('👋 Welcome to the ISEE Dashboard for Phase 2 of the Plan 2014 Expedited Review', divider="grey")
 st.write('Choose what you want to see on the left panel. 👀')
 
@@ -39,7 +43,7 @@ with col:
     st.write("-> Difference map 🌎 is a map aggregated per tile showing the difference between two plans.")
     st.write('-> Full resolution map 🔍 zooms on one tile of a difference map.')
 
-st.subheader("ℹ️ Addtionnal information ℹ️")
+st.subheader("ℹ️ Additionnal information ℹ️")
 
 with st.expander("📈 Available PIs"):
 
@@ -109,8 +113,5 @@ with st.expander("📖 Plans and water supplies"):
                                                 'GERBL2_2014BOC_ComboCv2_stochastic_330_2011_2070','GERBL2_2014BOC_ComboD_stochastic_330_2011_2070'],
                                   'Name used in dashboard': ['PreProject_STO','2014_STO','ComboA_STO','ComboB_STO','ComboC_STO','ComboD_STO']})
     st.write(df_plans.style.set_properties(subset=['Full name'],**{'width': '450px'}).set_properties(subset=['Name used in dashboard'],**{'width': '200px'}).hide(axis='index').to_html(), unsafe_allow_html=True)
-
-
-
 
 
