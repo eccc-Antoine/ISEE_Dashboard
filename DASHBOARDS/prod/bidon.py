@@ -1,10 +1,65 @@
 import pandas as pd
 
-df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_GLRRM_1D\YEAR\SECTION\GERBL2_2014_ComboA\LKO\WL_GLRRM_1D_YEAR_GERBL2_2014_ComboA_LKO_1962_2020.feather")
+# df=pd.read_csv(fr"P:\GLAM\Dashboard\prod\debug_PTID_318433166_VAR2.csv", sep=';')
+# print(df.head())
+# var='VAR2'
+# id=318433166
+# val=df.loc[df['PT_ID'] == id, var].head(1).item()
+# print(val)
+# quit()
+
+df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_2D\YEAR\PLAN\Bv7_2014\WL_ISEE_2D_YEAR_Bv7_2014_1961_2020.feather")
 
 print(df.head())
 
 print(list(df))
+print(df['VAR1_mean'].unique())
+
+
+quit()
+
+df2=df.drop(columns='PT_ID')
+
+overall_mean = df2.to_numpy().mean()
+print("Overall mean:", overall_mean)
+
+abs_diff = (df2 - overall_mean).abs()
+
+# Find the minimal difference
+min_diff = abs_diff.min().min()
+
+# Find all locations (row, column) where the value is closest to the mean
+closest_locs = list(zip(*((abs_diff == min_diff).to_numpy().nonzero())))
+
+print(len(closest_locs))
+
+
+
+# Map numeric row/col indices to actual labels
+closest_positions = [(df2.index[r], df2.columns[c]) for r, c in closest_locs]
+
+# Get the actual value(s)
+closest_values = [df2.loc[r, c] for r, c in closest_positions]
+
+closest_positions=closest_positions[0]
+closest_values=closest_values[0]
+print("Closest positions:", closest_positions)
+
+row=df2.loc[closest_positions]
+#val=row[closest_positions[0][1]]
+print(row)
+
+id=df['PT_ID'].loc[closest_positions[0]]
+
+print(id)
+quit()
+
+print("Closest positions:", closest_positions)
+print("Closest values:", closest_values)
+
+# overall_mean = df.drop(columns='PT_ID').mean().mean()
+#
+# print(overall_mean)
 
 quit()
 

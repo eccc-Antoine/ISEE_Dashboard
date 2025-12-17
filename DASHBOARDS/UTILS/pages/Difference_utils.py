@@ -8,6 +8,7 @@ pd.set_option('mode.chained_assignment', None)
 import plotly.graph_objects as go
 import plotly.io as pio
 from datetime import datetime as dt
+from plotly.subplots import make_subplots
 
 def read_parquet_from_blob(container, blob_name):
     stream = io.BytesIO()
@@ -109,6 +110,77 @@ def plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year
 
     return fig2, df_PI_plans
 
+def plot_difference_timeseries2(df_PI, list_plans, Variable, Baseline, start_year, end_year,
+                               unit, unique_PI_CFG, diff_type, df_WL=None, WL_var=None, wl_plan_selected=None):
+    print('PLOT_DTS')
+    diff_dct = {f'Values ({unit})': 'DIFF', 'Proportion of reference value (%)': 'DIFF_PROP'}
+
+    # df_PI already has only the concerned plans
+    df_PI_plans = df_PI.copy()
+    df_PI_plans['BASELINE_VALUE'] = np.nan
+    for y in range(start_year, end_year+1):
+        baseline_vals = df_PI_plans[Variable].loc[
+            (df_PI_plans['YEAR'] == y) & (df_PI_plans['PLAN'] == Baseline)
+        ]
+        if len(baseline_vals) > 0:
+            df_PI_plans.loc[df_PI_plans['YEAR'] == y, 'BASELINE_VALUE'] = baseline_vals.iloc[0]
+
+    # Compute difference or proportion
+    if diff_dct[diff_type] == 'DIFF':
+        df_PI_plans['DIFF'] = (df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']).round(3)
+    elif diff_dct[diff_type] == 'DIFF_PROP':
+        df_PI_plans['DIFF_PROP'] = (((df_PI_plans[Variable] - df_PI_plans['BASELINE_VALUE']) /
+                                     df_PI_plans['BASELINE_VALUE']) * 100).round(3)
+    else:
+        raise ValueError('INVALID DIFF TYPE')
+
+    # Theme colors
+    theme = st.context.theme.type
+    ref_color = '#000000' if theme=='light' else '#ffffff' if theme=='dark' else "#6E6E6E"
+
+    # Prepare figure with secondary y-axis
+    fig2 = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # Add bar traces for plans (excluding baseline)
+    plans_to_plot = [p for p in list_plans if p != Baseline]
+    for p in plans_to_plot:
+        fig2.add_trace(
+            go.Bar(
+                x=df_PI_plans["YEAR"].loc[df_PI_plans['PLAN'] == p],
+                y=df_PI_plans[diff_dct[diff_type]].loc[df_PI_plans['PLAN'] == p],
+                name=unique_PI_CFG.plan_dct[p]
+            ),
+            secondary_y=False
+        )
+
+    # Add horizontal zero line on primary y-axis
+    fig2.add_hline(y=0, line=dict(color=ref_color, width=1))
+
+    # Add water level line if provided
+    if df_WL is not None:
+        fig2.add_trace(
+            go.Scatter(
+                x=df_WL["YEAR"],
+                y=df_WL[WL_var],
+                mode='lines+markers',
+                name=f'Water Level',
+                line=dict(width=1, dash="dash", color='#00FFFF')
+            ),
+            secondary_y=True
+        )
+
+    fig2.update_layout(
+        title="Difference between plans and reference, with Water Level",
+        xaxis_title='Years',
+        yaxis_title=f'Difference in {diff_type}',  # primary
+        yaxis=dict(zeroline=True, zerolinecolor=ref_color, zerolinewidth=1),
+        yaxis2=dict(title="Water Level (m, IGLD85)", showgrid=False),      # secondary
+        xaxis=dict(showgrid=True),
+        hovermode="x unified"
+    )
+
+    return fig2, df_PI_plans
+
 @st.cache_data(ttl=3600)
 def plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI, unique_PI_CFG, LakeSL_prob_1D):
     print('PLAN AGRREGATED')
@@ -192,9 +264,9 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
 
     df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', Variable]]
 
-    return df_PI
+    return df_PI, Variable
 
-def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselines, Stats, Variable):
+def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselines, Stats, Variable, water_levels):
     print('FILTERS')
 
     if Variable:
@@ -305,7 +377,24 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
     else:
         Stats = 'N/A'
 
-    return start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts
+    if water_levels:
+        show_water_level = st.radio(
+            "Show water levels on secondary y-axis?",
+            options=["No", "Yes"])
+
+
+        if show_water_level=="Yes":
+
+            wl_plan_selected_name = st.selectbox('Based on which plan?', available_plans_name, help=help_table,
+                                                 key='_wl_plan_name',
+                                                 on_change=update_session_state, args=('wl_plan_name',))
+            wl_plan_selected = [k for k in unique_PI_CFG.plan_dct.keys() if
+                              unique_PI_CFG.plan_dct[k] in wl_plan_selected_name]
+
+        else:
+            wl_plan_selected=None
+
+    return start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts, show_water_level, wl_plan_selected
 
 def update_session_state(key):
     st.session_state[key] = st.session_state['_'+key]

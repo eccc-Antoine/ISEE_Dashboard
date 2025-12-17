@@ -64,7 +64,9 @@ def header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plan
                                value=round(baseline_value, 2), delta=0)
             count_kpi += 1
 
-def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline, start_year, end_year, unit):
+def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline, start_year, end_year, unit, show_water_levels, wl_plan_selected, df_WL, WL_var):
+
+
     print('PLOT_TS')
     plans_selected_names = [unique_PI_CFG.plan_dct[p] for p in plans_selected]
 
@@ -84,12 +86,36 @@ def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, 
     df_PI_plans = df_PI_plans.reset_index(drop=True)
 
     fig = go.Figure(go.Scatter(x=df_value_to_move["YEAR"],y=df_value_to_move[Variable], mode='lines', line=dict(width=3, color=ref_color, dash='dot'),
-                               name=unique_PI_CFG.baseline_dct[Baseline],legendgroup='Reference',legendgrouptitle_text='Reference'))
+                               name=unique_PI_CFG.baseline_dct[Baseline],legendgroup='Reference',legendgrouptitle_text='Reference', yaxis="y1"))
 
     for p in plans_selected:
         data_plan = df_PI_plans.loc[df_PI_plans['PLAN']==p]
         fig.add_trace(go.Scatter(x=data_plan["YEAR"], y=data_plan[Variable], mode='lines',
-                                    name=unique_PI_CFG.plan_dct[p],legendgroup='Others',legendgrouptitle_text='Plans'))
+                                    name=unique_PI_CFG.plan_dct[p],legendgroup='Others',legendgrouptitle_text='Plans', yaxis="y1"))
+
+    if show_water_levels=='Yes' and df_WL is not None and wl_plan_selected is not None:
+        df_wl_plan = df_WL[df_WL['PLAN'] == wl_plan_selected[0]]
+
+        fig.add_trace(go.Scatter(
+            x=df_wl_plan["YEAR"],
+            y=df_wl_plan[WL_var],
+            mode="lines",
+            name=f"WL – {unique_PI_CFG.plan_dct[wl_plan_selected[0]]}",
+            line=dict(width=2, dash="dash", color='#00FFFF'),
+            yaxis="y2",
+            legendgroup='WaterLevels',
+            legendgrouptitle_text='Water Levels'
+        ))
+
+        # Add axis 2 settings
+        fig.update_layout(
+            yaxis2=dict(
+                title='m (IGLD85)',
+                overlaying='y',
+                side='right',
+                showgrid=False
+            )
+        )
 
     fig.update_layout(title=f'Values of {plans_selected_names} compared to {unique_PI_CFG.baseline_dct[Baseline]} from {start_year} to {end_year}',
                       xaxis_title='Years',
@@ -97,6 +123,16 @@ def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, 
                       legend=dict(groupclick='toggleitem'),
                       hovermode="x unified")
     #fig.update_yaxes(range=[full_min, full_max])
+
+    fig.update_layout(
+        legend=dict(
+            x=1.05,
+            y=1,
+            xanchor="left",
+            yanchor="top"
+        )
+    )
+
 
     return fig, df_PI_plans
 
@@ -152,7 +188,6 @@ def create_timeseries_database(folder_raw, PI_code, container):
 def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline):
 
     print('SELECT DATA')
-
     # PI config
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     stats = unique_PI_CFG.var_agg_stat[var]
@@ -182,11 +217,13 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
 
     df_PI[Variable] = df_PI[Variable] * multiplier
 
+    df_PI[Variable] = df_PI[Variable].round(3)
+
     df_PI = df_PI[['YEAR', 'PLAN', 'SECTION', Variable]]
 
-    return df_PI
+    return df_PI, Variable
 
-def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselines, Stats, Variable):
+def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselines, Stats, Variable, water_levels):
     print('FILTERS')
 
     if Variable:
@@ -296,7 +333,24 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
     else:
         Stats = 'N/A'
 
-    return start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts
+    if water_levels:
+        show_water_level = st.radio(
+            "Show water levels on secondary y-axis?",
+            options=["No", "Yes"])
+
+
+        if show_water_level=="Yes":
+
+            wl_plan_selected_name = st.selectbox('Based on which plan?', available_plans_name, help=help_table,
+                                                 key='_wl_plan_name',
+                                                 on_change=update_session_state, args=('wl_plan_name',))
+            wl_plan_selected = [k for k in unique_PI_CFG.plan_dct.keys() if
+                              unique_PI_CFG.plan_dct[k] in wl_plan_selected_name]
+
+        else:
+            wl_plan_selected=None
+
+    return start_year, end_year, Regions, plans_selected, Baseline, Stats, Variable, no_plans_for_ts, show_water_level, wl_plan_selected
 
 def update_session_state(key):
     st.session_state[key] = st.session_state['_'+key]
@@ -304,6 +358,8 @@ def update_session_state(key):
 def initialize_session_state():
     # Initialize all session state used by widget
     st.session_state['unique_PI_CFG'] = importlib.import_module(f"GENERAL.CFG_PIS.CFG_{st.session_state['PI_code']}")
+
+    st.session_state['WL_PI_CFG'] = importlib.import_module(f"GENERAL.CFG_PIS.CFG_{st.session_state['WL_code']}")
 
     # selected_variable
     available_variables = list(st.session_state['unique_PI_CFG'].dct_var.values())
@@ -344,5 +400,12 @@ def initialize_session_state():
 
     # diff_type
     st.session_state['diff_type'] = f"Values ({st.session_state['unique_PI_CFG'].units})"
+
+    if 'water_level' not in st.session_state:
+        st.session_state['water_level'] = "No"
+
+    if 'wl_plan_name' not in st.session_state:
+        st.session_state['wl_plan_name'] = st.session_state['ze_plans_multiple_name']
+
 
 

@@ -2,7 +2,7 @@ import os
 
 name='ISEE'
 
-pis_2D_tiled=[]
+pis_2D_tiled=['WL_ISEE_2D']
 
 #=['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D', 'ERIW_MIN_2D', 'PIKE_2D']
 

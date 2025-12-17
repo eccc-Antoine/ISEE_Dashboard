@@ -38,7 +38,10 @@ for pi in pis_code:
     pi_module_name = f'CFG_{pi}'
     PI_CFG = importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
     pi_dct[pi] = PI_CFG.name
+
 del PI_CFG
+
+wl_dct={'WL_ISEE_1D':'ISEE', 'WL_GLRRM_1D':'GLRRM' }
 
 # Pretty name of pi
 pis = list(pi_dct.values())
@@ -47,6 +50,7 @@ ts_dct={'hist':'historical', 'sto':'stochastic', 'cc':'climate change'}
 
 default_PI=next(iter(pi_dct.values()), None)
 default_ts=next(iter(ts_dct.values()), None)
+default_WL=next(iter(wl_dct.values()), None)
 
 # State management
 # Define which PI or timeserie to show by default
@@ -61,9 +65,21 @@ if 'ts_code' not in st.session_state:
     st.session_state['ts_code'] = tss_code[0]
     st.session_state['selected_timeseries'] = default_ts
 
+if 'WL_code' not in st.session_state:
+    st.session_state['WL_code'] = list(wl_dct.keys())[0]
+    st.session_state['selected_wl'] = default_WL
+
+if '_WL_code' not in st.session_state:
+    st.session_state['_WL_code'] = list(wl_dct.keys())[0]
+    st.session_state['_selected_wl'] = default_WL
+
 if 'unique_PI_CFG' not in st.session_state:
     PI_code = st.session_state['PI_code']
     st.session_state['unique_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{PI_code}')
+
+if 'WL_PI_CFG' not in st.session_state:
+    WL_code = st.session_state['WL_code']
+    st.session_state['WL_PI_CFG'] = importlib.import_module(f'GENERAL.CFG_PIS.CFG_{WL_code}')
 
 if 'azure_container' not in st.session_state:
     # connect to Azur blob storage
@@ -73,6 +89,12 @@ if 'azure_container' not in st.session_state:
     # If azure container is not in session state, it means it's the first time loading a page, since we have this on all pages
     UTILS.initialize_session_state()
 
+if 'water_level' not in st.session_state:
+    st.session_state['water_level'] = "No"
+
+if 'wl_plan_name' not in st.session_state:
+    st.session_state['wl_plan_name'] = "N/A"
+
 # Change PI or Timeserie
 def update_PI_code():
     st.session_state['selected_pi'] = st.session_state['_selected_pi']
@@ -80,6 +102,13 @@ def update_PI_code():
     pi_code = [key for key, value in pi_dct.items() if value == selected_pi_name]
     st.session_state['PI_code'] = pi_code[0]
     st.session_state['unique_PI_CFG'] = importlib.import_module(f"GENERAL.CFG_PIS.CFG_{pi_code[0]}")
+
+def update_WL_code():
+    st.session_state['selected_wl'] = st.session_state['_selected_wl']
+    selected_wl_name = st.session_state['selected_wl']
+    wl_code = [key for key, value in wl_dct.items() if value == selected_wl_name]
+    st.session_state['WL_code'] = wl_code[0]
+    st.session_state['WL_PI_CFG'] = importlib.import_module(f"GENERAL.CFG_PIS.CFG_{wl_code[0]}")
 
 def update_timeseries():
     selected_timeseries = st.session_state['timeseries']
@@ -96,7 +125,7 @@ def function_for_tab1():
     with Col1:
         st.subheader('**Parameters**')
         # Afficher la colonne 1 (gauche)
-        LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts=render_column1()
+        LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts, show_water_levels, wl_plan_selected, df_WL, WL_var, WL_PI_CFG=render_column1()
 
     with Col2:
         st.subheader('**Plot**')
@@ -105,6 +134,7 @@ def function_for_tab1():
 
         else:
             unique_PI_CFG = st.session_state['unique_PI_CFG']
+            WL_PI_CFG= st.session_state['WL_PI_CFG']
 
             UTILS.header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plans_selected, Baseline, plan_values,
                                 baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
@@ -112,8 +142,11 @@ def function_for_tab1():
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
 
+            #st.write(show_water_levels, wl_plan_selected)
+
             fig, df_PI_plans = UTILS.plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline,
-                                                     start_year, end_year, unique_PI_CFG.units)
+                                                     start_year, end_year, unique_PI_CFG.units, show_water_levels, wl_plan_selected, df_WL, WL_var)
+
             csv_data=df_PI_plans.to_csv(index=False, sep=';')
             st.download_button(
                     label="Download displayed data in CSV",
@@ -154,17 +187,60 @@ def render_column1():
     if (old_ts_code != st.session_state['ts_code']):
         UTILS.initialize_session_state()
 
+
     df_PI = st.session_state['df_PI_timeseries']
 
-    start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts = UTILS.MAIN_FILTERS_streamlit(ts_code,unique_PI_CFG,
-            Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True)
+
+    start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts, show_water_level, wl_plan_selected = UTILS.MAIN_FILTERS_streamlit(ts_code,unique_PI_CFG,
+            Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True, water_levels=True)
+
+    WL_PI_CFG=st.session_state['WL_PI_CFG']
+
+    if show_water_level=='Yes':
+        wl_list = list(wl_dct.values())
+        wl_list.sort()
+        selected_wl = st.selectbox("From ISEE or GLRRM ?", wl_list,
+                                   index=wl_list.index(wl_dct[st.session_state['WL_code']]),
+                                   key='_selected_wl')
+
+
+        wl_var = st.selectbox("Annual mean, min or max?", ['Min', 'Mean', 'Max'],
+                                   index=1,
+                                   key='_wl_var')
+    else:
+        if '_wl_var' not in st.session_state:
+            st.session_state['_wl_var'] = 'Mean'
+
+    wl_var_dct={'Min':'VAR1', 'Mean':'VAR2', 'Max':'VAR3'}
+
+    wl_var_code= wl_var_dct[st.session_state['_wl_var']]
+    wl_variable=WL_PI_CFG.dct_var[wl_var_code]
+
+    update_WL_code()
+    WL_code = st.session_state['WL_code']
+
+    st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+    df_WL = st.session_state['df_WL_timeseries']
 
     LakeSL_prob_1D =False
     if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
         LakeSL_prob_1D=True
 
     var_direction = unique_PI_CFG.var_direction[Variable]
-    df_PI = UTILS.select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline)
+    df_PI, Variable = UTILS.select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, Variable, plans_selected, Baseline)
+
+    if unique_PI_CFG.divided_by_country==True:
+        Region_WL=Region.replace(' Canada', '')
+        Region_WL2=Region_WL.replace(' United States', '')
+    else:
+        Region_WL2=Region
+
+    if wl_plan_selected is not None:
+        df_WL, WL_var = UTILS.select_timeseries_data(df_WL, WL_PI_CFG, start_year, end_year, Region_WL2,  wl_variable, wl_plan_selected,
+                                             'N/A')
+    else:
+        df_WL=None
+        WL_var=None
 
     baseline_value, plan_values = UTILS.plan_aggregated_values(Stats, plans_selected, Baseline, Variable, df_PI,
                                                                    unique_PI_CFG, LakeSL_prob_1D)
@@ -173,7 +249,8 @@ def render_column1():
     if Baseline not in list_plans:
         list_plans.append(Baseline)
 
-    return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts
+
+    return LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts, show_water_level, wl_plan_selected, df_WL, WL_var, WL_PI_CFG
 
 try:
     function_for_tab1()

@@ -17,6 +17,18 @@ print("Environment variables (conda/venv):", os.environ.get("VIRTUAL_ENV") or os
 
 class POST_PROCESS_2D_tiled:
 
+    def find_pt_id(self, df):
+        df2 = df.drop(columns='PT_ID')
+        overall_mean = df2.to_numpy().mean()
+        abs_diff = (df2 - overall_mean).abs()
+        min_diff = abs_diff.min().min()
+        closest_locs = list(zip(*((abs_diff == min_diff).to_numpy().nonzero())))
+        closest_positions = [(df2.index[r], df2.columns[c]) for r, c in closest_locs]
+        closest_positions = closest_positions[0]
+        id = df['PT_ID'].loc[closest_positions[0]]
+        id=int(id)
+        return id
+
     def __init__(self, pis, ISEE_RES, POST_PROCESS_RES, sep):
         self.pis=pis
         self.ISEE_RES=ISEE_RES
@@ -24,12 +36,14 @@ class POST_PROCESS_2D_tiled:
         self.sep=sep
 
     def agg_YEAR(self, folder_space, y, columns):
+
         liste_files=[]
         for root, dirs, files in os.walk(folder_space):
             for name in files:
                 liste_files.append(os.path.join(root, name))
         liste_df=[]
         liste_file_year=[f for f in liste_files if str(y) in f.split('_')[-1]]
+
 
         if len(liste_file_year) >0:
             for feather in liste_file_year:
@@ -43,7 +57,7 @@ class POST_PROCESS_2D_tiled:
             no_dat_year=y
         return df_year, no_dat_year
 
-    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list, space):
+    def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list, space, PI):
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
 
@@ -54,8 +68,12 @@ class POST_PROCESS_2D_tiled:
 
         if not os.path.exists(path_res):
             os.makedirs(path_res)
+        count_id=0
         for y in years_list:
+            print(y)
+            count_id+=1
             if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':
+                print('ok')
                 df_year, no_dat_year=self.agg_YEAR(agg_year_param, y, columns)
             elif AGG_SPACE == 'TILE':
                 path_feather_year2=path_feather_year.replace('foo', str(y))
@@ -63,16 +81,66 @@ class POST_PROCESS_2D_tiled:
                     continue
                 df_year=pd.read_feather(path_feather_year2)
                 no_dat_year=99999
+            print('no_dat_year=',  no_dat_year)
             if y == no_dat_year:
                 continue
             for var in list_var:
                 for stat in stats:
-                    if stat=='sum':
-                        df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].sum()
-                    elif stat=='mean':
-                        df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].mean()
+
+                    ## ne pas faire la moyenne des points pour les niveaux d'eau mais plutôt utiliser un pt_id qui a une valeur proche de la moyenne
+
+                    if PI=='WL_ISEE_2D':
+                        if count_id==1:
+                            print('determine which pt_id to select to represent the tile')
+                            id=self.find_pt_id(df_year)
+                            print(id)
+                            print(list(df_year))
+                            print(var)
+
+                            print(df_year.loc[df_year['PT_ID'] == id, var].iloc[0])
+                        mask = df_space[AGG_TIME] == y
+                        #print(mask)
+                        #print(len(mask))
+                        print(id)
+                        id=int(id)
+                        val = df_year.loc[df_year['PT_ID']== id]
+                        print(val)
+                        print(var)
+                        #value = df_year.loc[df_year['PT_ID'] == id, var].iloc[0]
+
+                        try:
+                            value = df_year.loc[df_year['PT_ID'] == id, var].head(1).item()
+
+                        except Exception as e:
+                            # Extract the problematic subset (for debugging)
+                            subset = df_year.loc[df_year['PT_ID'] == id]
+
+                            print(subset)
+                            print(list(subset))
+                            print(subset.info())
+
+                            # Write to CSV
+                            debug_path = fr"P:\GLAM\Dashboard\prod\debug_PTID_{id}_{var}.csv"
+                            subset.to_csv(debug_path, index=False, sep=';')
+
+                            print(f"\nERROR retrieving value for PT_ID={id}, var={var}")
+                            print(f"Filtered dataframe saved as: {debug_path}\n")
+                            print("Filtered dataframe was:")
+                            print(subset)
+
+                            # Optional: re-raise the original error
+                            raise e
+                        print(f'{value}..')
+                        df_space.loc[mask, f'{var}_{stat}'] = value
+                        #df_space.loc[df_space[AGG_TIME] == y, f'{var}_{stat}'] = df_year.loc[df_year['PT_ID']==id, var].iloc[0]
+
                     else:
-                        print('STAT value provided is unavailable')
+                        if stat=='sum':
+                            df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].sum()
+                        elif stat=='mean':
+                            df_space.loc[df_space[AGG_TIME]==y, f'{var}_{stat}']=df_year[var].mean()
+                        else:
+                            print('STAT value provided is unavailable')
         df_space=df_space.reset_index()
         df_space.to_feather(os.path.join(path_res, res_name))
 
@@ -171,7 +239,7 @@ class POST_PROCESS_2D_tiled:
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
 
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
-                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param ,'', years_list,space)
+                            self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param ,'', years_list,space, PI)
 
                     elif AGG_SPACE=='SECTION':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -191,7 +259,7 @@ class POST_PROCESS_2D_tiled:
 
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
-                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, '', years_list, space)
+                                self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, '', years_list, space, PI)
 
                     elif AGG_SPACE=='TILE':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -212,7 +280,7 @@ class POST_PROCESS_2D_tiled:
                                         continue
                                     res_name=f'{PI}_{AGG_TIME}_{p}_{s}_{space}_{min(years_list)}_{max(years_list)}.feather'
                                     path_feather_year=os.path.join(self.ISEE_RES, PI, p, s, 'foo' , f'{PI}_{p}_{s}_{space}_foo.feather')
-                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, '', path_feather_year, years_list, space)
+                                    self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, '', path_feather_year, years_list, space, PI)
 
                     elif AGG_SPACE=='PT_ID':
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
@@ -673,16 +741,15 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 #     not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
 #     # not_tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
 
-# for pi in tiled.pis:
-#     print(pi)
-#     tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-#     # tiled.agg_2D_space(pi, ['YEAR'], ['PLAN'])
-#     # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
-
-
-for pi in pi_1D.pis:
+for pi in tiled.pis:
     print(pi)
-    pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
+    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'])
+    # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
+
+# for pi in pi_1D.pis:
+#     print(pi)
+#     pi_1D.agg_1D_space(pi, ['YEAR'], ['PLAN', 'SECTION'])
 
 quit()
 
