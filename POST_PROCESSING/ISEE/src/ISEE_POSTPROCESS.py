@@ -256,6 +256,8 @@ class POST_PROCESS_2D_tiled:
         for AGG_TIME in AGGS_TIME:
             # Pour tous les espaces d'aggrégation (PLAN, SECTION, TILE, PT_ID)
             for AGG_SPACE in AGGS_SPACE:
+                if self.logger:
+                    self.logger.info('  ->' + AGG_SPACE)
                 print('  ->',AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
@@ -271,6 +273,8 @@ class POST_PROCESS_2D_tiled:
                     if AGG_SPACE=='PLAN':
                         # Pour tous les plans dans les config du PI
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
+                            if self.logger:
+                                self.logger.info('    -->' + space)
                             print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             # Si les résultats existent déjà, skipper
@@ -302,6 +306,8 @@ class POST_PROCESS_2D_tiled:
                                 years_list = PI_CFG.available_years_future
                             # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
+                                if self.logger:
+                                    self.logger.info('    -->' + space)
                                 print('    -->',space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
                                 # Si les résultats existent déjà, skipper
@@ -329,6 +335,8 @@ class POST_PROCESS_2D_tiled:
                             for s in PI_CFG.available_sections:
                                 # Pour toutes les tuiles, aggréger pour le plan courant
                                 for space in cfg.dct_tile_sect[s]:
+                                    if self.logger:
+                                        self.logger.info('    -->' + space)
                                     print('    -->',space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
@@ -584,6 +592,8 @@ class POST_PROCESS_2D_not_tiled:
         for AGG_TIME in AGGS_TIME:
             # Pour tous les espaces d'aggrégation (PLAN, SECTION, TILE, PT_ID)
             for AGG_SPACE in AGGS_SPACE:
+                if self.logger:
+                    self.logger.info('  ->' + AGG_SPACE)
                 print('  ->',AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 stats=[]
@@ -605,6 +615,9 @@ class POST_PROCESS_2D_not_tiled:
                                 years_list = PI_CFG.available_years_hist
                             else:
                                 years_list = PI_CFG.available_years_future
+
+                            if self.logger:
+                                self.logger.info('    -->' + space)
                             print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             # Si les résultats existent déjà, skipper
@@ -629,6 +642,8 @@ class POST_PROCESS_2D_not_tiled:
                                 years_list = PI_CFG.available_years_future
                             # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
+                                if self.logger:
+                                    self.logger.info('    -->' + p + ' ' + space)
                                 print('    -->',p, space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.parquet'
@@ -657,6 +672,8 @@ class POST_PROCESS_2D_not_tiled:
                             for s in PI_CFG.available_sections:
                                 # Pour toutes les tuiles, aggréger pour le plan courant
                                 for space in cfg.dct_tile_sect[s]:
+                                    if self.logger:
+                                        self.logger.info('    -->' + p + ' ' + s + ' ' + str(space))
                                     print('    -->',p, s, space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
@@ -712,40 +729,52 @@ class POST_PROCESS_2D_not_tiled:
 
 class POST_PROCESS_1D:
 
-    def __init__(self, pis,ISEE_RES, POST_PROCESS_RES, sep):
+    def __init__(self, pis,ISEE_RES, POST_PROCESS_RES, sep, logger=None):
 
         self.pis=pis
         self.ISEE_RES=ISEE_RES
         self.POST_PROCESS_RES=POST_PROCESS_RES
         self.sep=sep
+        self.logger=logger
 
+    # Lire les résultats
     def agg_YEAR(self, folder_space):
+        # Exécuter pour toute la période
+        # Lister tous les fichiers avec les résultats
         liste_files=[]
         for root, dirs, files in os.walk(folder_space):
             for name in files:
                 liste_files.append(os.path.join(root, name))
         df_year=pd.DataFrame()
         liste_df=[]
+        # S'il y a des fichiers, les lire et les concatener
         if len(liste_files) != 0:
             exists=True
             for feather in liste_files:
                 if feather.split('.')[-1]=='feather':
                     df_temp=pd.read_feather(feather)
                     liste_df.append(df_temp)
+            # Concatenate all
             df_year = pd.concat(liste_df, ignore_index=True)
         else:
             df_year=0
             exists = False
         return df_year, exists
 
+    # Aggréger les résultats par année
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, path_feather_year, PI_CFG, years_list):
+        # df_space sera le fichier final
+        # Créer la colonne YEAR (ou QM quand ce sera implémenté)
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
         df_space[AGG_TIME]=years_list
+
         if not os.path.exists(path_res):
             os.makedirs(path_res)
+        # aggréger les résultats (par plan, section)
         if AGG_SPACE == 'PLAN':
             df_year, exists=self.agg_YEAR(agg_year_param)
+            # Pour toutes les stats, calculer la statistique
             if exists:
                 for stat in stats:
                     if stat=='sum':
@@ -760,14 +789,17 @@ class POST_PROCESS_1D:
                 elif stats[0]=='mean':
                     df_space=df_space_mean
                 else:
-                    print('STAT value provided is unavailable')
-
+                    if self.logger:
+                        self.logger.error('STAT value provided is unavailable')
+                    else:
+                        print('STAT value provided is unavailable')
 
         elif AGG_SPACE == 'SECTION':
             df_space, exists=self.agg_YEAR(agg_year_param)
 
             if exists:
                 columns=['YEAR']
+                # Pour toutes les stats et variables, calculer la statistique
                 for var in list_var:
                     stats=PI_CFG.var_agg_stat[var]
                     for stat in stats:
@@ -775,10 +807,11 @@ class POST_PROCESS_1D:
                         df_space[var_stat]=df_space[var]
                         columns.append(var_stat)
                 df_space=df_space[columns]
-
+        # Sauvegarder en parquet
         if exists:
             df_space=df_space.reset_index()
-            df_space.to_feather(os.path.join(path_res, res_name))
+            df_space = pd.concat([df_space[['index','YEAR']],df_space.drop(columns=['index','YEAR']).round(6)],axis=1)
+            df_space.to_parquet(os.path.join(path_res, res_name))
 
     def agg_1D_space(self, PI, AGGS_TIME, AGGS_SPACE):
         '''
@@ -788,13 +821,16 @@ class POST_PROCESS_1D:
         AGGS_SPACE = level of aggregation over space : list of values amongst [ 'PLAN', 'SECTION']
         stats = stat for aggregated values ['sum'], ['mean'] or ['sum', 'mean']
         '''
-
+        # This is the main function that calls all the other ones
         pi_module_name=f'CFG_{PI}'
         PI_CFG=importlib.import_module(f'GENERAL.CFG_PIS.{pi_module_name}')
-
+        # Pour toutes les aggrégations temporelles (seulement YEAR pour l'instant)
         for AGG_TIME in AGGS_TIME:
+            # Pour tous les espaces d'aggrégation (PLAN, SECTION)
             for AGG_SPACE in AGGS_SPACE:
-                print(AGG_SPACE)
+                if self.logger:
+                    self.logger.info('  ->' + AGG_SPACE)
+                print('  ->',AGG_SPACE)
                 list_var=list(PI_CFG.dct_var.keys())
                 columns=[AGG_TIME]
                 for var in list_var:
@@ -802,46 +838,58 @@ class POST_PROCESS_1D:
                     for s in stats:
                         stat=var+'_'+s
                         columns.append(stat)
-
+                # Aggrégation
                 if AGG_TIME=='YEAR':
+                    # PLAN
                     if AGG_SPACE=='PLAN':
+                        # Pour tous les plans dans les config du PI
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
-
+                            # Extraire la liste des années
                             if space in PI_CFG.plans_hist:
                                 years_list = PI_CFG.available_years_hist
                             else:
                                 years_list = PI_CFG.available_years_future
 
-                            print(space)
+                            if self.logger:
+                                self.logger.info('    -->' + space)
+                            print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
-
+                            # Si les résultats existent déjà, skipper
                             if os.path.exists(path_res):
-                                print(
-                                    f'AGG level of {AGG_SPACE} for plan {space} already exists skipping...')
+                                if self.logger:
+                                    self.logger.info(f'AGG level of {AGG_SPACE} for plan {space} already exists skipping....')
+                                else:
+                                    print(f'AGG level of {AGG_SPACE} for plan {space}  already exists skipping....')
                                 continue
-
-                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
+                            # Nom du fichier final
+                            res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.parquet'
                             agg_year_param=os.path.join(self.ISEE_RES, PI, space)
                             self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param ,'', PI_CFG, years_list)
-
+                    # SECTION
                     elif AGG_SPACE=='SECTION':
+                        # Pour tous les plans dans les config du PI
                         for p in PI_CFG.available_plans+PI_CFG.available_baselines:
-
+                            # Extraire la liste des années
                             if p in PI_CFG.plans_hist:
                                 years_list = PI_CFG.available_years_hist
                             else:
                                 years_list = PI_CFG.available_years_future
-
+                            # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
-                                print(p, space)
-                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
+                                if self.logger:
+                                    self.logger.info('    -->' + p + ' ' + space)
+                                print('    -->',p, space)
 
+                                path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
+                                # Si les résultats existent déjà, skipper
                                 if os.path.exists(path_res):
-                                    print(
-                                        f'AGG level of {AGG_SPACE} for plan {p} in section {space} already exists skipping...')
+                                    if self.logger:
+                                        self.logger.info(f'AGG level of {AGG_SPACE} for plan {p} and section {space} already exists skipping....')
+                                    else:
+                                        print(f'AGG level of {AGG_SPACE} for plan {p} and section {space} already exists skipping....')
                                     continue
 
-                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.feather'
+                                res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.parquet'
                                 agg_year_param=os.path.join(self.ISEE_RES, PI, p, space)
                                 self.AGG_SPACE_YEAR(path_res, res_name, columns, AGG_TIME, AGG_SPACE, PI, space, list_var, stats, agg_year_param, '', PI_CFG, years_list)
 

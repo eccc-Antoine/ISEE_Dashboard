@@ -65,7 +65,7 @@ def main():
             not_tiled.agg_2D_space(pi, ['YEAR'], agg_type)
 
     if len(cfg.pis_1D) != 0:
-        pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
+        pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, logger=logger)
         for pi in pi_1D.pis:
             logger.info(f'Post processing {pi}...')
             print(f'Post processing {pi}...')
@@ -73,7 +73,7 @@ def main():
             pi_1D.agg_1D_space(pi, ['YEAR'], agg_type_1D)
 
     # group and upload to Azure
-    logger.info('Group parquet for', agg_type)
+    logger.info(f'Group parquet for {agg_type}')
     print('Group parquet for', agg_type)
     # We need to group all available plans, sections and tiles, even if only one section or plan is ran
     for pi in all_pis:
@@ -107,8 +107,6 @@ def main():
 
         # Only the concerned plans + ALL
         file_list = [f for f in file_list if any(plan in f for plan in cfg.plans) or ('ALL' in f)]
-    #     # Only the concerned sections
-    #     file_list = [f for f in file_list if ('ComboA' in f) | ('ComboB' in f)] # to modify
 
         for file in file_list:
             blob_name = os.path.join('test/',file[file.find(pi):].replace('\\','/'))
