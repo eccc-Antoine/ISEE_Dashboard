@@ -66,8 +66,8 @@ def header(selected_pi, unique_PI_CFG, Stats, start_year, end_year, Region, plan
 
 def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline, start_year, end_year, unit, show_water_levels, wl_plan_selected, df_WL, WL_var):
 
-
     print('PLOT_TS')
+
     plans_selected_names = [unique_PI_CFG.plan_dct[p] for p in plans_selected]
 
     # Import the user theme to choose the plot coloring
@@ -94,13 +94,14 @@ def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, 
                                     name=unique_PI_CFG.plan_dct[p],legendgroup='Others',legendgrouptitle_text='Plans', yaxis="y1"))
 
     if show_water_levels=='Yes' and df_WL is not None and wl_plan_selected is not None:
-        df_wl_plan = df_WL[df_WL['PLAN'] == wl_plan_selected[0]]
 
+        ## TODO drole workaround... le water plan historique reste toujours dans wl_plan_selected meme quand on change la ts... donc on prend celui de la serie qui s ajoute a la liste (ce qui explique le [-1]
+        df_wl_plan = df_WL[df_WL['PLAN'] == wl_plan_selected[-1]]
         fig.add_trace(go.Scatter(
             x=df_wl_plan["YEAR"],
             y=df_wl_plan[WL_var],
             mode="lines",
-            name=f"WL – {unique_PI_CFG.plan_dct[wl_plan_selected[0]]}",
+            name=f"WL – {unique_PI_CFG.plan_dct[wl_plan_selected[-1]]}",
             line=dict(width=2, dash="dash", color='#00FFFF'),
             yaxis="y2",
             legendgroup='WaterLevels',
@@ -344,8 +345,10 @@ def MAIN_FILTERS_streamlit(ts_code, unique_PI_CFG, Years, Region, Plans, Baselin
             wl_plan_selected_name = st.selectbox('Based on which plan?', available_plans_name, help=help_table,
                                                  key='_wl_plan_name',
                                                  on_change=update_session_state, args=('wl_plan_name',))
+
             wl_plan_selected = [k for k in unique_PI_CFG.plan_dct.keys() if
                               unique_PI_CFG.plan_dct[k] in wl_plan_selected_name]
+            st.session_state['wl_plans_multiple'] = wl_plan_selected
 
         else:
             wl_plan_selected=None
@@ -385,6 +388,9 @@ def initialize_session_state():
     st.session_state['ze_plans_multiple'] = available_plans[0]
     st.session_state['ze_plans_multiple_name'] = st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
 
+
+    #st.session_state['wl_plans_multiple_name'] = st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
+
     # Baseline
     baselines=st.session_state['unique_PI_CFG'].baseline_ts_dct[st.session_state['ts_code']]
     st.session_state['Baseline']=baselines[0]
@@ -405,7 +411,9 @@ def initialize_session_state():
         st.session_state['water_level'] = "No"
 
     if 'wl_plan_name' not in st.session_state:
-        st.session_state['wl_plan_name'] = st.session_state['ze_plans_multiple_name']
+        #st.session_state['wl_plan_name'] = st.session_state['ze_plans_multiple_name']
+        st.session_state['wl_plan_name'] = st.session_state['unique_PI_CFG'].plan_dct[available_plans[0]]
+    #st.session_state['wl_plans_multiple'] = available_plans[0]
 
 
 

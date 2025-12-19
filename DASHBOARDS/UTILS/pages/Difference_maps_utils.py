@@ -66,6 +66,9 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
 
 def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_PI_CFG, division_col):
     print('FOLIUM_MAPS')
+    #print(gdf_grille.head())
+
+
     values = gdf_grille.loc[gdf_grille[col] != 0, col]
     empty_map = False
 
@@ -116,25 +119,80 @@ def create_folium_map(gdf_grille, col, dim_x, dim_y, var, unique_PI_CFG, divisio
                                            vmin=gdf_grille[col].quantile(0.25),
                                            vmax=gdf_grille[col].quantile(0.75))
 
-            folium.GeoJson(
-                gjson,
-                style_function=lambda feature: {
-                    "fillColor": linear(val_dict[feature["properties"][division_col]]),
-                    "color": "black",
-                    "weight": 2,
-                    "dashArray": "5, 5",
-                },
-            ).add_to(folium_map)
 
-            for _, r in centro.iterrows():
-                lat = r["centroid"].y
-                lon = r["centroid"].x
-                folium.Marker(
-                    location=[lat, lon],
-                    icon=folium.DivIcon(
-                        html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-                    # popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+
+
+            if 'STATION' in list(gdf_grille):
+                # for _, r in centro.iterrows():
+                #     lat = r["centroid"].y
+                #     lon = r["centroid"].x
+                #     folium.Marker(
+                #         location=[lat, lon],
+                #         icon=folium.DivIcon(
+                #             html=f"""<div style="font-family: courier new; color: black; font-size:16px; font-weight:bold">{r['STATION']}:{r[col]}</div>""")
+                #     ).add_to(folium_map)
+
+                for _, r in centro.iterrows():
+
+                    #print(r)
+
+                    value = r[col]
+                    lat = r["centroid"].y
+                    lon = r["centroid"].x
+                    folium.CircleMarker(
+                        location=[lat, lon],
+                        radius=12,
+                        fill=True,
+                        fill_color=linear(value),
+                        fill_opacity=0.8,
+                        color="black",
+                        weight=1,
+                        icon=folium.DivIcon(
+                            html=f"""<div style="font-family: courier new; color: black; font-size:16px; font-weight:bold">{r['STATION']}:{r[col]}</div>"""),
+                        popup=f"{col}: {r[col]}",
+                    ).add_to(folium_map)
+
+                # Text label
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.DivIcon(
+                            html=f"""
+                            <div style="
+                                font-family: courier new;
+                                font-size: 14px;
+                                font-weight: bold;
+                                color: black;
+                                white-space: nowrap;
+                                transform: translate(14px, -10px);
+                                text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px  1px 0 #fff, 1px  1px 0 #fff;
+                            ">
+                                {r['STATION']}: {value}
+                            </div>
+                            """
+                        ),
+                    ).add_to(folium_map)
+
+            else:
+                folium.GeoJson(
+                    gjson,
+                    style_function=lambda feature: {
+                        "fillColor": linear(val_dict[feature["properties"][division_col]]),
+                        "color": "black",
+                        "weight": 2,
+                        "dashArray": "5, 5",
+                    },
                 ).add_to(folium_map)
+
+
+                for _, r in centro.iterrows():
+                    lat = r["centroid"].y
+                    lon = r["centroid"].x
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.DivIcon(
+                            html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                        # popup="length: {} <br> area: {}".format(r["Shape_Leng"], r["Shape_Area"]),
+                    ).add_to(folium_map)
 
             linear.add_to(folium_map)
 
