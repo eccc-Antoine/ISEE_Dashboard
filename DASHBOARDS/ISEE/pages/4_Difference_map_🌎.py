@@ -39,6 +39,7 @@ tss_code=CFG_DASHBOARD.ts_list # Timeserie list
 # Thoses files are in \\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\shapefiles\
 sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_name)
 sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_country_name)
+sct_pts=os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_pts)
 tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.tiles_shp_name)
 
 # Import PI configuration
@@ -243,7 +244,7 @@ def function_for_tab4():
                     gdf_both = gpd.GeoDataFrame(gdf_both, crs=4326, geometry=gdf_both['geometry'])
                     folium_map, empty_map = UTILS.create_folium_map(gdf_both, 'DIFF', 1200, 700, Variable, unique_PI_CFG, division_col)
                 else:
-                    print(gdf_both[['VAL_plan','VAL_base']].tail(20))
+                    #print(gdf_both[['VAL_plan','VAL_base']].tail(20))
 
                     gdf_both['DIFF_PROP'] = (
                         ((gdf_both['VAL_plan'] - gdf_both['VAL_base']) / gdf_both['VAL_base']) * 100).round(3)
@@ -265,6 +266,10 @@ def function_for_tab4():
             else:
                 if unique_PI_CFG.divided_by_country:
                     sct_shp = sct_poly_country
+
+                elif 'WL_' in  st.session_state['PI_code']:
+                    print('water level PI, using pts shapefile instead')
+                    sct_shp = sct_pts
                 else:
                     sct_shp = sct_poly
 
@@ -272,12 +277,15 @@ def function_for_tab4():
                                                              var, unique_PI_CFG,
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
+
                 gdf_grille_plan = UTILS.prep_for_prep_1d(sct_shp, df_PI, ze_plan_code, stat,
                                                              var, unique_PI_CFG,
                                                              start_year, end_year, Baseline,
                                                              st.session_state['azure_container'])
 
                 division_col = 'SECTION'
+
+                #print(gdf_grille_plan.head())
 
                 if unique_PI_CFG.type=='1D' and 'PreProject' in Baseline:
                     gdf_grille_plan=gdf_grille_plan.loc[gdf_grille_plan['SECTION']!='Lake St.Lawrence']

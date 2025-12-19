@@ -158,10 +158,14 @@ def plot_difference_timeseries2(df_PI, list_plans, Variable, Baseline, start_yea
 
     # Add water level line if provided
     if df_WL is not None:
+        ## TODO drole workaround... le water plan historique reste toujours dans wl_plan_selected meme quand on change la ts... donc on prend celui de la serie qui s ajoute a la liste (ce qui explique le [-1]
+        df_WL_plan=df_WL.loc[df_WL['PLAN']==wl_plan_selected[-1]]
+
+
         fig2.add_trace(
             go.Scatter(
-                x=df_WL["YEAR"],
-                y=df_WL[WL_var],
+                x=df_WL_plan["YEAR"],
+                y=df_WL_plan[WL_var],
                 mode='lines+markers',
                 name=f'Water Level',
                 line=dict(width=1, dash="dash", color='#00FFFF')

@@ -8,12 +8,22 @@ import pandas as pd
 # print(val)
 # quit()
 
-df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_2D\YEAR\PLAN\Bv7_2014\WL_ISEE_2D_YEAR_Bv7_2014_1961_2020.feather")
+# older_space=
+# liste_files=[]
+# for root, dirs, files in os.walk(folder_space):
+#     for name in files:
+#         liste_files.append(os.path.join(root, name))
+# print(liste_files)
+#
+#
+
+
+df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_1D\YEAR\SECTION\GERBL2_2014_ComboC_STO_330\SLR_DS\WL_ISEE_1D_YEAR_GERBL2_2014_ComboC_STO_330_SLR_DS_2011_2070.feather")
 
 print(df.head())
 
 print(list(df))
-print(df['VAR1_mean'].unique())
+print(df['YEAR'].unique())
 
 
 quit()

@@ -75,6 +75,8 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
     gdf_grille_origin = gpd.read_file(geojson_data)
     gdf_grille_origin['VAL'] = np.nan
 
+    #print(list(gdf_grille_origin))
+
     # Load module
     multiplier = unique_PI_CFG.multiplier
     Variable = unique_PI_CFG.dct_var[var]
@@ -86,14 +88,16 @@ def prep_for_prep_1d(sct_poly, df_PI, scen_code, stat, var,
     df_PI = select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year,
                                    Variable, plans_selected)
     df_PI['SECTION'] = [reg_dct[section] for section in df_PI['SECTION']]
+    #print(list(gdf_grille_origin))
     gdf_grille_all = prep_data_map_1d(stat, gdf_grille_origin, df_PI, Variable, multiplier)
-    print(plans_selected)
+    #print(plans_selected)
     if unique_PI_CFG.type == '1D' and 'PreProject' in plans_selected[0]:
         # Remove Lake St.Lawrence
         gdf_grille_all['VAL'].loc[gdf_grille_all['SECTION']=='Lake St.Lawrence'] = np.nan
 
     gdf_grille_all = gdf_grille_all.dropna(subset='VAL') # Retirer le Lac St-Laurent
     gdf_grille_all = gdf_grille_all.dissolve(by='SECTION', as_index=False)
+    #print(list(gdf_grille_all))
     print('prep_for_prep_1d :', dt.now()-start)
     return gdf_grille_all
 
@@ -232,6 +236,8 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
 
     gjson = gdf_grille_1.to_json()
 
+    #print(list(gdf_grille_1))
+
     if division_col == 'SECTION':
         folium.GeoJson(
             gjson,
@@ -243,14 +249,26 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
             },
         ).add_to(m.m1)
 
-        for _, r in centro.iterrows():
-            lat = r["centroid"].y
-            lon = r["centroid"].x
-            folium.Marker(
-                location=[lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-            ).add_to(m.m1)
+        if 'STATION' in list (gdf_grille_1):
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:16px; font-weight:bold">{r['STATION']}:{r[col]}</div>""")
+                ).add_to(m.m1)
+        else:
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                ).add_to(m.m1)
+
+
     else:
         tooltip = folium.GeoJsonTooltip(
             fields=['TILE', col],
@@ -314,14 +332,24 @@ def create_folium_dual_map(_gdf_grille_base, _gdf_grille_plan, col, var, unique_
             },
         ).add_to(m.m2)
 
-        for _, r in centro.iterrows():
-            lat = r["centroid"].y
-            lon = r["centroid"].x
-            folium.Marker(
-                location=[lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
-            ).add_to(m.m2)
+        if 'STATION' in list (gdf_grille_1):
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:16px; font-weight:bold">{r['STATION']}:{r[col]}</div>""")
+                ).add_to(m.m2)
+        else:
+            for _, r in centro.iterrows():
+                lat = r["centroid"].y
+                lon = r["centroid"].x
+                folium.Marker(
+                    location=[lat, lon],
+                    icon=folium.DivIcon(
+                        html=f"""<div style="font-family: courier new; color: black; font-size:20px; font-weight:bold">{r[col]}</div>""")
+                ).add_to(m.m2)
 
     else:
         tooltip = folium.GeoJsonTooltip(

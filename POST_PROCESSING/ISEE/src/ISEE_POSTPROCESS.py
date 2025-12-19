@@ -25,6 +25,7 @@ class POST_PROCESS_2D_tiled:
         min_diff = abs_diff.min().min()
         closest_locs = list(zip(*((abs_diff == min_diff).to_numpy().nonzero())))
         closest_positions = [(df2.index[r], df2.columns[c]) for r, c in closest_locs]
+        print(closest_positions)
         closest_positions = closest_positions[0]
         id = df['PT_ID'].loc[closest_positions[0]]
         id=int(id)
@@ -102,10 +103,8 @@ class POST_PROCESS_2D_tiled:
             for var in list_var:
                 # Pour toutes les stats
                 for stat in stats:
-
                     ## ne pas faire la moyenne des points pour les niveaux d'eau mais plutôt utiliser un pt_id qui a une valeur proche de la moyenne
-
-                    if PI=='WL_ISEE_2D':
+                    if PI=='WL_ISEE_2D' and AGG_SPACE == 'TILE':
                         if count_id==1:
                             if self.logger:
                                 self.logger.info('determine which pt_id to select to represent the tile')
@@ -128,7 +127,8 @@ class POST_PROCESS_2D_tiled:
                         #value = df_year.loc[df_year['PT_ID'] == id, var].iloc[0]
 
                         try:
-                            value = df_year.loc[df_year['PT_ID'] == id, var].head(1).item()
+                            #value = df_year.loc[df_year['PT_ID'] == id, var].head(1).item()
+                            value = df_year.loc[df_year['PT_ID'] == id, var].iloc[0]
 
                         except Exception as e:
                             # Extract the problematic subset (for debugging)
@@ -150,6 +150,9 @@ class POST_PROCESS_2D_tiled:
                                 print(f"Filtered dataframe saved as: {debug_path}\n")
                                 print("Filtered dataframe was:")
                                 print(subset)
+
+                            if len(subset) != 1:
+                                print('got ya!', len(subset))
 
                             # Optional: re-raise the original error
                             raise e

@@ -38,6 +38,7 @@ tss_code=CFG_DASHBOARD.ts_list # Timeserie list
 # Thoses files are in \\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\shapefiles\
 sct_poly = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_name)
 sct_poly_country = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_poly_country_name)
+sct_pts=os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.sct_pts)
 tiles_shp = os.path.join(CFG_DASHBOARD.shapefile_folder_name, CFG_DASHBOARD.tiles_shp_name)
 
 # Import PI configuration
@@ -219,8 +220,13 @@ def function_for_tab3():
                                                                         unique_PI_CFG, start_year, end_year, st.session_state['azure_container'])
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'TILE')
             else:
+
+                #print(st.session_state['PI_code'])
                 if unique_PI_CFG.divided_by_country:
                     sct_shp = sct_poly_country
+                elif 'WL_' in  st.session_state['PI_code']:
+                    print('water level PI, using pts shapefile instead')
+                    sct_shp = sct_pts
                 else:
                     sct_shp = sct_poly
 

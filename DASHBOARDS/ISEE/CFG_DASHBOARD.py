@@ -30,6 +30,7 @@ tiles_shp = ''
 
 sct_poly_name = r"SECTIONS_simple_longnames.geojson"
 sct_poly_country_name = r"SECTIONS_simple_longnames_countries.geojson"
+sct_pts = r"STATION_WL.geojson"
 tiles_shp_name = r"TILES_SHP.geojson"
 
 debug_folder=r"debug"
