@@ -20,7 +20,7 @@ You need to modify the config file to choose which PI to post process and upload
 as well as which plan and/or section.
 
 The main progress of the script will be printed in the terminal, the intermediate steps
-will be saved in log files (one per pi) for consultation
+will be saved in log files for consultation
 '''
 
 def main():
@@ -45,6 +45,7 @@ def main():
     for agg in agg_type:
         assert agg in ['PLAN','SECTION','TILE','PT_ID'], f"{agg} is an invalid aggregation type. Please use ['PLAN','SECTION','TILE','PT_ID']"
 
+    logger.info(f'Starting Post-Processing for {all_pis} with aggregation types {agg_type}')
     print('Launching Post-Processing for', all_pis)
 
     # ISEE_POSTPROCESS per type of PI
@@ -52,26 +53,31 @@ def main():
     if len(cfg.pis_2D_tiled) != 0:
         tiled=POST_PROCESS_2D_tiled(cfg.pis_2D_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, logger=logger)
         for pi in tiled.pis:
+            logger.info(f'Post processing {pi}...')
             print(f'Post processing {pi}...')
             tiled.agg_2D_space(pi, ['YEAR'], agg_type)
 
     if len(cfg.pis_2D_not_tiled) != 0:
         not_tiled=POST_PROCESS_2D_not_tiled(cfg.pis_2D_not_tiled, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep, logger=logger)
         for pi in not_tiled.pis:
+            logger.info(f'Post processing {pi}...')
             print(f'Post processing {pi}...')
             not_tiled.agg_2D_space(pi, ['YEAR'], agg_type)
 
     if len(cfg.pis_1D) != 0:
         pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
         for pi in pi_1D.pis:
+            logger.info(f'Post processing {pi}...')
             print(f'Post processing {pi}...')
             agg_type_1D = [agg for agg in agg_type if agg in ['PLAN', 'SECTION']]
             pi_1D.agg_1D_space(pi, ['YEAR'], agg_type_1D)
 
     # group and upload to Azure
+    logger.info('Group parquet for', agg_type)
     print('Group parquet for', agg_type)
     # We need to group all available plans, sections and tiles, even if only one section or plan is ran
     for pi in all_pis:
+        logger.info(f'  -> {pi}')
         print('  ->',pi)
         for agg in agg_type:
             # We don't group PT_ID files
@@ -87,18 +93,20 @@ def main():
 
     # Upload to Azure
     # Only upload new files, based on the plans + sections and ALL files
+    logger.info('Uploading parquet to Azure...')
     print('Uploading parquet to Azure...')
     for pi in all_pis:
         print('  ->',pi)
+        logger.info(f'  -> {pi}')
 
         pi_folder = os.path.join(cfg.POST_PROCESS_RES,pi)
-        file_list = list_files(folder) + list_files(folder, extension='.feather')
+        file_list = list_files(pi_folder) + list_files(pi_folder, extension='.feather')
 
         # Only the concerned aggegation levels
         file_list = [f for f in file_list if any(agg in f for agg in agg_type)]
 
         # Only the concerned plans + ALL
-        file_list = [f for f in file_list if ('ComboA' in f) | ('ComboB' in f) | ('ALL' in f)] # to modify
+        file_list = [f for f in file_list if any(plan in f for plan in cfg.plans) or ('ALL' in f)]
     #     # Only the concerned sections
     #     file_list = [f for f in file_list if ('ComboA' in f) | ('ComboB' in f)] # to modify
 
