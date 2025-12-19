@@ -120,13 +120,14 @@ st.subheader('Select what you want to see on the left and display the results on
 
 def function_for_tab1():
 
-    # Deux colonnes : une avec les widgets et une avec le graphiques
+    # # Deux colonnes : une avec les widgets et une avec le graphiques
     Col1, Col2 = st.columns([0.2, 0.8],gap='large') # Deux colonnes dans l'affichage
     with Col1:
+    #with st.sidebar.expander("Dashboard Parameters", expanded=True):
         st.subheader('**Parameters**')
-        # Afficher la colonne 1 (gauche)
         LakeSL_prob_1D, selected_pi, PI_code, unique_PI_CFG, start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, var_direction, df_PI, baseline_value, plan_values, list_plans, no_plans_for_ts, show_water_levels, wl_plan_selected, df_WL, WL_var, WL_PI_CFG=render_column1()
 
+    #Col1, Col2 = st.columns([0.05, 0.95], gap='large')  # Deux colonnes dans l'affichage
     with Col2:
         st.subheader('**Plot**')
         if no_plans_for_ts==True:
@@ -141,8 +142,6 @@ def function_for_tab1():
 
             if LakeSL_prob_1D:
                 st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
-
-            #st.write(show_water_levels, wl_plan_selected)
 
             fig, df_PI_plans = UTILS.plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline,
                                                      start_year, end_year, unique_PI_CFG.units, show_water_levels, wl_plan_selected, df_WL, WL_var)
@@ -165,6 +164,7 @@ def render_column1():
     update_timeseries()
 
     old_PI_code = st.session_state['PI_code']
+    old_WL_code = st.session_state['WL_code']
     pi_list = list(pi_dct.values())
     pi_list.sort()
     selected_pi = st.selectbox("Select a Performance Indicator", pi_list,
@@ -179,7 +179,7 @@ def render_column1():
     # First time loading the dashboard
     if 'df_PI_timeseries' not in st.session_state:
         st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
-    # If the use changed the PI, load it
+    # If the user changed the PI, load it
     if (old_PI_code != st.session_state['PI_code']):
         st.session_state['df_PI_timeseries'] = UTILS.create_timeseries_database(folder, PI_code, st.session_state['azure_container'])
         # when the timeserie changes, the value of the widgets need to change too
@@ -219,7 +219,18 @@ def render_column1():
     update_WL_code()
     WL_code = st.session_state['WL_code']
 
-    st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+    # First time loading the dashboard
+    if 'df_WL_timeseries' not in st.session_state:
+        st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+    # If the user changed the PI, load it
+    if (old_WL_code != st.session_state['WL_code']):
+        st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+        # when the timeserie changes, the value of the widgets need to change too
+        UTILS.initialize_session_state()
+    if (old_ts_code != st.session_state['ts_code']):
+        UTILS.initialize_session_state()
+
+    #st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
     df_WL = st.session_state['df_WL_timeseries']
 
     LakeSL_prob_1D =False
@@ -238,6 +249,9 @@ def render_column1():
     if wl_plan_selected is not None:
         df_WL, WL_var = UTILS.select_timeseries_data(df_WL, WL_PI_CFG, start_year, end_year, Region_WL2,  wl_variable, wl_plan_selected,
                                              'N/A')
+
+        #print(df_WL['YEAR'].unique())
+
     else:
         df_WL=None
         WL_var=None

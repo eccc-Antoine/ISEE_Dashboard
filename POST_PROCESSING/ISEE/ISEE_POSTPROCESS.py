@@ -24,6 +24,7 @@ class POST_PROCESS_2D_tiled:
         min_diff = abs_diff.min().min()
         closest_locs = list(zip(*((abs_diff == min_diff).to_numpy().nonzero())))
         closest_positions = [(df2.index[r], df2.columns[c]) for r, c in closest_locs]
+        print(closest_positions)
         closest_positions = closest_positions[0]
         id = df['PT_ID'].loc[closest_positions[0]]
         id=int(id)
@@ -44,12 +45,11 @@ class POST_PROCESS_2D_tiled:
         liste_df=[]
         liste_file_year=[f for f in liste_files if str(y) in f.split('_')[-1]]
 
-
         if len(liste_file_year) >0:
             for feather in liste_file_year:
                 df_temp=pd.read_feather(feather)
                 liste_df.append(df_temp)
-            # print('concatenating....')
+            #print('concatenating....')
             df_year=pd.concat(liste_df, ignore_index=True)
             no_dat_year = 99999
         else:
@@ -58,6 +58,7 @@ class POST_PROCESS_2D_tiled:
         return df_year, no_dat_year
 
     def AGG_SPACE_YEAR(self, path_res, res_name, columns, AGG_TIME, AGG_SPACE, list_var, stats, agg_year_param, path_feather_year, years_list, space, PI):
+
         dct_df_space=dict.fromkeys(tuple(columns),[])
         df_space=pd.DataFrame(dct_df_space)
 
@@ -86,10 +87,8 @@ class POST_PROCESS_2D_tiled:
                 continue
             for var in list_var:
                 for stat in stats:
-
                     ## ne pas faire la moyenne des points pour les niveaux d'eau mais plutôt utiliser un pt_id qui a une valeur proche de la moyenne
-
-                    if PI=='WL_ISEE_2D':
+                    if PI=='WL_ISEE_2D' and AGG_SPACE == 'TILE':
                         if count_id==1:
                             print('determine which pt_id to select to represent the tile')
                             id=self.find_pt_id(df_year)
@@ -109,7 +108,8 @@ class POST_PROCESS_2D_tiled:
                         #value = df_year.loc[df_year['PT_ID'] == id, var].iloc[0]
 
                         try:
-                            value = df_year.loc[df_year['PT_ID'] == id, var].head(1).item()
+                            #value = df_year.loc[df_year['PT_ID'] == id, var].head(1).item()
+                            value = df_year.loc[df_year['PT_ID'] == id, var].iloc[0]
 
                         except Exception as e:
                             # Extract the problematic subset (for debugging)
@@ -126,7 +126,11 @@ class POST_PROCESS_2D_tiled:
                             print(f"\nERROR retrieving value for PT_ID={id}, var={var}")
                             print(f"Filtered dataframe saved as: {debug_path}\n")
                             print("Filtered dataframe was:")
+
                             print(subset)
+
+                            if len(subset) != 1:
+                                print('got ya!', len(subset))
 
                             # Optional: re-raise the original error
                             raise e
@@ -235,6 +239,7 @@ class POST_PROCESS_2D_tiled:
                                 years_list=PI_CFG.available_years_hist
                             else:
                                 years_list = PI_CFG.available_years_future
+
 
                             res_name=f'{PI}_{AGG_TIME}_{space}_{min(years_list)}_{max(years_list)}.feather'
 
@@ -744,8 +749,8 @@ pi_1D=POST_PROCESS_1D(cfg.pis_1D, cfg.ISEE_RES, cfg.POST_PROCESS_RES, cfg.sep)
 for pi in tiled.pis:
     print(pi)
     #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE', 'PT_ID'])
-    tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'])
-    # tiled.agg_2D_space(pi, ['YEAR'], ['SECTION'])
+    #tiled.agg_2D_space(pi, ['YEAR'], ['PLAN', 'SECTION', 'TILE'])
+    tiled.agg_2D_space(pi, ['YEAR'], ['TILE'])
 
 # for pi in pi_1D.pis:
 #     print(pi)

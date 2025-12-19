@@ -181,6 +181,7 @@ def function_for_tab2():
 def render_column1():
 
     old_PI_code = st.session_state['PI_code']
+    old_WL_code = st.session_state['WL_code']
     old_ts_code = st.session_state['ts_code']
     ts_list = list(ts_dct.values())
     timeseries = st.selectbox("Select a supply", ts_list, index=ts_list.index(ts_dct[st.session_state['ts_code']]), key='timeseries')
@@ -209,6 +210,9 @@ def render_column1():
 
     df_PI = st.session_state['df_PI_timeseries']
 
+
+
+
     start_year, end_year, Region, plans_selected, Baseline, Stats, Variable, no_plans_for_ts, show_water_level, wl_plan_selected = UTILS.MAIN_FILTERS_streamlit(ts_code,unique_PI_CFG,
             Years=True, Region=True, Plans=True, Baselines=True, Stats=True, Variable=True, water_levels=True)
 
@@ -234,7 +238,20 @@ def render_column1():
     wl_variable=WL_PI_CFG.dct_var[wl_var_code]
     update_WL_code()
     WL_code = st.session_state['WL_code']
-    st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+
+    # First time loading the dashboard
+    if 'df_WL_timeseries' not in st.session_state:
+        st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+    # If the user changed the PI, load it
+    if (old_WL_code != st.session_state['WL_code']):
+        st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
+        # when the timeserie changes, the value of the widgets need to change too
+        UTILS.initialize_session_state()
+    if (old_ts_code != st.session_state['ts_code']):
+        UTILS.initialize_session_state()
+
+
+    #st.session_state['df_WL_timeseries'] = UTILS.create_timeseries_database(folder, WL_code, st.session_state['azure_container'])
     df_WL = st.session_state['df_WL_timeseries']
 
 
