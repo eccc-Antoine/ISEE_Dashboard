@@ -54,7 +54,7 @@ for pi in pis_code:
 del PI_CFG
 
 list_PIs = dict_variables.keys()
-output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS_20251209')
+output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS_20251223')
 os.makedirs(output_folder, exist_ok=True)
 
 for pi in list_PIs:
@@ -79,12 +79,15 @@ for pi in list_PIs:
 
                     for sect in list_sections:
 
-                        file_res = glob.glob(os.path.join(path_plan_pi, *[sect, '*.feather']))
+                        file_res = glob.glob(os.path.join(path_plan_pi, *[sect, '*.feather'])) + glob.glob(os.path.join(path_plan_pi, *[sect, '*.parquet']))
 
                         if len(file_res) == 1:
                             file_res = file_res[0]
 
-                            df_res = pd.read_feather(file_res)
+                            if file_res.endswith('.feather'):
+                                df_res = pd.read_feather(file_res)
+                            else:
+                                df_res = pd.read_parquet(file_res)
 
                             df_res = df_res.rename(dict_var_pi, axis=1)
 

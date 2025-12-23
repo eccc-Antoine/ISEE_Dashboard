@@ -5,10 +5,10 @@
 #------------------------------------------------------------------#
 
 # string to add to the log file name
-log_name='IERM_2D_PT_ID'
+log_name='IXEX_RPI_2D_PLAN_SECTION_TILE'
 
 # PI Code for tiled PI : ['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D', 'ERIW_MIN_2D', 'PIKE_2D']
-pis_2D_tiled=['IERM_2D'] # empty if no tiled PI
+pis_2D_tiled=['IXEX_RPI_2D'] # empty if no tiled PI
 
 # PI Code for PI not tiled : ['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D', 'WATER_INTAKES_2D']
 pis_2D_not_tiled=[] # empty if no PI not tiled
@@ -31,7 +31,7 @@ plans=['GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'GERBL2_2014_ComboA_STO_330',
 
 # For a complete post-processing : ['PLAN','SECTION','TILE','PT_ID']
 # You can keep all four for 1D PI and it won't cause an error it's going to skip them (TILE and PT_ID)
-agg_type=['PT_ID']#['PLAN','SECTION','TILE','PT_ID']
+agg_type=['PLAN','SECTION','TILE'] #,'PT_ID']
 
 #------------------------------------------------------------------#
 #                           STABLE                                 #

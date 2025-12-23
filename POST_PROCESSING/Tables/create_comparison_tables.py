@@ -582,7 +582,7 @@ alpha = 0.05
 #file_struct_protection = r"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\PI_CSV_RESULTS\SHOR_PROT_STRUC_RESULTS_ALL_SCENARIO.csv"
 #df_struct_prot = pd.read_csv(file_struct_protection, sep=';', header=0)
 
-folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20251209')
+folder_results = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20251223')
 
 #list_supplies = ['Historical']
 
@@ -788,7 +788,7 @@ for pi, list_var in dict_pi_var.items():
 df_res_all = pd.concat(list_results)
 
 print(df_res_all)
-output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20251216.csv')
+output_results = os.path.join(folder_results, f'PIs_SUMMARY_RESULTS_20251223.csv')
 df_res_all.to_csv(output_results, sep=';', index=False)
 
 
