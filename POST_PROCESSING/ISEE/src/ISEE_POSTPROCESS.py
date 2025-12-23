@@ -274,7 +274,7 @@ class POST_PROCESS_2D_tiled:
                         # Pour tous les plans dans les config du PI
                         for space in PI_CFG.available_plans+PI_CFG.available_baselines:
                             if self.logger:
-                                self.logger.info('    -->' + space)
+                                self.logger.info(f'    -->{space}')
                             print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             # Si les résultats existent déjà, skipper
@@ -307,7 +307,7 @@ class POST_PROCESS_2D_tiled:
                             # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
                                 if self.logger:
-                                    self.logger.info('    -->' + space)
+                                    self.logger.info(f'    -->{space}')
                                 print('    -->',space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
                                 # Si les résultats existent déjà, skipper
@@ -336,8 +336,8 @@ class POST_PROCESS_2D_tiled:
                                 # Pour toutes les tuiles, aggréger pour le plan courant
                                 for space in cfg.dct_tile_sect[s]:
                                     if self.logger:
-                                        self.logger.info('    -->' + space)
-                                    print('    -->',space)
+                                        self.logger.info('    -->' + p + ' ' + s + ' ' + str(space))
+                                    print('    -->',p, s, space)
                                     space=str(space)
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s, space)
                                     # Skip si les résultats existent déjà
@@ -371,6 +371,10 @@ class POST_PROCESS_2D_tiled:
                                     continue
                                 # Pour toutes les variables du PI, aggréger par PT ID
                                 for var in list(PI_CFG.dct_var.keys()):
+                                    if self.logger:
+                                        self.logger.info(f'--> Computing {var} for plan {p} and section {s}')
+                                    print(f'--> Computing {var} for plan {p} and section {s}')
+
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                     if not os.path.exists(path_res):
                                         os.makedirs(path_res)
@@ -460,13 +464,13 @@ class POST_PROCESS_2D_not_tiled:
 
             elif AGG_SPACE == 'SECTION':
                 df_year, empty_year=self.agg_YEAR(agg_year_param, y)
-                df_year=df_year.loc[df_year['SECTION']==space]
                 if empty_year:
                     if self.logger:
                         self.logger.info(f'Year {y} is empty')
                     else:
                         print(y, 'EMPTY!!!')
                     continue
+                df_year=df_year.loc[df_year['SECTION']==space]
 
             elif AGG_SPACE == 'TILE':
                 # Nom du fichier de l'année courante
@@ -617,7 +621,7 @@ class POST_PROCESS_2D_not_tiled:
                                 years_list = PI_CFG.available_years_future
 
                             if self.logger:
-                                self.logger.info('    -->' + space)
+                                self.logger.info(f'    -->{space}')
                             print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             # Si les résultats existent déjà, skipper
@@ -643,7 +647,7 @@ class POST_PROCESS_2D_not_tiled:
                             # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
                                 if self.logger:
-                                    self.logger.info('    -->' + p + ' ' + space)
+                                    self.logger.info(f'    -->{p} {space}')
                                 print('    -->',p, space)
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
                                 res_name=f'{PI}_{AGG_TIME}_{p}_{space}_{min(years_list)}_{max(years_list)}.parquet'
@@ -709,6 +713,9 @@ class POST_PROCESS_2D_not_tiled:
                                     continue
                                 # Pour toutes les variables du PI, aggréger par PT ID
                                 for var in list(PI_CFG.dct_var.keys()):
+                                    if self.logger:
+                                        self.logger.info(f'--> Computing {var} for plan {p} and section {s}')
+                                    print(f'--> Computing {var} for plan {p} and section {s}')
                                     path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, s)
                                     if not os.path.exists(path_res):
                                         os.makedirs(path_res)
@@ -851,7 +858,7 @@ class POST_PROCESS_1D:
                                 years_list = PI_CFG.available_years_future
 
                             if self.logger:
-                                self.logger.info('    -->' + space)
+                                self.logger.info(f'    -->{space}')
                             print('    -->',space)
                             path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, space)
                             # Si les résultats existent déjà, skipper
@@ -877,7 +884,7 @@ class POST_PROCESS_1D:
                             # Pour toutes les sections, aggréger pour le plan courant
                             for space in PI_CFG.available_sections:
                                 if self.logger:
-                                    self.logger.info('    -->' + p + ' ' + space)
+                                    self.logger.info(f'    -->{p} {space}')
                                 print('    -->',p, space)
 
                                 path_res=os.path.join(self.POST_PROCESS_RES, PI, AGG_TIME, AGG_SPACE, p, space)
