@@ -17,8 +17,13 @@ To run the post-processing : python main.py
 
 ## After the post-processing
 Please check your terminal and the logs to make sure you post-processed what you wanted. Check also your out folder in projets$\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3.
-Finally, you can go the the online version of the Dashboard to see your results.
+Finally, you can go the online version of the Dashboard to see your results if the PI config was not changed. Else, you need to push the app to Azure or run the dashboard locally.
 
-If the results in the dashboard are erroneous, most of the time it's one of those problems : the files in prod2\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW contain errors or are missing,
-the PIs or post-processing config were not updated correctly, you didn't open the shared servers recently or you can try running the post-processing again (sometimes it works). If you changed the PIs configuration in GENERAL/CFG_PIS, we need
-to update the app online separately to see your results (ask Antoine/Marianne F).
+If the results in the dashboard are erroneous, most of the time it's one of those problems :
+- the files in prod2\GLAM\Output_ISEE\results_off\DASHBOARD_RESULTS_NEW contain errors or are missing ;
+- the PIs or post-processing config were not updated correctly ;
+- you didn't open the shared servers recently.
+
+You can try running the post-processing again (sometimes it works).
+
+If you changed the PIs configuration in GENERAL/CFG_PIS, we need to update the app online separately to see your results (ask Antoine/Marianne F).
