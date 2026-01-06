@@ -5,13 +5,13 @@
 #------------------------------------------------------------------#
 
 # string to add to the log file name
-log_name='IXEX_RPI_2D_PLAN_SECTION_TILE'
+log_name='WATER_INTAKES_2D_AB'
 
 # PI Code for tiled PI : ['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D', 'ERIW_MIN_2D', 'PIKE_2D']
-pis_2D_tiled=['IXEX_RPI_2D'] # empty if no tiled PI
+pis_2D_tiled=[] # empty if no tiled PI
 
 # PI Code for PI not tiled : ['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D', 'WATER_INTAKES_2D']
-pis_2D_not_tiled=[] # empty if no PI not tiled
+pis_2D_not_tiled=['WATER_INTAKES_2D'] # empty if no PI not tiled
 
 # PI Code for 1D PI : ['SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D', 'ONZI_OCCUPANCY_1D', 'TURTLE_1D', 'WL_GLRRM_1D', 'WL_ISEE_1D', 'ZIPA_1D']
 pis_1D=[] # empty if no 1D PI
@@ -24,14 +24,15 @@ POST_PROCESS_RES=fr'\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable
 
 # Not implemented yet, you need to delete the files manually in POST_PROCESS_RES if you want to reprocess a plan/section
 # However, it will be used to select which plans to upload to Azure, so you still need to set it
-plans=['GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330']
-# ['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'OBS',
-#  'PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45',
-#  'PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330']
+plans=['GERBL2_2014_ComboA', 'GERBL2_2014_ComboB','GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45','GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330']
+# ['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD','OBS',
+#        'PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45',
+#        'PreProject_STO_330', 'GERBL2_2014_STO_330', 'GERBL2_2014_ComboA_STO_330', 'GERBL2_2014_ComboB_STO_330', 'GERBL2_2014_ComboC_STO_330', 'GERBL2_2014_ComboD_STO_330']
+
 
 # For a complete post-processing : ['PLAN','SECTION','TILE','PT_ID']
 # You can keep all four for 1D PI and it won't cause an error it's going to skip them (TILE and PT_ID)
-agg_type=['PLAN','SECTION','TILE'] #,'PT_ID']
+agg_type=['PLAN','SECTION','TILE','PT_ID']
 
 #------------------------------------------------------------------#
 #                           STABLE                                 #
