@@ -131,7 +131,7 @@ def function_for_tab3():
         else:
             stat_list = unique_PI_CFG.var_agg_stat[var] + ['min', 'max']
             stat = st.selectbox("Select a way to aggregate values for the selected period",
-                                stat_list, index=stat_list.index(st.session_state['selected_stat']),
+                                stat_list, index=stat_list.index(st.session_state['selected_stat']) if st.session_state['selected_stat'] in stat_list else 0,
                                 key='_selected_stat', on_change=UTILS.update_session_state, args=('selected_stat', ))
 
         if unique_PI_CFG.type in ['2D_tiled','2D_not_tiled']:
@@ -310,25 +310,25 @@ def render_column1_simple():
 
     return old_PI_code, PI_code, unique_PI_CFG, start_year, end_year, Variable, ts_code
 
-try:
-    function_for_tab3()
-    st.session_state['has_resetted'] = False
-except Exception as e:
-    if not st.session_state['has_resetted']:
-        st.warning('An error occurred, restarting the dashboard now...')
-        st.error(traceback.format_exc())
+# try:
+function_for_tab3()
+#     st.session_state['has_resetted'] = False
+# except Exception as e:
+#     if not st.session_state['has_resetted']:
+#         st.warning('An error occurred, restarting the dashboard now...')
+#         st.error(traceback.format_exc())
 
-        st.session_state['PI_code'] = pis_code[0]
-        st.session_state['selected_pi'] = default_PI
-        st.session_state['ts_code'] = tss_code[0]
-        st.session_state['selected_timeseries'] = default_ts
+#         st.session_state['PI_code'] = pis_code[0]
+#         st.session_state['selected_pi'] = default_PI
+#         st.session_state['ts_code'] = tss_code[0]
+#         st.session_state['selected_timeseries'] = default_ts
 
-        UTILS.initialize_session_state()
-        st.session_state['has_resetted'] = True
-        st.rerun()
-    else:
-        st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
-        st.error(traceback.format_exc())
+#         UTILS.initialize_session_state()
+#         st.session_state['has_resetted'] = True
+#         st.rerun()
+#     else:
+#         st.error('An error occurred and persisted. Please close the dashboard and open it again. If you are still not able to use the dashboard, please contact us and we will assist you. We are sorry for the inconvenience.')
+#         st.error(traceback.format_exc())
 
 print('Execution time :', dt.now()-start)
 print('----------------------------END----------------------------')
