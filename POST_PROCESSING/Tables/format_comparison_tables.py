@@ -11,6 +11,8 @@ from copy import copy
 from openpyxl.styles import PatternFill
 import numpy as np
 
+# After creating the table, you need to add a note for MFI and NFB
+# about using GLRMM wl for SLR_US section
 
 def copy_template_block(template_sheet, consolidated_sheet, start_row):
     """
@@ -134,8 +136,8 @@ def map_values_to_template(template_path, sheet, df_data, output_path, mapping_r
 
 # Example usage
 template_path = r"\\ECQCG1JWPASP002\projets$\GLAM\Dashboard\ISEE_Dash_portable\results_template_2.xlsx"
-outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20251223')
-csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20251223.csv')
+outfolder = os.path.join(cfg.POST_PROCESS_RES, r'PI_CSV_RESULTS_20260106')
+csv_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_20260106.csv')
 # Define mapping rules (example: map section, plan, supply_scenario to Excel cells)
 
 # todo: modifier pour ajouter ComboA et ComboB
@@ -252,7 +254,7 @@ list_pi_can_us = ['NFB_2D']
 
 df_results = pd.read_csv(csv_path, sep=';', header=0)
 
-output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20251223.xlsx')
+output_path = os.path.join(outfolder, f'PIs_SUMMARY_RESULTS_FORMATTED_TABLE_20260106.xlsx')
 
 if os.path.exists(output_path):
     os.remove(output_path)

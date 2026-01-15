@@ -54,7 +54,7 @@ for pi in pis_code:
 del PI_CFG
 
 list_PIs = dict_variables.keys()
-output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS_20251223')
+output_folder = os.path.join(cfg.POST_PROCESS_RES, 'PI_CSV_RESULTS_20260106')
 os.makedirs(output_folder, exist_ok=True)
 
 for pi in list_PIs:
