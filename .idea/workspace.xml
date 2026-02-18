@@ -4,26 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="WL-1D">
-      <change afterPath="$PROJECT_DIR$/DASHBOARDS/prod/x_arry_zarr_approach.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main_duck_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS_duck_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" beforePathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" afterPathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/UTILS/pages/Timeseries_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/UTILS/pages/Timeseries_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_1D_format.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_1D_format.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_2D_format.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_2D_format.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ERIW_MIN_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ERIW_MIN_1D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ROADS_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ROADS_2D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_GLRRM_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_GLRRM_1D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/old/feather_2_parquet.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/old/feather_2_parquet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS.py" afterDir="false" />
+    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="nouveau post-process et clarification niveaux">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_MFI_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_MFI_2D.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -431,22 +414,6 @@
       <option name="presentableId" value="Default" />
       <updated>1717091129191</updated>
     </task>
-    <task id="LOCAL-00023" summary="'2Dmap functions_clean'">
-      <option name="closed" value="true" />
-      <created>1736450074903</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1736450074903</updated>
-    </task>
-    <task id="LOCAL-00024" summary="'2Dmap functions_clean'">
-      <option name="closed" value="true" />
-      <created>1736883728334</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1736883728334</updated>
-    </task>
     <task id="LOCAL-00025" summary="'2Dmap functions_clean'">
       <option name="closed" value="true" />
       <created>1738786734206</created>
@@ -823,7 +790,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766163268469</updated>
     </task>
-    <option name="localTasksCounter" value="72" />
+    <task id="LOCAL-00072" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1771441426172</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1771441426172</updated>
+    </task>
+    <task id="LOCAL-00073" summary="nouveau post-process et clarification niveaux">
+      <option name="closed" value="true" />
+      <created>1771441499115</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1771441499115</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -848,7 +831,8 @@
     <MESSAGE value="coquille dans read_me" />
     <MESSAGE value="ajout dans README et test workflow" />
     <MESSAGE value="WL-1D" />
-    <option name="LAST_COMMIT_MESSAGE" value="WL-1D" />
+    <MESSAGE value="nouveau post-process et clarification niveaux" />
+    <option name="LAST_COMMIT_MESSAGE" value="nouveau post-process et clarification niveaux" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
