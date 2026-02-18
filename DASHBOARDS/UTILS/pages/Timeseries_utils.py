@@ -108,15 +108,34 @@ def plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, 
             legendgrouptitle_text='Water Levels'
         ))
 
-        # Add axis 2 settings
-        fig.update_layout(
-            yaxis2=dict(
-                title='m (IGLD85)',
-                overlaying='y',
-                side='right',
-                showgrid=False
+        if "WL" in str(unique_PI_CFG):
+            y1_values = df_PI_plans[Variable]
+            y2_values = df_wl_plan[WL_var]
+
+            full_min = min(y1_values.min(), y2_values.min())
+            full_max = max(y1_values.max(), y2_values.max())
+
+            fig.update_layout(
+                yaxis=dict(range=[full_min, full_max]),
+                yaxis2=dict(
+                    title='m (IGLD85)',
+                    overlaying='y',
+                    side='right',
+                    showgrid=False,
+                    range=[full_min, full_max]
+                )
             )
-        )
+        else:
+
+            # Add axis 2 settings
+            fig.update_layout(
+                yaxis2=dict(
+                    title='m (IGLD85)',
+                    overlaying='y',
+                    side='right',
+                    showgrid=False
+                )
+            )
 
     fig.update_layout(title=f'Values of {plans_selected_names} compared to {unique_PI_CFG.baseline_dct[Baseline]} from {start_year} to {end_year}',
                       xaxis_title='Years',
@@ -196,6 +215,13 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
+
+    print(f'PLANS == {plans_selected}')
+    print(f'REGION == {Region}')
+
+    print(f'!!!!! PLAN === {df_PI['PLAN'].unique()} !!!! ')
+
+    print(f'!!!!! SECTION === {df_PI['SECTION'].unique()} !!!! ')
 
     df_PI['SECTION'] = Region
 

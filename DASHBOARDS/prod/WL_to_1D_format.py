@@ -18,30 +18,41 @@ def group_year_station(df, station_cols, columns ):
     return df_out
 
 
-plan_name_dct = {
-    "obs_20241106": "OBS",
+# plan_name_dct = {
+#     "obs_20241106": "OBS",
+#
+#     "GERBL2_2014BOC_def_hist_phase2_1961_2020": "Bv7_2014",
+#     "GERBL2_2014BOC_comboA_hist_phase2_1961_2020": "GERBL2_2014_ComboA",
+#     "GERBL2_2014BOC_comboB_hist_phase2_1961_2020": "GERBL2_2014_ComboB",
+#     "GERBL2_P2014BOC_ComboC_hist_phase2_1961_2020": "Bv7_2014_ComboC",
+#     "GERBL2_2014BOC_comboD_hist_phase2_1961_2020": "GERBL2_2014_ComboD",
+#     "PreProject_historical_1961_2020": "PreProjectHistorical",
+#
+#     "GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070": "GERBL2_2014BOC_RCP45",
+#     "GERBL2_2014BOC_comboA_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboA_RCP45",
+#     "GERBL2_2014BOC_comboB_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboB_RCP45",
+#     "GERBL2_2014BOC_ComboC_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboC_RCP45",
+#     "GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboD_RCP45",
+#     "PreProject_default_RCA4_EARTH_rcp45_2011_2070": "PreProject_RCP45",
+#
+#     "GERBL2_2014BOC_def_stochastic_330_2011_2070": "GERBL2_2014_STO_330",
+#     "GERBL2_2014BOC_comboA_stochastic_330_2011_2070": "GERBL2_2014_ComboA_STO_330",
+#     "GERBL2_2014BOC_comboB_stochastic_330_2011_2070": "GERBL2_2014_ComboB_STO_330",
+#     "GERBL2_2014BOC_ComboC_stochastic_330_2011_2070": "GERBL2_2014_ComboC_STO_330",
+#     "GERBL2_2014BOC_ComboD_stochastic_330_2011_2070": "GERBL2_2014_ComboD_STO_330",
+#     "PreProject_default_stochastic_330_2011_2070": "PreProject_STO_330"
+# }
 
-    "GERBL2_2014BOC_def_hist_phase2_1961_2020": "Bv7_2014",
-    "GERBL2_2014BOC_comboA_hist_phase2_1961_2020": "GERBL2_2014_ComboA",
-    "GERBL2_2014BOC_comboB_hist_phase2_1961_2020": "GERBL2_2014_ComboB",
-    "GERBL2_P2014BOC_ComboC_hist_phase2_1961_2020": "Bv7_2014_ComboC",
-    "GERBL2_2014BOC_comboD_hist_phase2_1961_2020": "GERBL2_2014_ComboD",
-    "PreProject_historical_1961_2020": "PreProjectHistorical",
+# plan_name_dct = {
+#     "GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070": "GERBL2_2014BOC_RCP45",
+#     "GERBL2_2014BOC_comboA_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboA_RCP45",
+#     "GERBL2_2014BOC_comboB_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboB_RCP45",
+#     "GERBL2_2014BOC_ComboC_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboC_RCP45",
+#     "GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboD_RCP45",
+#     "PreProject_default_RCA4_EARTH_rcp45_2011_2070": "PreProject_RCP45"
+# }
 
-    "GERBL2_2014BOC_def_cc_rcp45_RCA4_EARTH_2011_2070": "GERBL2_2014BOC_RCP45",
-    "GERBL2_2014BOC_comboA_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboA_RCP45",
-    "GERBL2_2014BOC_comboB_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboB_RCP45",
-    "GERBL2_2014BOC_ComboC_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboC_RCP45",
-    "GERBL2_2014BOC_ComboD_RCA4_EARTH_rcp45_2011_2070": "GERBL2_2014_ComboD_RCP45",
-    "PreProject_default_RCA4_EARTH_rcp45_2011_2070": "PreProject_RCP45",
-
-    "GERBL2_2014BOC_def_stochastic_330_2011_2070": "GERBL2_2014_STO_330",
-    "GERBL2_2014BOC_comboA_stochastic_330_2011_2070": "GERBL2_2014_ComboA_STO_330",
-    "GERBL2_2014BOC_comboB_stochastic_330_2011_2070": "GERBL2_2014_ComboB_STO_330",
-    "GERBL2_2014BOC_ComboC_stochastic_330_2011_2070": "GERBL2_2014_ComboC_STO_330",
-    "GERBL2_2014BOC_ComboD_stochastic_330_2011_2070": "GERBL2_2014_ComboD_STO_330",
-    "PreProject_default_stochastic_330_2011_2070": "PreProject_STO_330"
-}
+plan_name_dct = {"obs_20241106":"OBS"}
 
 # plan_name_dct = {
 #     "PreProject_historical_1961_2020": "PreProjectHistorical"}
