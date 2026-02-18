@@ -34,8 +34,8 @@ sect_dct = sect_dct={'Lake Ontario':['LKO'],
             'Lake St.Lawrence':['USL_DS'],
               'St.Lawrence River upstream':['SLR_US'],
                'St.Lawrence River downstream':['SLR_DS'],
-               'Upstream':['LKO', 'USL_US'],
-               'Downstream':['USL_DS', 'SLR_US', 'SLR_DS']}
+               'Upstream':['LKO', 'USL_US', 'USL_DS'],
+               'Downstream':['SLR_US', 'SLR_DS']}
 
 available_plans=['PreProjectHistorical', 'Bv7_2014', 'GERBL2_2014_ComboA', 'GERBL2_2014_ComboB', 'Bv7_2014_ComboC', 'GERBL2_2014_ComboD', 'OBS',
                  'PreProject_RCP45', 'GERBL2_2014BOC_RCP45', 'GERBL2_2014_ComboA_RCP45', 'GERBL2_2014_ComboB_RCP45', 'GERBL2_2014_ComboC_RCP45', 'GERBL2_2014_ComboD_RCP45',
