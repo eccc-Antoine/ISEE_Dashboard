@@ -243,6 +243,7 @@ def function_for_tab3():
                 if baseline_code=='PreProjectHistorical' or ze_plan_code=='PreProjectHistorical':
                     st.write(':red[It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet!]')
 
+
                 m = UTILS.create_folium_dual_map(gdf_grille_base, gdf_grille_plan, 'VAL', Variable, unique_PI_CFG, 'SECTION')
 
             col_shape, col_html = st.columns(2,gap='small',width=600)

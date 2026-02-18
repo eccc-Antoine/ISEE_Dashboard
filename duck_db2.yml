@@ -1,0 +1,20 @@
+name: duck_db2
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - duckdb>=0.9.2
+  - pyarrow=14.*
+  - pandas>=1.5
+  - numpy
+  - fastparquet
+  - pip
+  - streamlit
+  - pathlib
+  - geopandas
+  - folium
+  - shapely
+  - azure-storage-blob
+  
+  
+

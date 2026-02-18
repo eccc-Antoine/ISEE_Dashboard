@@ -150,6 +150,18 @@ def function_for_tab2():
                     st.write(
                         ':red[For 1D PIs, It is not possible to compare velues to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values is equal to NaN and why the PreProjectHistorical values do not appear on the plot below.]')
 
+                downstream_warning = False
+
+                if wl_plan_selected is not None:
+                    if 'PreProjectHistorical' in wl_plan_selected and Region == 'Upstream':
+                        downstream_warning = True
+                if 'WL' in unique_PI_CFG.pi_code and Region == 'Upstream' and (
+                        'PreProjectHistorical' in plans_selected or 'PreProjectHistorical' in Baseline):
+                    downstream_warning = True
+                if downstream_warning:
+                    st.write(
+                        ':red[Note that for PreProjectHistorical, Lake St. Lawrence is not included in the Upstream section values. This explaina surprisingly high values comparing to other plans for the Upstream section (which include Lake St. Lawrence)]')
+
                 fig2, df_PI_plans = UTILS.plot_difference_timeseries(df_PI, list_plans, Variable, Baseline, start_year, end_year,
                                                                      unique_PI_CFG.units, unique_PI_CFG, diff_type)
 

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import logging
 import CFG_POST_PROCESS_ISEE as cfg
-from src.ISEE_POSTPROCESS import POST_PROCESS_2D_tiled, POST_PROCESS_2D_not_tiled, POST_PROCESS_1D
+from src.ISEE_POSTPROCESS_duck_db import POST_PROCESS_2D_tiled, POST_PROCESS_2D_not_tiled, POST_PROCESS_1D
 from src.FORMAT_DASH_FILES import *
 import importlib
 import sys
