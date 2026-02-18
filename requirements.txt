@@ -7,3 +7,4 @@ geopandas
 folium
 shapely
 azure-storage-blob
+duckdb
