@@ -50,12 +50,15 @@ class POST_PROCESS_2D_tiled:
         liste_file_year=[f for f in liste_files if str(y) in f.split('_')[-1]]
 
         # S'il y a des fichiers pour l'année y, les lire et les concatener
+        print(len(liste_file_year))
         if len(liste_file_year) >0:
             for feather in liste_file_year:
                 df_temp=pd.read_feather(feather)
                 liste_df.append(df_temp)
             # print('concatenating....')
             # Concatenate all years
+            print('concatenating.....')
+
             df_year=pd.concat(liste_df, ignore_index=True)
             no_dat_year = 99999
         # Si pas de fichier, il n'y a pas de données pour cette année
@@ -85,6 +88,7 @@ class POST_PROCESS_2D_tiled:
             count_id+=1
             if AGG_SPACE == 'PLAN' or AGG_SPACE == 'SECTION':
                 # print('ok')
+                print(agg_year_param)
                 df_year, no_dat_year=self.agg_YEAR(agg_year_param, y, columns)
             elif AGG_SPACE == 'TILE':
                 # Nom du fichier de l'année courante

@@ -13,7 +13,7 @@ var_direction={'Yearly min water level':'normal', 'Yearly mean water level':'inv
 # need to be 'mean' or 'sum', values need to be a list even if there is only one item
 var_agg_stat={'VAR1':['mean'], 'VAR2':['mean'], 'VAR3':['mean']}
 
-units='m'
+units='m (IGLD85)'
 
 multiplier=1
 

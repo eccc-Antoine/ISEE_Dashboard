@@ -25,7 +25,13 @@ available_years_future=list(range(2011, 2071))
 
 divided_by_country = False
 
+<<<<<<< feature/antoine
+#available_sections = ['LKO', 'USL_US', 'USL_DS', 'SLR_US', 'SLR_DS']
+
+available_sections = ['LKO', 'USL_US', 'USL_DS', 'SLR_DS']
+=======
 available_sections = ['LKO', 'USL_US', 'USL_DS', 'SLR_DS'] #'SLR_US',
+>>>>>>> main
 
 sect_dct = sect_dct={'Lake Ontario':['LKO'],
            'Upper St.Lawrence upstream':['USL_US'],

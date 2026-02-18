@@ -18,13 +18,55 @@ import pandas as pd
 #
 
 
-df=pd.read_feather(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_1D\YEAR\SECTION\GERBL2_2014_ComboC_STO_330\SLR_DS\WL_ISEE_1D_YEAR_GERBL2_2014_ComboC_STO_330_SLR_DS_2011_2070.feather")
 
+# df=pd.read_feather(fr"T:\GLAM\Input_ISEE\prod\HYD\WL_QM\GERBL2_2014BOC_def_hist\LKO\TILE_202\LKO_ISEE_TILE_202_1961_WL.feather")
+#
+# print(df.head())
+#
+# print(list(df))
+# # print(df['VAR1_mean'].unique())
+#
+#
+# quit()
+
+# sections=['LKO', 'SLR_DS', 'SLR_US', 'USL_DS', 'USL_US']
+#
+# for s in sections:
+
+# df=pd.read_csv("P:\Freshwater\LakeOntario\FINAL_DATABASE\WETLAND_AOI\CWRM_GLFEI_LKO_WETLAND_AOI_v3_MODELLED_with_CA_info.csv", sep=';')
+#
+# print(df.head())
+# print(list(df))
+#
+# print(len(df))
+#
+# sites=df['SITE_ID'].unique()
+#
+# dupp=df['SITE_ID'][df['SITE_ID'].duplicated()]
+#
+# print(dupp)
+#
+# sites=df.loc[df['CA_LEGAL_NAME']== 'Central Lake Ontario Conservation Authority']
+#
+# sites=sites[['SITE_ID', 'SITE_NAME']]
+#
+# print(sites)
+#
+# quit()
+
+df=pd.read_parquet(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_2D\YEAR\TILE\GERBL2_2014_ComboA\LKO\201\WL_ISEE_2D_YEAR_GERBL2_2014_ComboA_LKO_201_1961_2020.parquet")
+
+print(len(df))
 print(df.head())
 
 print(list(df))
+
 print(df['YEAR'].unique())
 
+quit()
+
+df.to_csv(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\CWRM_2D\YEAR\PT_ID\Bv7_2014\LKO\VAR3_CWRM_2D_YEAR_Bv7_2014_LKO_PT_ID_490_1962_2020.csv", sep=';')
+#print(df['YEAR'].unique())
 
 quit()
 
