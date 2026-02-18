@@ -62,7 +62,11 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
     # Merge with tile geometries
     gdf_tiles = gdf_tiles.merge(df_stats[['TILE',"VAL"]], on='TILE', how="left")
     gdf_tiles = gdf_tiles.dropna(subset=["VAL"])
-    gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
+    # Évite d'avoir des tuiles dans le lac Ontario avec une valeur de 0 par exemple (buildings)
+    # La condition évite d'avoir un dataframe vide si toutes les valeurs sont 0 (arrive avec la stats min), ce qui entrainait un bug
+    if len(gdf_tiles.loc[gdf_tiles['VAL'] != 0]) != 0 :
+        gdf_tiles = gdf_tiles.loc[gdf_tiles['VAL'] != 0]
+
     return(gdf_tiles)
 
 
