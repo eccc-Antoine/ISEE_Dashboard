@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="WL-1D">
+      <change afterPath="$PROJECT_DIR$/DASHBOARDS/prod/x_arry_zarr_approach.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main_duck_db.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS_duck_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" beforePathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" afterPathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DASHBOARDS/UTILS/pages/Timeseries_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/UTILS/pages/Timeseries_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_1D_format.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_1D_format.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_2D_format.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_2D_format.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ERIW_MIN_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ERIW_MIN_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ROADS_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_ROADS_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_GLRRM_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_GLRRM_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/old/feather_2_parquet.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/old/feather_2_parquet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="main" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2hCHRDUZvWBrGKzqAmhsnlefvWs" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.1_Timeseries_📈.executor&quot;: &quot;Run&quot;,
+    &quot;Python.CFG_ISEE_DASH.executor&quot;: &quot;Run&quot;,
+    &quot;Python.CFG_POST_PROCESS_ISEE.executor&quot;: &quot;Run&quot;,
+    &quot;Python.DASHBOARDS_UTILS.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_DASH_0_1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS10.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS4.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS5.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS6.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS7.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS8.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS9.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS_Marianne.executor&quot;: &quot;Run&quot;,
+    &quot;Python.ISEE_POSTPROCESS_duck_db.executor&quot;: &quot;Run&quot;,
+    &quot;Python.WL_to_1D_format.executor&quot;: &quot;Run&quot;,
+    &quot;Python.WL_to_2D_format.executor&quot;: &quot;Run&quot;,
+    &quot;Python.bidon.executor&quot;: &quot;Run&quot;,
+    &quot;Python.bidon2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.feather_2_parquet.executor&quot;: &quot;Run&quot;,
+    &quot;Python.for_richard.executor&quot;: &quot;Run&quot;,
+    &quot;Python.group_parquet_files.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_duck_db.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_duck_db2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.sftp_connect.executor&quot;: &quot;Run&quot;,
+    &quot;Python.sftp_file_transfer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.simpl_to_dashboard_format.executor&quot;: &quot;Run&quot;,
+    &quot;Python.upload_blob.executor&quot;: &quot;Run&quot;,
+    &quot;Python.x_arry_zarr_approach.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/antoine&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/GLAM_DASHBOARD/ISEE_Dashboard/POST_PROCESSING/ISEE&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\GLAM_DASHBOARD\ISEE_Dashboard\POST_PROCESSING\ISEE" />
+      <recent name="F:\GLAM_DASHBOARD\ISEE_Dashboard\POST_PROCESSING" />
+      <recent name="F:\GLAM_DASHBOARD\ISEE_Dashboard\POST_PROCESSING\ISEE\src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\GLAM_DASHBOARD\ISEE_Dashboard\DASHBOARDS\prod\Trucs_a_Caro" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="ISEE_DASH_0_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DASHBOARDS/ISEE" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DASHBOARDS/ISEE/ISEE_DASH_0_1.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS10" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS10.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS2" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS3" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS3.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS4" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS4.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS5" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS5.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS6" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS6.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS7" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS7.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS8" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS8.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ISEE_POSTPROCESS9" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/POST_PROCESSING/ISEE" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/POST_PROCESSING/ISEE/ISEE_POSTPROCESS9.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="WL_to_1D_format" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.13" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DASHBOARDS/prod" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DASHBOARDS/prod/WL_to_1D_format.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="bidon" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ISEE_Dashboard" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.13" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DASHBOARDS/prod" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.ISEE_DASH_0_1" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-7a29c1521ef0-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.11799.298" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="" />
+      <created>1717091129191</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1717091129191</updated>
+    </task>
+    <task id="LOCAL-00023" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1736450074903</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1736450074903</updated>
+    </task>
+    <task id="LOCAL-00024" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1736883728334</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1736883728334</updated>
+    </task>
+    <task id="LOCAL-00025" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1738786734206</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1738786734206</updated>
+    </task>
+    <task id="LOCAL-00026" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1738788664406</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1738788664406</updated>
+    </task>
+    <task id="LOCAL-00027" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1738789078699</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1738789078699</updated>
+    </task>
+    <task id="LOCAL-00028" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1738790043097</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1738790043097</updated>
+    </task>
+    <task id="LOCAL-00029" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1738857347655</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1738857347655</updated>
+    </task>
+    <task id="LOCAL-00030" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739197654938</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1739197654938</updated>
+    </task>
+    <task id="LOCAL-00031" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739199865856</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1739199865856</updated>
+    </task>
+    <task id="LOCAL-00032" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739215691335</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1739215691335</updated>
+    </task>
+    <task id="LOCAL-00033" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739215889063</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1739215889063</updated>
+    </task>
+    <task id="LOCAL-00034" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739369213864</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1739369213864</updated>
+    </task>
+    <task id="LOCAL-00035" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739369283804</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1739369283804</updated>
+    </task>
+    <task id="LOCAL-00036" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1739806592112</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1739806592112</updated>
+    </task>
+    <task id="LOCAL-00037" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1740062769947</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1740062769947</updated>
+    </task>
+    <task id="LOCAL-00038" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742234922240</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1742234922240</updated>
+    </task>
+    <task id="LOCAL-00039" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742239545448</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1742239545448</updated>
+    </task>
+    <task id="LOCAL-00040" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742239621734</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1742239621734</updated>
+    </task>
+    <task id="LOCAL-00041" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742322544494</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1742322544494</updated>
+    </task>
+    <task id="LOCAL-00042" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742324047788</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1742324047788</updated>
+    </task>
+    <task id="LOCAL-00043" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742324599250</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1742324599250</updated>
+    </task>
+    <task id="LOCAL-00044" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1742324764030</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1742324764030</updated>
+    </task>
+    <task id="LOCAL-00045" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1748270185023</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1748270185023</updated>
+    </task>
+    <task id="LOCAL-00046" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1748375412482</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1748375412482</updated>
+    </task>
+    <task id="LOCAL-00047" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1748375609884</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1748375609884</updated>
+    </task>
+    <task id="LOCAL-00048" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1748375958372</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1748375958372</updated>
+    </task>
+    <task id="LOCAL-00049" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1757966083527</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1757966083527</updated>
+    </task>
+    <task id="LOCAL-00050" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759502791488</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1759502791489</updated>
+    </task>
+    <task id="LOCAL-00051" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759504097785</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1759504097785</updated>
+    </task>
+    <task id="LOCAL-00052" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759845622911</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1759845622912</updated>
+    </task>
+    <task id="LOCAL-00053" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759847034921</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1759847034921</updated>
+    </task>
+    <task id="LOCAL-00054" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759847493204</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1759847493204</updated>
+    </task>
+    <task id="LOCAL-00055" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759847637937</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1759847637937</updated>
+    </task>
+    <task id="LOCAL-00056" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1759848957064</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1759848957064</updated>
+    </task>
+    <task id="LOCAL-00057" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1763389303631</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1763389303631</updated>
+    </task>
+    <task id="LOCAL-00058" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1763585881330</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1763585881330</updated>
+    </task>
+    <task id="LOCAL-00059" summary="'2Dmap functions_clean'">
+      <option name="closed" value="true" />
+      <created>1763658742838</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1763658742839</updated>
+    </task>
+    <task id="LOCAL-00060" summary="'img_path'">
+      <option name="closed" value="true" />
+      <created>1763658842289</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1763658842289</updated>
+    </task>
+    <task id="LOCAL-00061" summary="coquille dans read_me">
+      <option name="closed" value="true" />
+      <created>1763658925563</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1763658925563</updated>
+    </task>
+    <task id="LOCAL-00062" summary="ajout dans README et test workflow">
+      <option name="closed" value="true" />
+      <created>1763660475666</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1763660475666</updated>
+    </task>
+    <task id="LOCAL-00063" summary="ajout dans README et test workflow">
+      <option name="closed" value="true" />
+      <created>1763660703751</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1763660703751</updated>
+    </task>
+    <task id="LOCAL-00064" summary="ajout dans README et test workflow">
+      <option name="closed" value="true" />
+      <created>1763996359669</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1763996359669</updated>
+    </task>
+    <task id="LOCAL-00065" summary="ajout dans README et test workflow">
+      <option name="closed" value="true" />
+      <created>1763996425137</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1763996425137</updated>
+    </task>
+    <task id="LOCAL-00066" summary="ajout dans README et test workflow">
+      <option name="closed" value="true" />
+      <created>1764779624229</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1764779624229</updated>
+    </task>
+    <task id="LOCAL-00067" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1764779937108</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1764779937108</updated>
+    </task>
+    <task id="LOCAL-00068" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1764877837120</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1764877837120</updated>
+    </task>
+    <task id="LOCAL-00069" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1764882013308</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1764882013308</updated>
+    </task>
+    <task id="LOCAL-00070" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1765981632360</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1765981632360</updated>
+    </task>
+    <task id="LOCAL-00071" summary="WL-1D">
+      <option name="closed" value="true" />
+      <created>1766163268469</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1766163268469</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="Dockerfile" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="'map function to Alex'" />
+    <MESSAGE value="'2Dmap functions'" />
+    <MESSAGE value="'2Dmap functions_clean'" />
+    <MESSAGE value="'img_path'" />
+    <MESSAGE value="coquille dans read_me" />
+    <MESSAGE value="ajout dans README et test workflow" />
+    <MESSAGE value="WL-1D" />
+    <option name="LAST_COMMIT_MESSAGE" value="WL-1D" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/POST_PROCESSING/ISEE/old/feather_2_parquet.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
