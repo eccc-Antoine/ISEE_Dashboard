@@ -146,12 +146,12 @@ def function_for_tab1():
             downstream_warning = False
 
             if wl_plan_selected is not None:
-                if 'PreProjectHistorical' in wl_plan_selected and Region =='Downstream':
+                if 'PreProjectHistorical' in wl_plan_selected and Region =='Upstream':
                     downstream_warning=True
-            if 'WL' in unique_PI_CFG.pi_code and Region == 'Downstream' and ('PreProjectHistorical' in plans_selected or 'PreProjectHistorical' in Baseline) :
+            if 'WL' in unique_PI_CFG.pi_code and Region == 'Upstream' and ('PreProjectHistorical' in plans_selected or 'PreProjectHistorical' in Baseline) :
                 downstream_warning = True
             if downstream_warning:
-                st.write(':red[Note that for PreProjectHistorical, Lake St. Lawrence is not included in the Downstream section values. This explaina surprisingly low values comparing to other plans for the Downstream section (which include Lake St. Lawrence)]')
+                st.write(':red[Note that for PreProjectHistorical, Lake St. Lawrence is not included in the Upstream section values. This explaina surprisingly high values comparing to other plans for the Upstream section (which include Lake St. Lawrence)]')
 
             fig, df_PI_plans = UTILS.plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline,
                                                      start_year, end_year, unique_PI_CFG.units, show_water_levels, wl_plan_selected, df_WL, WL_var)

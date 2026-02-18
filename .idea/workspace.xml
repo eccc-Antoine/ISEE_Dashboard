@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="nouveau post-process et clarification niveaux">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_MFI_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_MFI_2D.py" afterDir="false" />
-    </list>
+    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -414,22 +411,6 @@
       <option name="presentableId" value="Default" />
       <updated>1717091129191</updated>
     </task>
-    <task id="LOCAL-00025" summary="'2Dmap functions_clean'">
-      <option name="closed" value="true" />
-      <created>1738786734206</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1738786734206</updated>
-    </task>
-    <task id="LOCAL-00026" summary="'2Dmap functions_clean'">
-      <option name="closed" value="true" />
-      <created>1738788664406</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1738788664406</updated>
-    </task>
     <task id="LOCAL-00027" summary="'2Dmap functions_clean'">
       <option name="closed" value="true" />
       <created>1738789078699</created>
@@ -806,7 +787,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771441499115</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="nouveau post-process et clarification niveaux">
+      <option name="closed" value="true" />
+      <created>1771442223316</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1771442223316</updated>
+    </task>
+    <task id="LOCAL-00075" summary="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)">
+      <option name="closed" value="true" />
+      <created>1771447856437</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1771447856437</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -832,7 +829,8 @@
     <MESSAGE value="ajout dans README et test workflow" />
     <MESSAGE value="WL-1D" />
     <MESSAGE value="nouveau post-process et clarification niveaux" />
-    <option name="LAST_COMMIT_MESSAGE" value="nouveau post-process et clarification niveaux" />
+    <MESSAGE value="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)" />
+    <option name="LAST_COMMIT_MESSAGE" value="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

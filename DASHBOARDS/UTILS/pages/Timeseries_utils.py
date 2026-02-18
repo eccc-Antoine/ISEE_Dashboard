@@ -216,12 +216,12 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
     df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
 
-    print(f'PLANS == {plans_selected}')
-    print(f'REGION == {Region}')
-
-    print(f'!!!!! PLAN === {df_PI['PLAN'].unique()} !!!! ')
-
-    print(f'!!!!! SECTION === {df_PI['SECTION'].unique()} !!!! ')
+    # print(f'PLANS == {plans_selected}')
+    # print(f'REGION == {Region}')
+    #
+    # print(f'!!!!! PLAN === {df_PI['PLAN'].unique()} !!!! ')
+    #
+    # print(f'!!!!! SECTION === {df_PI['SECTION'].unique()} !!!! ')
 
     df_PI['SECTION'] = Region
 
