@@ -141,16 +141,20 @@ def function_for_tab1():
                                 baseline_value, unique_PI_CFG.units, var_direction, LakeSL_prob_1D)
 
             if LakeSL_prob_1D:
-                st.write(':red[For 1D PIs, It is not possible to have values compared to PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why delta values are all equal to 0 and why the Baseline values do not appear on the plot below.]')
+                st.write(':red[For 1D PIs, It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why PreProjectHistorical values do not appear on the plot below, and are not considered int he difference calculation.]')
 
-            downstream_warning = False
+            upstream_warning = False
 
             if wl_plan_selected is not None:
                 if 'PreProjectHistorical' in wl_plan_selected and Region =='Upstream':
-                    downstream_warning=True
+                    upstream_warning=True
+                if 'PreProjectHistorical' in wl_plan_selected and Region =='Lake St.Lawrence':
+                    st.write(
+                        ':red[For 1D water levels, It is not possible to have values for PreProjectHistorical in Lake St. Lawrence since the Lake was not created yet! \n This is why water level values do not appear on the plot below.]')
+
             if 'WL' in unique_PI_CFG.pi_code and Region == 'Upstream' and ('PreProjectHistorical' in plans_selected or 'PreProjectHistorical' in Baseline) :
-                downstream_warning = True
-            if downstream_warning:
+                upstream_warning = True
+            if upstream_warning:
                 st.write(':red[Note that for PreProjectHistorical, Lake St. Lawrence is not included in the Upstream section values. This explaina surprisingly high values comparing to other plans for the Upstream section (which include Lake St. Lawrence)]')
 
             fig, df_PI_plans = UTILS.plot_timeseries(df_PI, unique_PI_CFG, list_plans, Variable, plans_selected, Baseline,
@@ -244,7 +248,7 @@ def render_column1():
     df_WL = st.session_state['df_WL_timeseries']
 
     LakeSL_prob_1D =False
-    if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and 'PreProject' in Baseline :
+    if unique_PI_CFG.type=='1D'and Region=='Lake St.Lawrence' and ('PreProject' in Baseline or 'PreProjectHistorical' in plans_selected):
         LakeSL_prob_1D=True
 
     var_direction = unique_PI_CFG.var_direction[Variable]

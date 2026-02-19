@@ -54,14 +54,14 @@ import pandas as pd
 #
 # quit()
 
-df=pd.read_parquet(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3\WL_ISEE_2D\YEAR\TILE\GERBL2_2014_ComboA\LKO\201\WL_ISEE_2D_YEAR_GERBL2_2014_ComboA_LKO_201_1961_2020.parquet")
+df=pd.read_parquet(fr"P:\GLAM\Dashboard\ISEE_Dash_portable\ISEE_POST_PROCESS_DATA_3_old\ZIPA_1D\YEAR\SECTION\ZIPA_1D_ALL_SECTIONS.parquet")
 
 print(len(df))
 print(df.head())
 
 print(list(df))
 
-print(df['YEAR'].unique())
+#print(df['YEAR'].unique())
 
 quit()
 
