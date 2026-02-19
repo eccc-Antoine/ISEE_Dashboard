@@ -40,7 +40,7 @@ def prep_for_prep_tiles_parquet(tile_geojson, df_PI, scen_code, stat, var, uniqu
 
     # Filter for the right section and plan
     df_PI = df_PI.loc[(df_PI['PLAN'] == scen_code)]
-    df_PI = df_PI.loc[(df_PI['YEAR']>= start_year) & (df_PI['YEAR'] <= end_year)]
+    df_PI = df_PI.loc[(df_PI['YEAR'].astype(int)>= start_year) & (df_PI['YEAR'].astype(int) <= end_year)]
     # Only the section available
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.available_sections)]
     colname = df_PI.columns[df_PI.columns.str.startswith(var)][0]
@@ -146,7 +146,7 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Variable,
     stats = unique_PI_CFG.var_agg_stat[var]
 
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected))]
-    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
+    df_PI = df_PI.loc[(df_PI['YEAR'].astype(int) >= start_year) & (df_PI['YEAR'].astype(int) <= end_year)]
     df_PI[Variable] = df_PI[f'{var}_{stats[0]}']
 
     multiplier = unique_PI_CFG.multiplier

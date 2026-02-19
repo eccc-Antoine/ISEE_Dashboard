@@ -244,7 +244,7 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
 
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
-    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
+    df_PI = df_PI.loc[(df_PI['YEAR'].astype(int) >= start_year) & (df_PI['YEAR'].astype(int) <= end_year)]
     df_PI['SECTION'] = Region
 
     if len(unique_PI_CFG.sect_dct[Region]) > 1: # Append when region is Downstream or Upstream

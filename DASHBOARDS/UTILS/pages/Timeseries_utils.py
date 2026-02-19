@@ -211,11 +211,11 @@ def select_timeseries_data(df_PI, unique_PI_CFG, start_year, end_year, Region, V
     # PI config
     var = [k for k, v in unique_PI_CFG.dct_var.items() if v == Variable][0]
     stats = unique_PI_CFG.var_agg_stat[var]
-
+    print(df_PI)
     df_PI = df_PI.loc[(df_PI['PLAN'].isin(plans_selected)) | (df_PI['PLAN'] == Baseline)]
     df_PI = df_PI.loc[df_PI['SECTION'].isin(unique_PI_CFG.sect_dct[Region])]
-    df_PI = df_PI.loc[(df_PI['YEAR'] >= start_year) & (df_PI['YEAR'] <= end_year)]
-
+    df_PI = df_PI.loc[(df_PI['YEAR'].astype(int) >= start_year) & (df_PI['YEAR'].astype(int) <= end_year)]
+    print(df_PI)
     # print(f'PLANS == {plans_selected}')
     # print(f'REGION == {Region}')
     #
