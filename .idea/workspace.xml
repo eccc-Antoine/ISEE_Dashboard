@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)">
+    <list default="true" id="8625f99d-6a50-4850-b13d-bc7e8500abd1" name="Changes" comment="warnings liees au PI 1D, Lake St.Lawrence et Preprojet">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" beforePathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_.py" afterPathEscaped="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/1_Timeseries_📈.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/2_Difference_⚖️.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/ISEE/pages/2_Difference_⚖️.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" beforeDir="false" afterPath="$PROJECT_DIR$/DASHBOARDS/prod/bidon.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_SHORE_PROT_STRUC_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_SHORE_PROT_STRUC_1D.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WASTE_WATER_2D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WATER_INTAKES_2D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" beforeDir="false" afterPath="$PROJECT_DIR$/GENERAL/CFG_PIS/CFG_WL_ISEE_2D.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/CFG_POST_PROCESS_ISEE.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS_duck_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/POST_PROCESSING/ISEE/src/ISEE_POSTPROCESS_duck_db.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -421,14 +417,6 @@
       <option name="presentableId" value="Default" />
       <updated>1717091129191</updated>
     </task>
-    <task id="LOCAL-00028" summary="'2Dmap functions_clean'">
-      <option name="closed" value="true" />
-      <created>1738790043097</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1738790043097</updated>
-    </task>
     <task id="LOCAL-00029" summary="'2Dmap functions_clean'">
       <option name="closed" value="true" />
       <created>1738857347655</created>
@@ -813,7 +801,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771448745309</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="warnings liees au PI 1D, Lake St.Lawrence et Preprojet">
+      <option name="closed" value="true" />
+      <created>1771520400459</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1771520400459</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -840,7 +836,8 @@
     <MESSAGE value="WL-1D" />
     <MESSAGE value="nouveau post-process et clarification niveaux" />
     <MESSAGE value="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)" />
-    <option name="LAST_COMMIT_MESSAGE" value="repartage des sections upstream et downstream (USL_DS est maintenent dans upstream)" />
+    <MESSAGE value="warnings liees au PI 1D, Lake St.Lawrence et Preprojet" />
+    <option name="LAST_COMMIT_MESSAGE" value="warnings liees au PI 1D, Lake St.Lawrence et Preprojet" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

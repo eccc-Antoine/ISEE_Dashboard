@@ -8,10 +8,10 @@
 log_name='WL_ISEE_2D_PLAN_SECTION_TILE'
 
 # PI Code for tiled PI : ['SAUV_2D', 'IERM_2D', 'CWRM_2D', 'IXEX_RPI_2D', 'CHNI_2D', 'ERIW_MIN_2D', 'PIKE_2D', 'WL_ISEE_2D']
-pis_2D_tiled=['PIKE_2D', 'WL_ISEE_2D'] # empty if no tiled PI
+pis_2D_tiled=[] # empty if no tiled PI
 
 # PI Code for PI not tiled : ['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D', 'WATER_INTAKES_2D']
-pis_2D_not_tiled=['WASTE_WATER_2D', 'AYL_2D', 'BIRDS_2D', 'MFI_2D', 'NFB_2D', 'ROADS_2D', 'WATER_INTAKES_2D'] # empty if no PI not tiled
+pis_2D_not_tiled=['WASTE_WATER_2D','WATER_INTAKES_2D'] # empty if no PI not tiled
 
 # PI Code for 1D PI : ['SHORE_PROT_STRUC_1D', 'ERIW_MIN_1D', 'ONZI_OCCUPANCY_1D', 'TURTLE_1D', 'WL_GLRRM_1D', 'WL_ISEE_1D', 'ZIPA_1D']
 pis_1D=[] # empty if no 1D PI
