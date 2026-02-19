@@ -542,6 +542,8 @@ class POST_PROCESS_1D:
         for subdir, _, files in os.walk(src_root):
             for file in files:
 
+                print(PI)
+
                 if PI not in file:
                     continue
 
@@ -550,6 +552,8 @@ class POST_PROCESS_1D:
                 if rel_path.endswith(".feather"):
                     rel_path = rel_path[:-8]
                 parquet_path = os.path.join(dst_root, rel_path) + ".parquet"
+
+                print(parquet_path)
 
                 os.makedirs(os.path.dirname(parquet_path), exist_ok=True)
 
@@ -619,6 +623,7 @@ class POST_PROCESS_1D:
 
             if not os.path.exists(dst_root):
                 print(f'parquet files for plan {p} don t exists, need to create it')
+                print(src_root, dst_root, PI)
                 self.convert_feather_to_parquet(src_root, dst_root, PI)
 
             # plus rapide si on cree la bd localement plutot que sur le NAS ou projet
